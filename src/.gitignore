@@ -1,0 +1,33 @@
+# OS / Editor junk
+*.log
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env.backup
+.env.production
+
+# IDE
+/.fleet
+/.idea
+/.nova
+/.phpunit.cache
+/.vscode
+/.zed
+
+# Composer / Node
+/vendor
+/node_modules
+/auth.json
+
+# Laravel build / cache
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/storage/pail
+
+# PHPUnit
+.phpactor.json
+.phpunit.result.cache

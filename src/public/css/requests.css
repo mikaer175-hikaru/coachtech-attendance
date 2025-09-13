@@ -1,0 +1,226 @@
+/* 申請一覧（一般ユーザー） */
+/* BEM＋セマンティック。IDと!importantは使わない */
+
+/* ベース */
+.request-list {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 32px 16px 64px;
+    line-height: 1.6;
+}
+
+.request-list__heading {
+    font-size: 24px;
+    font-weight: 800;
+    margin: 0 0 16px;
+}
+
+.request-list__tabs {
+    display: flex;
+    gap: 12px;
+    margin: 8px 0 20px;
+}
+
+.request-list__tab {
+    display: inline-block;
+    padding: 10px 16px;
+    border-radius: 999px;
+    background-color: #f5f5f7;
+    color: #333;
+    text-decoration: none;
+    font-weight: 700;
+    transition: opacity .2s ease;
+}
+
+.request-list__tab:hover {
+    opacity: .85;
+}
+
+.request-list__tab--active {
+    background-color: #2b6cb0;
+    color: #fff;
+}
+
+.request-list__section {
+    margin-top: 8px;
+}
+
+.request-list__section-title {
+    font-size: 18px;
+    font-weight: 800;
+    margin: 0 0 12px;
+}
+
+.request-card {
+    border: 1px solid #e6e6ea;
+    border-radius: 12px;
+    padding: 14px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px 16px;
+    margin-bottom: 12px;
+    background-color: #fff;
+}
+
+.request-card__meta {
+    grid-column: 1 / 2;
+}
+
+.request-card__date {
+    font-size: 13px;
+    color: #666;
+    margin: 0 0 4px;
+}
+
+.request-card__status {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.request-card__status--pending {
+    background-color: #fff7e6;
+    color: #b7791f;
+}
+
+.request-card__status--approved {
+    background-color: #e6fffa;
+    color: #2c7a7b;
+}
+
+.request-card__body {
+    grid-column: 1 / 2;
+}
+
+.request-card__type,
+.request-card__reason {
+    margin: 0 0 4px;
+    font-size: 14px;
+}
+
+.request-card__actions {
+    grid-column: 2 / 3;
+    align-self: start;
+}
+
+.request-card__link {
+    display: inline-block;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background-color: #edf2f7;
+    text-decoration: none;
+    color: #2d3748;
+    font-weight: 700;
+    transition: opacity .2s ease;
+}
+
+.request-card__link:hover {
+    opacity: .9;
+}
+
+.request-list__empty {
+    font-size: 14px;
+    color: #666;
+    padding: 16px 0;
+}
+
+.request-list__pager {
+    margin-top: 12px;
+}
+
+/* 申請詳細 */
+.request-detail {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 32px 16px 64px;
+}
+
+.request-detail__heading {
+    font-size: 24px;
+    font-weight: 800;
+    margin: 0 0 16px;
+}
+
+.request-detail__list {
+    border: 1px solid #e6e6ea;
+    border-radius: 12px;
+    padding: 12px;
+    background-color: #fff;
+}
+
+.request-detail__row {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 8px 16px;
+    padding: 10px 0;
+    border-bottom: 1px dashed #eee;
+}
+
+.request-detail__row:last-child {
+    border-bottom: none;
+}
+
+.request-detail__term {
+    font-weight: 700;
+    color: #333;
+}
+
+.request-detail__desc {
+    color: #333;
+}
+
+.request-detail__actions {
+    margin-top: 16px;
+}
+
+.request-detail__back {
+    display: inline-block;
+    padding: 8px 12px;
+    background-color: #edf2f7;
+    color: #2d3748;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 700;
+}
+
+/* --- レスポンシブ --- */
+/* タブレット：768-850px */
+@media (min-width: 768px) and (max-width: 850px) {
+    .request-list {
+        max-width: 820px;
+        padding: 28px 16px 56px;
+    }
+
+    .request-card {
+        grid-template-columns: 1fr auto;
+    }
+
+    .request-detail {
+        max-width: 720px;
+    }
+
+    .request-detail__row {
+        grid-template-columns: 140px 1fr;
+    }
+}
+
+/* PC：1400-1540px */
+@media (min-width: 1400px) and (max-width: 1540px) {
+    .request-list {
+        max-width: 1120px;
+    }
+
+    .request-card {
+        padding: 16px;
+    }
+
+    .request-detail {
+        max-width: 880px;
+    }
+
+    .request-detail__row {
+        grid-template-columns: 180px 1fr;
+    }
+}

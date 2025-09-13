@@ -1,0 +1,169 @@
+.staff-month {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 32px 16px 56px;
+}
+
+.staff-month__header {
+    margin-bottom: 16px;
+}
+
+.staff-month__title {
+    font-size: 22px;
+    font-weight: 800;
+    margin: 0 0 8px;
+}
+
+.staff-month__meta {
+    display: grid;
+    gap: 8px;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+}
+
+.staff-month__user {
+    font-size: 14px;
+    color: #333;
+}
+
+.staff-month__nav {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.staff-month__nav-btn {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 8px;
+    text-decoration: none;
+    background: #f2f2f3;
+    font-size: 14px;
+    line-height: 1;
+}
+
+.staff-month__month {
+    font-weight: 700;
+    padding: 0 4px;
+    min-width: 88px;
+    text-align: center;
+}
+
+.staff-month__csv {
+    display: inline-block;
+    padding: 8px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    background: #2d6cdf;
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.staff-month__table-wrapper {
+    margin-top: 12px;
+    overflow-x: auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+.staff-month__table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    min-width: 880px;
+}
+
+.staff-month__thead {
+    background: #f7f7f8;
+}
+
+.staff-month__th,
+.staff-month__td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+    font-size: 14px;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.staff-month__th:first-child,
+.staff-month__td:first-child {
+    border-top-left-radius: 12px;
+}
+
+.staff-month__th:last-child,
+.staff-month__td:last-child {
+    border-top-right-radius: 12px;
+}
+
+.staff-month__badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    background: #e9eaee;
+    color: #333;
+}
+
+.staff-month__badge--pending {
+    background: #fff2cc;
+}
+
+.staff-month__badge--approved {
+    background: #d7f5e8;
+}
+
+.staff-month__badge--rejected {
+    background: #ffe0e0;
+}
+
+.staff-month__detail {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 6px;
+    text-decoration: none;
+    background: #f0f1f5;
+}
+
+.staff-month__detail--disabled {
+    opacity: 0.4;
+}
+
+/* ========== レスポンシブ ========== */
+
+/* タブレット (768-850px) を含む中間帯 */
+@media (max-width: 850px) {
+    .staff-month {
+        padding: 24px 12px 40px;
+    }
+
+    .staff-month__meta {
+        grid-template-columns: 1fr;
+        gap: 6px;
+        align-items: start;
+    }
+
+    .staff-month__csv {
+        width: fit-content;
+        justify-self: start;
+    }
+
+    .staff-month__table {
+        font-size: 13px;
+    }
+
+    .staff-month__th,
+    .staff-month__td {
+        padding: 10px 12px;
+    }
+}
+
+/* PC (1400-1540px) を想定した微調整 */
+@media (min-width: 1400px) and (max-width: 1540px) {
+    .staff-month__table {
+        min-width: 980px;
+    }
+}

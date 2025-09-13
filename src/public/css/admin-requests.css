@@ -1,0 +1,191 @@
+/* =========================================
+   申請一覧（管理者）
+   ========================================= */
+
+/* ベースレイアウト */
+.request-list {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 48px 16px 80px;
+    color: #222;
+    background: transparent;
+    box-sizing: border-box;
+}
+
+.request-list__heading {
+    font-size: 24px;
+    font-weight: 800;
+    margin: 0 0 16px;
+}
+
+/* タブ（サーバーサイド切替リンク） */
+.request-list__tabs {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid #e6e6e6;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+}
+
+.request-list__tab {
+    display: inline-block;
+    padding: 10px 14px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 700;
+    color: #666;
+    background: #f7f7f7;
+    border: 1px solid #e6e6e6;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.request-list__tab:hover {
+    background: #f0f4ff;
+    color: #2b66c3;
+    border-color: #cfe0ff;
+}
+
+.request-list__tab--active {
+    color: #2b66c3;
+    background: #eef5ff;
+    border-color: #cfe0ff;
+    box-shadow: 0 0 0 2px rgba(43, 102, 195, 0.12) inset;
+}
+
+/* テーブルラッパー */
+.request-list__table-wrap {
+    overflow: auto;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    background: #fff;
+}
+
+/* テーブル */
+.request-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    min-width: 960px;
+    table-layout: auto;
+}
+
+.request-table__head {
+    background: #fafafa;
+}
+
+.request-table__row:nth-child(even) .request-table__cell {
+    background: #fcfcfc;
+}
+
+.request-table__cell {
+    padding: 12px 14px;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #222;
+    white-space: nowrap;
+}
+
+.request-table__cell--head {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    font-weight: 700;
+    color: #333;
+    background: #fafafa;
+}
+
+.request-table__cell--ellipsis {
+    max-width: 360px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 詳細リンク */
+.request-list__link {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid #2b66c3;
+    color: #2b66c3;
+    text-decoration: none;
+    font-weight: 700;
+    background: #fff;
+    transition: background 0.2s, transform 0.05s;
+}
+
+.request-list__link:hover {
+    background: #eaf2ff;
+}
+
+.request-list__link:active {
+    transform: translateY(1px);
+}
+
+.request-list__link--disabled {
+    pointer-events: none;
+    border-color: #ccc;
+    color: #aaa;
+    background: #f4f4f4;
+}
+
+/* ページネーション */
+.request-list__pagination {
+    margin-top: 16px;
+    text-align: right;
+}
+
+/* -----------------------------------------
+   レスポンシブ
+   ----------------------------------------- */
+
+/* PC (1400–1540px) */
+@media (min-width: 1400px) and (max-width: 1540px) {
+    .request-list {
+        max-width: 1280px;
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+
+    .request-list__heading {
+        font-size: 26px;
+    }
+}
+
+/* Tablet (768–850px) */
+@media (min-width: 768px) and (max-width: 850px) {
+    .request-list {
+        padding: 32px 12px 56px;
+    }
+
+    .request-list__heading {
+        font-size: 20px;
+        margin-bottom: 12px;
+    }
+
+    .request-list__tabs {
+        gap: 8px;
+    }
+
+    .request-list__tab {
+        padding: 8px 12px;
+        font-weight: 700;
+        border-radius: 8px;
+    }
+
+    .request-table {
+        min-width: 880px;
+    }
+
+    .request-table__cell {
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+
+    .request-table__cell--ellipsis {
+        max-width: 300px;
+    }
+}

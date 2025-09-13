@@ -1,0 +1,83 @@
+/* ===== 管理共通レイアウト / ヘッダー ===== */
+.admin-header {
+    background: #000;
+    color: #fff;
+}
+
+.admin-header__inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.admin-header__logo-img {
+    display: block;
+    height: 26px;
+}
+
+.admin-header__nav {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.admin-header__link {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.admin-header__link:hover {
+    opacity: 0.9;
+}
+
+.admin-header__logout-form {
+    margin: 0 0 0 8px;
+}
+
+.admin-header__logout-button {
+    border: 1px solid #fff;
+    background: transparent;
+    color: #fff;
+    padding: 8px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.admin-header__logout-button:hover {
+    opacity: 0.9;
+}
+
+/* コンテンツ余白 */
+.admin-main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px 16px 64px;
+}
+
+/* タブレット */
+@media (min-width: 768px) and (max-width: 850px) {
+    .admin-header__inner {
+        padding: 16px 20px;
+    }
+
+    .admin-header__logo-img {
+        height: 28px;
+    }
+}
+
+/* PC(1400-1540px) */
+@media (min-width: 1400px) and (max-width: 1540px) {
+    .admin-header__inner {
+        padding: 18px 24px;
+    }
+
+    .admin-header__logo-img {
+        height: 30px;
+    }
+}

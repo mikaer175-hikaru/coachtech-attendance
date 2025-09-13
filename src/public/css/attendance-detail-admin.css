@@ -1,0 +1,173 @@
+/* ===== レイアウト ===== */
+.detail {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 48px 16px 72px;
+    background: #f1f0f3;
+}
+
+.detail__header {
+    margin-bottom: 16px;
+}
+
+.detail__title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.detail__title-bar {
+    display: inline-block;
+    width: 6px;
+    height: 22px;
+    background: #111;
+    border-radius: 3px;
+}
+
+/* ===== フラッシュ ===== */
+.detail__flash {
+    margin: 12px 0 18px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.detail__flash--success {
+    background: #e8f7ec;
+    color: #246b3b;
+}
+
+.detail__flash--error {
+    background: #fde8e8;
+    color: #a21d1d;
+}
+
+/* ===== カード（表風） ===== */
+.detail__card {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+}
+
+.detail__row {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    align-items: center;
+    min-height: 72px;
+    border-top: 1px solid #eee;
+}
+
+.detail__row:first-child {
+    border-top: none;
+}
+
+.detail__th {
+    padding: 18px 20px;
+    background: #fff;
+    font-weight: 700;
+}
+
+.detail__td {
+    padding: 16px 20px;
+    background: #fff;
+}
+
+.detail__td--center {
+    text-align: center;
+}
+
+.detail__td--split {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.detail__date-y,
+.detail__date-md {
+    font-weight: 700;
+}
+
+/* 範囲（時刻〜時刻） */
+.detail__td--range {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.detail__time {
+    width: 140px;
+    height: 40px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 0 10px;
+    font-size: 14px;
+    background: #f9f9f9;
+}
+
+.detail__tilde {
+    font-weight: 700;
+    color: #444;
+}
+
+/* テキストエリア */
+.detail__textarea {
+    width: 100%;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 14px;
+    background: #f9f9f9;
+    resize: vertical;
+}
+
+/* アクション（右下ボタン） */
+.detail__actions {
+    display: flex;
+    justify-content: flex-end;
+    padding: 24px 20px;
+    background: #fff;
+    border-top: 1px solid #eee;
+}
+
+.detail__button {
+    border: none;
+    border-radius: 10px;
+    padding: 12px 28px;
+    font-size: 14px;
+    font-weight: 800;
+    background: #111;
+    color: #fff;
+    cursor: pointer;
+}
+
+/* ===== レスポンシブ ===== */
+/* タブレット（768–850px） */
+@media (min-width: 768px) and (max-width: 850px) {
+    .detail {
+        max-width: 760px;
+        padding: 36px 14px 64px;
+    }
+
+    .detail__row {
+        grid-template-columns: 190px 1fr;
+    }
+
+    .detail__time {
+        width: 130px;
+    }
+}
+
+/* PC（1400–1540px） */
+@media (min-width: 1400px) and (max-width: 1540px) {
+    .detail {
+        max-width: 1120px;
+    }
+
+    .detail__title {
+        font-size: 24px;
+    }
+}
