@@ -1,12 +1,24 @@
-FROM php:8.2-fpm
+FROM php:8.3-fpm
 
-# 必要なパッケージインストール
-RUN apt-get update && apt-get install -y \
-    zip unzip git curl libzip-dev libonig-dev libpq-dev \
-    && docker-php-ext-install pdo_mysql mbstring zip
+ARG DEBIAN_FRONTEND=noninteractive
 
-# Composer インストール
-RUN curl -sS https://getcomposer.org/installer | php \
-    && mv composer.phar /usr/local/bin/composer
+# 必要パッケージ：mbstring用 oniguruma (libonig-dev) / zip用 libzip-dev + zlib1g-dev / ビルドに pkg-config
+RUN set -eux; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends \
+    git curl zip unzip \
+    pkg-config \
+    libonig-dev \
+    libzip-dev zlib1g-dev; \
+    docker-php-ext-install -j"$(nproc)" pdo_mysql mbstring zip; \
+    rm -rf /var/lib/apt/lists/*
+
+# Composerは公式からコピーが安定
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+# 念のため www-data を保証（環境差対策）
+RUN set -eux; \
+    getent group www-data || groupadd -g 33 -r www-data; \
+    id -u www-data >/dev/null 2>&1 || useradd -u 33 -r -g www-data -s /usr/sbin/nologin www-data
 
 WORKDIR /var/www

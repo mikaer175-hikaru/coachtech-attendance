@@ -26,6 +26,9 @@ class RegisterController extends Controller
 
         event(new Registered($user));
 
-        return redirect()->route('login')->with('status', '登録が完了しました。メールを確認してください。');
+        // 自動ログインする（打刻画面に行けるように）
+        auth()->login($user);
+
+        return redirect()->route('attendance.create'); // ← ここが打刻画面
     }
 }
