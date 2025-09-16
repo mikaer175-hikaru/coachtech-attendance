@@ -147,4 +147,25 @@ class AttendanceController extends Controller
 
         return view('attendance.show', compact('attendance', 'breakRows'));
     }
+
+    public function index(Request $request)
+    {
+        $user = Auth::user();
+        $targetMonth = $request->input('month', now()->format('Y-m'));
+        $carbon = Carbon::createFromFormat('Y-m', $targetMonth);
+
+        // 勤怠情報取得（指定月の全日分）
+        $attendances = Attendance::where('user_id', $user->id)
+            ->whereYear('work_date', $carbon->year)
+            ->whereMonth('work_date', $carbon->month)
+            ->orderBy('work_date', 'asc')
+            ->get();
+
+        return view('attendance.list', [
+            'attendances' => $attendances,
+            'currentMonth' => $carbon->format('Y年m月'),
+            'prevMonth' => $carbon->copy()->subMonth()->format('Y-m'),
+            'nextMonth' => $carbon->copy()->addMonth()->format('Y-m'),
+        ]);
+    }
 }
