@@ -14,21 +14,27 @@ class Attendance extends Model
         'work_date',
         'start_time',
         'end_time',
-        'break_start_time',
-        'break_end_time',
     ];
 
     protected $casts = [
-        'start_time' => 'datetime',
-        'end_time' => 'datetime',
-        'break_start_time' => 'datetime',
-        'break_end_time' => 'datetime',
-        'work_date' => 'date',
+        'work_date'      => 'date',
+        'start_time'     => 'datetime',
+        'end_time'       => 'datetime',
     ];
 
-    // ユーザーとのリレーション（任意）
+    /**
+     * ユーザーとのリレーション（必要に応じて）
+     */
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * 休憩履歴（1対多）
+     */
+    public function breakTimes()
+    {
+        return $this->hasMany(BreakTime::class);
     }
 }
