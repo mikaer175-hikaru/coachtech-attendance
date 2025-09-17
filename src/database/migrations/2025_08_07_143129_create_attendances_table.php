@@ -9,13 +9,13 @@ return new class extends Migration {
     {
         Schema::create('attendances', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // ユーザーと紐づけ
-            $table->date('work_date');                     // 勤務日
-            $table->dateTime('start_time')->nullable();    // 出勤時刻
-            $table->dateTime('end_time')->nullable();      // 退勤時刻
-            $table->dateTime('break_start_time')->nullable(); // 休憩開始
-            $table->dateTime('break_end_time')->nullable();   // 休憩終了
-            $table->timestamps();                          // created_at, updated_at
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->date('work_date');
+            $table->dateTime('start_time')->nullable();
+            $table->dateTime('end_time')->nullable();
+            $table->string('status')->default('off'); // 勤務外/出勤中/休憩中/退勤済
+            $table->text('note')->nullable();         // 備考（修正申請で必須）
+            $table->timestamps();
         });
     }
 
