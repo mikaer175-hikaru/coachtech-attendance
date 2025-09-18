@@ -14,9 +14,7 @@ use Carbon\Carbon;
 
 class AttendanceController extends Controller
 {
-    /**
-     * 勤怠登録画面の表示
-     */
+    // 勤怠登録画面の表示
     public function create()
     {
         $user = Auth::user();
@@ -45,9 +43,7 @@ class AttendanceController extends Controller
         return view('attendance.create', compact('attendance', 'status', 'date', 'time'));
     }
 
-    /**
-     * 出勤処理
-     */
+    // 出勤処理
     public function startWork(StartWorkRequest $request)
     {
         $user = Auth::user();
@@ -61,9 +57,7 @@ class AttendanceController extends Controller
         return redirect()->route('attendance.create')->with('success', '出勤時刻を記録しました。');
     }
 
-    /**
-     * 退勤処理
-     */
+    // 退勤処理
     public function endWork(EndWorkRequest $request)
     {
         $user = Auth::user();
@@ -79,9 +73,7 @@ class AttendanceController extends Controller
         return redirect()->route('attendance.create')->with('success', '退勤時刻を記録しました。');
     }
 
-    /**
-     * 休憩開始処理（複数対応）
-     */
+    // 休憩開始処理（複数対応）
     public function startBreak(StartBreakRequest $request)
     {
         $user = Auth::user();
@@ -99,9 +91,7 @@ class AttendanceController extends Controller
         return redirect()->route('attendance.create')->with('success', '休憩開始を記録しました。');
     }
 
-    /**
-     * 休憩終了処理（複数対応）
-     */
+    // 休憩終了処理（複数対応）
     public function endBreak(EndBreakRequest $request)
     {
         $user = Auth::user();
@@ -122,9 +112,7 @@ class AttendanceController extends Controller
         return redirect()->route('attendance.create')->with('success', '休憩終了を記録しました。');
     }
 
-    /**
-     * 勤怠詳細
-     */
+    // 勤怠詳細
     public function show($id)
     {
         $user = Auth::user();
@@ -167,5 +155,44 @@ class AttendanceController extends Controller
             'prevMonth' => $carbon->copy()->subMonth()->format('Y-m'),
             'nextMonth' => $carbon->copy()->addMonth()->format('Y-m'),
         ]);
+    }
+
+    // 修正申請の保存
+    public function storeCorrection(CorrectionRequest $request, Attendance $attendance)
+    {
+        abort_if($attendance->user_id !== Auth::id(), 403);
+
+        // "HH:mm" → 当日の DateTime に変換
+        $toDateTime = function (?string $hm) use ($attendance) {
+            if (!$hm) return null;
+            [$h,$m] = explode(':', $hm);
+            return $attendance->work_date->copy()->setTime((int)$h, (int)$m);
+        };
+
+        AttendanceCorrectRequest::create([
+            'attendance_id'  => $attendance->id,
+            'user_id'        => Auth::id(),
+            'new_start_time' => $toDateTime($request->input('start_time')),
+            'new_end_time'   => $toDateTime($request->input('end_time')),
+            'new_breaks'     => $request->input('breaks', []), // casts=array
+            'note'           => $request->string('note'),
+            'status'         => 'pending',
+        ]);
+
+        // 対象勤怠を承認待ちへ
+        $attendance->update(['status' => 'pending']);
+
+        return back()->with('success', '修正申請を送信しました。承認待ちです。');
+    }
+
+    // （任意）申請一覧を同居させる場合
+    public function requestIndex()
+    {
+        $requests = AttendanceCorrectRequest::with(['attendance','attendance.user'])
+            ->where('user_id', Auth::id())
+            ->orderByDesc('id')
+            ->paginate(10);
+
+        return view('stamp_requests.index', compact('requests'));
     }
 }

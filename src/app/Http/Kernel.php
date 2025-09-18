@@ -39,5 +39,6 @@ class Kernel extends HttpKernel
         'auth' => \App\Http\Middleware\Authenticate::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'first.login' => \App\Http\Middleware\RedirectIfFirstLogin::class,
+        'ensure.admin' => \App\Http\Middleware\EnsureAdmin::class,
     ];
 }
