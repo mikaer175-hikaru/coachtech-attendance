@@ -57,32 +57,27 @@ class Attendance extends Model
 
     // ===== クエリスコープ =====
 
-    // 自分の勤怠のみ
-    public function scopeMine(Builder $query, int $userId): Builder
+    // 指定年月
+    public function scopeOfMonth(Builder $q, int $year, int $month): Builder
     {
-        return $query->where('user_id', $userId);
+        return $q->whereYear('work_date', $year)->whereMonth('work_date', $month);
     }
 
     // 指定日
-    public function scopeOfDate(Builder $query, Carbon|string $date): Builder
-    {
-        $d = $date instanceof Carbon ? $date->toDateString() : (string) $date;
-        return $query->whereDate('work_date', $d);
-    }
-
-    // 指定年月
     public function scopeOnDate(Builder $q, Carbon|string $date): Builder
     {
         $d = $date instanceof Carbon ? $date->toDateString() : (string) $date;
         return $q->whereDate('work_date', $d);
     }
 
+    // 期間
     public function scopeBetweenDates(Builder $q, Carbon|string $from, Carbon|string $to): Builder
     {
         $f = $from instanceof Carbon ? $from->toDateString() : (string) $from;
         $t = $to   instanceof Carbon ? $to->toDateString()   : (string) $to;
         return $q->whereDate('work_date', '>=', $f)->whereDate('work_date', '<=', $t);
     }
+
     // ===== 表示用アクセサ =====
 
     // ステータスの日本語ラベル
