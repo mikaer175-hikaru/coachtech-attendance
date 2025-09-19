@@ -71,11 +71,18 @@ class Attendance extends Model
     }
 
     // 指定年月
-    public function scopeOfMonth(Builder $query, int $year, int $month): Builder
+    public function scopeOnDate(Builder $q, Carbon|string $date): Builder
     {
-        return $query->whereYear('work_date', $year)->whereMonth('work_date', $month);
+        $d = $date instanceof Carbon ? $date->toDateString() : (string) $date;
+        return $q->whereDate('work_date', $d);
     }
 
+    public function scopeBetweenDates(Builder $q, Carbon|string $from, Carbon|string $to): Builder
+    {
+        $f = $from instanceof Carbon ? $from->toDateString() : (string) $from;
+        $t = $to   instanceof Carbon ? $to->toDateString()   : (string) $to;
+        return $q->whereDate('work_date', '>=', $f)->whereDate('work_date', '<=', $t);
+    }
     // ===== 表示用アクセサ =====
 
     // ステータスの日本語ラベル
@@ -93,28 +100,21 @@ class Attendance extends Model
     // 休憩合計（分）
     public function getTotalBreakMinutesAttribute(): int
     {
-        // 将来の hasMany(breaks) が使える場合はそちらを優先
-        if ($this->relationLoaded('breaks') || method_exists($this, 'breaks')) {
-            $collection = $this->getRelationValue('breaks');
-            if ($collection && $collection->count() > 0) {
-                return (int) $collection->sum(function ($b) {
-                    if (!$b->break_start || !$b->break_end) {
-                        return 0;
-                    }
-                    /** @var Carbon $start */
-                    $start = $b->break_start instanceof Carbon ? $b->break_start : Carbon::parse($b->break_start);
-                    /** @var Carbon $end */
-                    $end   = $b->break_end   instanceof Carbon ? $b->break_end   : Carbon::parse($b->break_end);
-                    return max(0, $start->diffInMinutes($end));
-                });
-            }
+        // hasMany の集計
+        $breaks = $this->relationLoaded('breaks') ? $this->breaks : $this->getRelationValue('breaks');
+        if ($breaks && $breaks->count() > 0) {
+            return (int) $breaks->sum(function ($b) {
+                if (!$b->break_start || !$b->break_end) return 0;
+                $start = $b->break_start instanceof Carbon ? $b->break_start : Carbon::parse($b->break_start);
+                $end   = $b->break_end   instanceof Carbon ? $b->break_end   : Carbon::parse($b->break_end);
+                return max(0, $start->diffInMinutes($end));
+            });
         }
 
-        // 単一休憩カラム（現行スキーマ）
+        // 単一休憩カラム（移行中サポート）
         if ($this->break_start_time && $this->break_end_time) {
             return max(0, $this->break_start_time->diffInMinutes($this->break_end_time));
         }
-
         return 0;
     }
 
@@ -134,5 +134,18 @@ class Attendance extends Model
         $m = $this->worked_minutes;
         return sprintf('%d:%02d', intdiv($m, 60), $m % 60);
     }
-}
 
+    public function getStartHmAttribute(): string {
+        return $this->start_time instanceof Carbon ? $this->start_time->format('H:i') : '';
+    }
+    public function getEndHmAttribute(): string {
+        return $this->end_time instanceof Carbon ? $this->end_time->format('H:i') : '';
+    }
+    public function getBreakHmAttribute(): string {
+        $m = $this->total_break_minutes;
+        return $m > 0 ? sprintf('%d:%02d', intdiv($m, 60), $m % 60) : '';
+    }
+    public function getBreakMinutesAttribute(): int {
+        return $this->total_break_minutes; // 後方互換
+    }
+}
