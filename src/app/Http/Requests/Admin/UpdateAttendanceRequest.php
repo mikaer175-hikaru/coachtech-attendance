@@ -59,6 +59,16 @@ class UpdateAttendanceRequest extends FormRequest
         });
     }
 
+    private function timeOrNull(?string $key): ?Carbon
+    {
+        $val = $this->input($key);
+        if (!$val) {
+            return null;
+        }
+        // 当日の時刻として解釈（比較用）
+        return Carbon::createFromFormat('H:i', $val);
+    }
+
     private function t(string $key): ?Carbon
     {
         $v = $this->input($key);
