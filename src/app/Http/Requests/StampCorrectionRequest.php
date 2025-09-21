@@ -1,52 +1,41 @@
 <?php
 
-namespace App\Models;
+namespace App\Http\Requests;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
-class StampCorrectionRequest extends Model
+class StoreStampCorrectionRequest extends FormRequest
 {
-    public const STATUS_PENDING  = 'pending';
-    public const STATUS_APPROVED = 'approved';
-    public const STATUS_REJECTED = 'rejected';
-
-    protected $fillable = [
-        'user_id',
-        'attendance_id',
-        'type',
-        'status',
-        'reason',
-        'approved_by',
-        'approved_at',
-    ];
-
-    // リレーション例（必要に応じて調整）
-    public function attendance()
+    public function authorize(): bool
     {
-        return $this->belongsTo(Attendance::class);
+        return true;
     }
 
-    public function approver()
+    public function rules(): array
     {
-        return $this->belongsTo(User::class, 'approved_by');
+        return [
+            'reason'        => ['required', 'string', 'max:200'],
+            'type'          => ['required', 'string', Rule::in(['start','end','break'])],
+            'attendance_id' => [
+                'required',
+                'integer',
+                Rule::exists('attendances', 'id')
+                    // 自分の勤怠に対する申請だけ許可する場合
+                    ->where(fn ($q) => $q->where('user_id', $this->user()->id)),
+            ],
+        ];
     }
 
-    /** 自分の申請だけ */
-    public function scopeOwnedBy(Builder $query, int $userId): Builder
+    public function messages(): array
     {
-        return $query->where('user_id', $userId);
-    }
-
-    /** 承認待ち */
-    public function scopePending(Builder $query): Builder
-    {
-        return $query->where('status', self::STATUS_PENDING);
-    }
-
-    /** 承認済み */
-    public function scopeApproved(Builder $query): Builder
-    {
-        return $query->where('status', self::STATUS_APPROVED);
+        return [
+            'reason.required'        => '修正理由を入力してください。',
+            'reason.max'             => '修正理由は200文字以内で入力してください。',
+            'type.required'          => '申請種別を選択してください。',
+            'type.in'                => '申請種別が不正です。',
+            'attendance_id.required' => '対象の勤怠が不正です。',
+            'attendance_id.exists'   => '対象の勤怠が見つからないか、権限がありません。',
+        ];
     }
 }

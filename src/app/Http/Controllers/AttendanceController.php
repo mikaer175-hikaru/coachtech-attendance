@@ -2,45 +2,38 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\UpdateAttendanceRequest;
 use App\Models\Attendance;
 use App\Models\BreakTime;
-use App\Http\Requests\EndWorkRequest;
-use App\Http\Requests\StartWorkRequest;
-use App\Http\Requests\StartBreakRequest;
-use App\Http\Requests\EndBreakRequest;
+use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
+use App\Http\Requests\Attendance\StartWorkRequest;
+use App\Http\Requests\Attendance\EndWorkRequest;
+use App\Http\Requests\Attendance\StartBreakRequest;
+use App\Http\Requests\Attendance\EndBreakRequest;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AttendanceController extends Controller
 {
-    // 勤怠登録画面の表示
-    public function create()
+    public function show(Attendance $attendance)
     {
-        $user = Auth::user();
-        $today = Carbon::today()->toDateString();
+        $user = auth()->user();
 
-        $attendance = Attendance::where('user_id', $user->id)
-            ->whereDate('work_date', $today)
-            ->first();
-
-        $status = '勤務外';
-
-        if ($attendance) {
-            if ($attendance->end_time) {
-                $status = '退勤済';
-            } elseif ($attendance->break_start_time && !$attendance->break_end_time) {
-                $status = '休憩中';
-            } elseif ($attendance->start_time) {
-                $status = '出勤中';
-            }
+        if ($user && $user->can('admin')) {
+            $attendance->load(['user:id,name', 'breaks']);
+            return view('admin.attendances.show', compact('attendance'));
         }
 
-        $now = Carbon::now();
-        $date = $now->format('Y年n月j日(D)');
-        $time = $now->format('H:i');
+        if (!$user || $attendance->user_id !== $user->id) {
+            abort(403);
+        }
 
-        return view('attendance.create', compact('attendance', 'status', 'date', 'time'));
+        $attendance->load(['breaks']);
+        return view('attendances.show', compact('attendance'));
     }
 
     // 出勤処理
@@ -112,87 +105,94 @@ class AttendanceController extends Controller
         return redirect()->route('attendance.create')->with('success', '休憩終了を記録しました。');
     }
 
-    // 勤怠詳細
-    public function show($id)
+    public function update(UpdateAttendanceRequest $request, Attendance $attendance)
     {
-        $user = Auth::user();
+        $v = $request->validated();
 
-        $attendance = Attendance::with('breakTimes')
-            ->where('id', $id)
-            ->where('user_id', $user->id)
-            ->firstOrFail();
+        $attendance->start_time       = $v['start_time']       ?? null;
+        $attendance->end_time         = $v['end_time']         ?? null;
+        $attendance->break_start_time = $v['break_start_time'] ?? null;
+        $attendance->break_end_time   = $v['break_end_time']   ?? null;
+        $attendance->note             = $v['note'];
+        $attendance->save();
 
-        // 休憩データを breakRows 配列に整形（HH:MM 形式）
-        $breakRows = $attendance->breakTimes
-            ->map(fn ($break) => [
-                'start' => $break->start_time?->format('H:i'),
-                'end'   => $break->end_time?->format('H:i'),
-            ])
-            ->toArray();
+        $month = $attendance->work_date
+            ? Carbon::parse($attendance->work_date)->format('Y-m')
+            : now()->format('Y-m');
 
-        // 空行を1行追加（新規入力用）
-        $breakRows[] = ['start' => '', 'end' => ''];
-
-        return view('attendance.show', compact('attendance', 'breakRows'));
+        return redirect()->route('admin.attendance.staff.monthly', [
+            'user'  => $attendance->user_id,
+            'month' => $month,
+        ])->with('success', '勤怠を修正しました。');
     }
 
-    public function index(Request $request)
+    // 日別一覧（管理者）
+    public function indexDaily(Request $request)
     {
-        $user = Auth::user();
-        $targetMonth = $request->input('month', now()->format('Y-m'));
-        $carbon = Carbon::createFromFormat('Y-m', $targetMonth);
+        $request->validate(['date' => ['nullable', 'date']]);
 
-        // 勤怠情報取得（指定月の全日分）
+        $target = $request->filled('date')
+            ? Carbon::parse($request->date)->startOfDay()
+            : now()->startOfDay();
+
+        $attendances = Attendance::with(['user:id,name'])
+            ->whereDate('work_date', $target->toDateString())   // ※カラム名を統一
+            ->orderBy('user_id')
+            ->paginate(20)
+            ->withQueryString();
+
+        return view('admin.attendances.index', [
+            'attendances' => $attendances,
+            'targetDate'  => $target->toDateString(),
+            'titleDate'   => $target->format('Y年n月j日'),
+            'prevDate'    => $target->copy()->subDay()->toDateString(),
+            'nextDate'    => $target->copy()->addDay()->toDateString(),
+        ]);
+    }
+
+    // 月次勤怠一覧（管理者）
+    public function indexMonthly(Request $request, User $user)
+    {
+        $month = $request->query('month', now()->format('Y-m'));
+        $start = Carbon::parse("{$month}-01")->startOfMonth();
+        $end   = (clone $start)->endOfMonth();
+
         $attendances = Attendance::where('user_id', $user->id)
-            ->whereYear('work_date', $carbon->year)
-            ->whereMonth('work_date', $carbon->month)
-            ->orderBy('work_date', 'asc')
+            ->whereBetween('work_date', [$start->toDateString(), $end->toDateString()])
+            ->orderBy('work_date')
             ->get();
 
-        return view('attendance.list', [
-            'attendances' => $attendances,
-            'currentMonth' => $carbon->format('Y年m月'),
-            'prevMonth' => $carbon->copy()->subMonth()->format('Y-m'),
-            'nextMonth' => $carbon->copy()->addMonth()->format('Y-m'),
-        ]);
+        return view('admin.attendances.index-monthly', compact('user', 'month', 'attendances'));
     }
 
-    // 修正申請の保存
-    public function storeCorrection(CorrectionRequest $request, Attendance $attendance)
+    // CSV
+    public function exportMonthlyCsv(Request $request, User $user): StreamedResponse
     {
-        abort_if($attendance->user_id !== Auth::id(), 403);
+        $month = $request->query('month', now()->format('Y-m'));
+        $start = Carbon::parse("{$month}-01")->startOfMonth();
+        $end   = (clone $start)->endOfMonth();
 
-        // "HH:mm" → 当日の DateTime に変換
-        $toDateTime = function (?string $hm) use ($attendance) {
-            if (!$hm) return null;
-            [$h,$m] = explode(':', $hm);
-            return $attendance->work_date->copy()->setTime((int)$h, (int)$m);
-        };
+        $rows = Attendance::where('user_id', $user->id)
+            ->whereBetween('work_date', [$start->toDateString(), $end->toDateString()])
+            ->orderBy('work_date')
+            ->get(['work_date', 'start_time', 'end_time', 'break_start_time', 'break_end_time', 'note']);
 
-        AttendanceCorrectRequest::create([
-            'attendance_id'  => $attendance->id,
-            'user_id'        => Auth::id(),
-            'new_start_time' => $toDateTime($request->input('start_time')),
-            'new_end_time'   => $toDateTime($request->input('end_time')),
-            'new_breaks'     => $request->input('breaks', []), // casts=array
-            'note'           => $request->string('note'),
-            'status'         => 'pending',
-        ]);
+        $filename = "attendance_{$user->id}_{$month}.csv";
 
-        // 対象勤怠を承認待ちへ
-        $attendance->update(['status' => 'pending']);
-
-        return back()->with('success', '修正申請を送信しました。承認待ちです。');
-    }
-
-    // （任意）申請一覧を同居させる場合
-    public function requestIndex()
-    {
-        $requests = AttendanceCorrectRequest::with(['attendance','attendance.user'])
-            ->where('user_id', Auth::id())
-            ->orderByDesc('id')
-            ->paginate(10);
-
-        return view('stamp_requests.index', compact('requests'));
+        return response()->streamDownload(function () use ($rows) {
+            $out = fopen('php://output', 'w');
+            fputcsv($out, ['日付', '出勤', '退勤', '休憩開始', '休憩終了', '備考']);
+            foreach ($rows as $r) {
+                fputcsv($out, [
+                    $r->work_date,
+                    $r->start_time,
+                    $r->end_time,
+                    $r->break_start_time,
+                    $r->break_end_time,
+                    $r->note,
+                ]);
+            }
+            fclose($out);
+        }, $filename, ['Content-Type' => 'text/csv']);
     }
 }
