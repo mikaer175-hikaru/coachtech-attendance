@@ -8,34 +8,28 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (!Schema::hasTable('users')) {
+            return;
+        }
+
         Schema::table('users', function (Blueprint $table) {
             if (!Schema::hasColumn('users', 'two_factor_secret')) {
-                $table->text('two_factor_secret')
-                    ->nullable()
-                    ->after('password');
+                $table->text('two_factor_secret')->nullable();
             }
             if (!Schema::hasColumn('users', 'two_factor_recovery_codes')) {
-                $table->text('two_factor_recovery_codes')
-                    ->nullable()
-                    ->after('two_factor_secret');
+                $table->text('two_factor_recovery_codes')->nullable();
             }
             if (!Schema::hasColumn('users', 'two_factor_confirmed_at')) {
-                $table->timestamp('two_factor_confirmed_at')
-                    ->nullable()
-                    ->after('two_factor_recovery_codes');
+                $table->timestamp('two_factor_confirmed_at')->nullable();
             }
-
-            // 初回ログインフラグ
             if (!Schema::hasColumn('users', 'is_first_login')) {
-                $table->boolean('is_first_login')
-                    ->default(true)
-                    ->after('two_factor_confirmed_at');
+                $table->boolean('is_first_login')->default(true);
+            }
+            if (!Schema::hasColumn('users', 'is_admin')) {
+                $table->boolean('is_admin')->default(false);
             }
 
-            // 管理者フラグ（管理者ログイン実装用）
-            if (!Schema::hasColumn('users', 'is_admin')) {
-                $table->boolean('is_admin')->default(false)->after('is_first_login');
-            }
+            // index名を固定する場合はこのままでOK（存在時はtry/catchで回避）
             try { $table->index('is_admin', 'idx_users_is_admin'); } catch (\Throwable $e) {}
             try { $table->index('is_first_login', 'idx_users_is_first_login'); } catch (\Throwable $e) {}
         });
@@ -43,9 +37,15 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $drops = [];
+        if (!Schema::hasTable('users')) {
+            return;
+        }
 
+        Schema::table('users', function (Blueprint $table) {
+            try { $table->dropIndex('idx_users_is_admin'); } catch (\Throwable $e) {}
+            try { $table->dropIndex('idx_users_is_first_login'); } catch (\Throwable $e) {}
+
+            $drops = [];
             foreach ([
                 'two_factor_secret',
                 'two_factor_recovery_codes',
@@ -57,11 +57,7 @@ return new class extends Migration
                     $drops[] = $col;
                 }
             }
-
-            try { $table->dropIndex('idx_users_is_admin'); } catch (\Throwable $e) {}
-            try { $table->dropIndex('idx_users_is_first_login'); } catch (\Throwable $e) {}
-
-            if (!empty($drops)) {
+            if ($drops) {
                 $table->dropColumn($drops);
             }
         });

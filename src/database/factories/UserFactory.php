@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -11,6 +12,11 @@ use Illuminate\Support\Str;
  */
 class UserFactory extends Factory
 {
+    /**
+     * このファクトリが対象とするモデル
+     */
+    protected $model = User::class;
+
     /**
      * The current password being used by the factory.
      */
@@ -34,9 +40,6 @@ class UserFactory extends Factory
         ];
     }
 
-    /**
-     * Indicate that the model's email address should be unverified.
-     */
     public function unverified(): static
     {
         return $this->state(fn (array $attributes) => [
@@ -44,23 +47,19 @@ class UserFactory extends Factory
         ]);
     }
 
-    /**
-     * 管理者ユーザー
-     */
+    /** 管理者ユーザー */
     public function admin(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn () => [
             'is_admin'       => true,
             'is_first_login' => false,
         ]);
     }
 
-    /**
-     * 一般ユーザー
-     */
+    /** 一般ユーザー */
     public function general(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn () => [
             'is_admin'       => false,
             'is_first_login' => true,
         ]);
