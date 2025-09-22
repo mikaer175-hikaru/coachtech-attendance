@@ -1,4 +1,3 @@
-// app/Http/Middleware/EnsureAdmin.php
 <?php
 
 namespace App\Http\Middleware;

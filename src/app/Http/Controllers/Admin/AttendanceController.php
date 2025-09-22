@@ -29,7 +29,7 @@ class AttendanceController extends Controller
             ->paginate(20)
             ->withQueryString();
 
-        return view('admin.attendances.index', [
+        return view('admin.attendance.index', [
             'attendances' => $attendances,
             'targetDate'  => $target->toDateString(),
             'titleDate'   => $target->format('Y年n月j日'),
