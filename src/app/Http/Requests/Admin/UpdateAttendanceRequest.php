@@ -3,7 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Validator;
+use Illuminate\Contracts\Validation\Validator; // ← ここをContractsに
 use Carbon\Carbon;
 
 class UpdateAttendanceRequest extends FormRequest
@@ -20,7 +20,7 @@ class UpdateAttendanceRequest extends FormRequest
             'end_time'         => ['nullable', 'date_format:H:i', 'after_or_equal:start_time'],
             'break_start_time' => ['nullable', 'date_format:H:i'],
             'break_end_time'   => ['nullable', 'date_format:H:i', 'after_or_equal:break_start_time'],
-            'note'             => ['nullable', 'string', 'max:200'],
+            'note'             => ['required', 'string', 'max:200'], // ← required に
         ];
     }
 
@@ -33,6 +33,7 @@ class UpdateAttendanceRequest extends FormRequest
             'break_start_time.date_format'  => '休憩開始は「HH:MM」形式で入力してください',
             'break_end_time.date_format'    => '休憩終了は「HH:MM」形式で入力してください',
             'break_end_time.after_or_equal' => '休憩終了は休憩開始以降の時刻にしてください',
+            'note.required'                 => '備考を記入してください', // ← 追加
             'note.max'                      => '備考は200文字以内で入力してください',
         ];
     }
@@ -57,16 +58,6 @@ class UpdateAttendanceRequest extends FormRequest
                 $v->errors()->add('break_end_time', '休憩時間もしくは退勤時間が不適切な値です');
             }
         });
-    }
-
-    private function timeOrNull(?string $key): ?Carbon
-    {
-        $val = $this->input($key);
-        if (!$val) {
-            return null;
-        }
-        // 当日の時刻として解釈（比較用）
-        return Carbon::createFromFormat('H:i', $val);
     }
 
     private function t(string $key): ?Carbon
