@@ -20,12 +20,14 @@ final class AdminAttendanceDetailValidationTest extends TestCase
 
         $attendance = Attendance::factory()->create();
 
-        $res = $this->from("/attendance/{$attendance->id}")
-            ->put("/attendance/{$attendance->id}", [
-                'start_time' => '19:00',
-                'end_time'   => '09:00',
-                'note'       => 'メモ',
-            ]);
+        $showUrl   = route('admin.attendance.show', $attendance);
+        $updateUrl = route('admin.attendance.update', $attendance);
+
+        $res = $this->from($showUrl)->patch($updateUrl, [
+            'start_time' => '19:00',
+            'end_time'   => '09:00',
+            'note'       => 'メモ',
+        ]);
 
         $res->assertSessionHasErrors();
         $this->assertStringContainsString(
@@ -37,7 +39,29 @@ final class AdminAttendanceDetailValidationTest extends TestCase
     #[Test]
     public function 休憩時間が退勤より後で_バリデーションメッセージ(): void
     {
-        $this->markTestSkipped('休憩カラム確定後に追加（「休憩時間が不適切な値です」想定）');
+        $admin = $this->createAdmin();
+        $this->actingAs($admin);
+
+        $attendance = Attendance::factory()->create([
+            'start_time' => '09:00',
+            'end_time'   => '10:00',
+        ]);
+
+        $showUrl   = route('admin.attendance.show',   $attendance);
+        $updateUrl = route('admin.attendance.update', $attendance);
+
+        $res = $this->from($showUrl)->patch($updateUrl, [
+            'start_time'       => '09:00',
+            'end_time'         => '10:00',
+            'break_end_time'   => '11:00',
+            'note'             => 'メモ',
+        ]);
+
+        $res->assertSessionHasErrors(['break_end_time']);
+        $this->assertSame(
+            '休憩時間もしくは退勤時間が不適切な値です',
+            session('errors')->first('break_end_time')
+        );
     }
 
     #[Test]
@@ -51,14 +75,16 @@ final class AdminAttendanceDetailValidationTest extends TestCase
             'end_time'   => '18:00',
         ]);
 
-        $res = $this->from("/attendance/{$attendance->id}")
-            ->put("/attendance/{$attendance->id}", [
-                'start_time' => '09:00',
-                'end_time'   => '18:00',
-                'note'       => '',
-            ]);
+        $showUrl   = route('admin.attendance.show', $attendance);
+        $updateUrl = route('admin.attendance.update', $attendance);
+
+        $res = $this->from($showUrl)->patch($updateUrl, [
+            'start_time' => '09:00',
+            'end_time'   => '18:00',
+            'note'       => '',
+        ]);
 
         $res->assertSessionHasErrors(['note']);
         $this->assertStringContainsString('備考を記入してください', session('errors')->first('note'));
     }
-}
+    }

@@ -89,7 +89,7 @@ Route::middleware(['auth', 'verified', 'can:admin'])
         // 勤怠詳細（管理者）
         Route::get('/attendance/{attendance}', [AdminAttendanceController::class, 'show'])
             ->name('attendance.show');
-        Route::patch('/attendance/{attendance}', [AdminAttendanceController::class, 'update'])
+        Route::match(['patch', 'put', 'post'], '/attendance/{attendance}', [AdminAttendanceController::class, 'update'])
             ->name('attendance.update');
 
         // スタッフ一覧 (管理者)

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Carbon\Carbon;
 
 class StaffController extends Controller
@@ -16,7 +17,7 @@ class StaffController extends Controller
 
         $query = User::query()
             ->select(['id', 'name', 'email'])
-            ->when(schema_has_column('users', 'is_admin') ?? false, function ($q) {
+            ->when(Schema::hasColumn('users', 'is_admin'), function ($q) {
                 $q->where('is_admin', false);
             });
 
