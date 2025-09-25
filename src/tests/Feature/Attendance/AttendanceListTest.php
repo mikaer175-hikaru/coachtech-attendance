@@ -12,7 +12,7 @@ class AttendanceListTest extends TestCase
 {
     use RefreshDatabase, CreatesUsers;
 
-    /** @test */
+    #[Test]
     public function 自分の勤怠が一覧に表示される_当月初期表示(): void
     {
         $user = $this->createUser();
@@ -28,7 +28,7 @@ class AttendanceListTest extends TestCase
         $res->assertSee((string)Carbon::today()->format('Y-m')); // 当月文字列など
     }
 
-    /** @test */
+    #[Test]
     public function 前月ボタンで前月が表示される(): void
     {
         $user = $this->createUser();
@@ -40,7 +40,7 @@ class AttendanceListTest extends TestCase
         $res->assertSee($prev);
     }
 
-    /** @test */
+    #[Test]
     public function 翌月ボタンで翌月が表示される(): void
     {
         $user = $this->createUser();
@@ -52,7 +52,7 @@ class AttendanceListTest extends TestCase
         $res->assertSee($next);
     }
 
-    /** @test */
+    #[Test]
     public function 詳細ボタンで勤怠詳細へ遷移する(): void
     {
         $user = $this->createUser();

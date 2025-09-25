@@ -17,7 +17,7 @@ class AttendanceController extends Controller
         return $this->indexDaily($request);
     }
 
-    // PG08: 日別一覧（?date=YYYY-MM-DD、無指定は今日）
+    // 日別一覧（?date=YYYY-MM-DD、無指定は今日）
     public function indexDaily(Request $request)
     {
         $request->validate([
@@ -71,8 +71,7 @@ class AttendanceController extends Controller
         ])->with('success', '勤怠を修正しました。');
     }
 
-    // PG11: 月次勤怠一覧
-    // ★ 変更：ルートは /attendance/staff/{id} なので {user} ではなく $id を受ける
+    // 月次勤怠一覧
     public function indexMonthly(Request $request, int $id)
     {
         $month = $request->query('month', Carbon::now()->format('Y-m'));
