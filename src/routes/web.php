@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Middleware\EnsureAdmin;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\UserRequestController;
@@ -23,6 +24,16 @@ Route::get('/', fn () => response('OK', 200));
 // 会員登録
 Route::get('/register', [RegisterController::class, 'showForm'])->name('register');
 Route::post('/register', [RegisterController::class, 'register'])->name('register.post');
+
+Route::get('/email/verify', function () {
+    return view('auth.verify-email');
+})->name('verification.notice');
+
+// 署名付きリンクの着地（パスはそのまま）
+Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+    $request->fulfill();
+    return redirect('/attendance');
+})->middleware('signed')->name('verification.verify');
 
 // ログイン
 Route::get('/login', [LoginController::class, 'showForm'])->name('login');

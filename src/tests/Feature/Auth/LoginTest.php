@@ -7,12 +7,13 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Tests\Feature\Support\CreatesUsers;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class LoginTest extends TestCase
 {
     use RefreshDatabase, CreatesUsers;
 
-    /** @test */
+    #[Test]
     public function メールが未入力で_バリデーションメッセージ(): void
     {
         $this->createUser();
@@ -26,7 +27,7 @@ class LoginTest extends TestCase
         $this->assertStringContainsString('メールアドレスを入力してください', session('errors')->first('email'));
     }
 
-    /** @test */
+    #[Test]
     public function パスワードが未入力で_バリデーションメッセージ(): void
     {
         $this->createUser();
@@ -40,7 +41,7 @@ class LoginTest extends TestCase
         $this->assertStringContainsString('パスワードを入力してください', session('errors')->first('password'));
     }
 
-    /** @test */
+    #[Test]
     public function 不一致の資格情報で_アラートメッセージ(): void
     {
         $this->createUser();

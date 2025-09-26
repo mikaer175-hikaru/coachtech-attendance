@@ -5,12 +5,13 @@ namespace Tests\Feature\Auth;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class RegisterTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function 名前が未入力の場合_バリデーションメッセージが表示される(): void
     {
         $res = $this->post(route('register.post'), [
@@ -24,7 +25,7 @@ class RegisterTest extends TestCase
         $this->assertStringContainsString('お名前を入力してください', session('errors')->first('name'));
     }
 
-    /** @test */
+    #[Test]
     public function メールアドレスが未入力の場合_バリデーションメッセージが表示される(): void
     {
         $res = $this->post(route('register.post'), [
@@ -38,7 +39,7 @@ class RegisterTest extends TestCase
         $this->assertStringContainsString('メールアドレスを入力してください', session('errors')->first('email'));
     }
 
-    /** @test */
+    #[Test]
     public function パスワードが8文字未満の場合_バリデーションメッセージが表示される(): void
     {
         $res = $this->post(route('register.post'), [
@@ -52,7 +53,7 @@ class RegisterTest extends TestCase
         $this->assertStringContainsString('パスワードは8文字以上で入力してください', session('errors')->first('password'));
     }
 
-    /** @test */
+    #[Test]
     public function パスワードが一致しない場合_バリデーションメッセージが表示される(): void
     {
         $res = $this->post(route('register.post'), [
@@ -66,7 +67,7 @@ class RegisterTest extends TestCase
         $this->assertStringContainsString('パスワードと一致しません', session('errors')->first('password'));
     }
 
-    /** @test */
+    #[Test]
     public function パスワードが未入力の場合_バリデーションメッセージが表示される(): void
     {
         $res = $this->post(route('register.post'), [
@@ -80,7 +81,7 @@ class RegisterTest extends TestCase
         $this->assertStringContainsString('パスワードを入力してください', session('errors')->first('password'));
     }
 
-    /** @test */
+    #[Test]
     public function 正しい入力で_ユーザーが保存される(): void
     {
         $res = $this->post(route('register.post'), [

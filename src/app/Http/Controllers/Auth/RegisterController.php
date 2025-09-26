@@ -19,17 +19,14 @@ class RegisterController extends Controller
     public function register(RegisterRequest $request)
     {
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => $request->password,
+            'name'     => $request->name,
+            'email'    => $request->email,
+            'password' => Hash::make($request->password),
             'is_first_login' => false,
         ]);
 
-        event(new Registered($user));
+        event(new Registered($user)); // 認証メール送信など
 
-        // 自動ログインする（打刻画面に行けるように）
-        auth()->login($user);
-
-        return redirect()->route('attendance.create');
+        return redirect()->route('login');
     }
 }

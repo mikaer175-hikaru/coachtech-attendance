@@ -8,12 +8,13 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class EmailVerificationTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function 会員登録後に認証メールが送られる(): void
     {
         Notification::fake();
@@ -31,7 +32,7 @@ class EmailVerificationTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function 誘導画面のボタンからメール認証サイトに遷移する_UIは簡易確認(): void
     {
         // 誘導ページのルート・ボタンテキストに依存するためリンク文言を assertSee で軽く確認
@@ -40,7 +41,7 @@ class EmailVerificationTest extends TestCase
         $res->assertSee('認証はこちらから'); // ボタン文言に合わせて調整
     }
 
-    /** @test */
+    #[Test]
     public function 認証完了後_勤怠登録画面へ遷移する(): void
     {
         $user = User::factory()->unverified()->create(['email' => 'u@example.com']);

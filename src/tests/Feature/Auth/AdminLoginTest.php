@@ -5,12 +5,13 @@ namespace Tests\Feature\Auth;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Feature\Support\CreatesUsers;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class AdminLoginTest extends TestCase
 {
     use RefreshDatabase, CreatesUsers;
 
-    /** @test */
+    #[Test]
     public function 管理者_メール未入力(): void
     {
         $this->createAdmin();
@@ -24,7 +25,7 @@ class AdminLoginTest extends TestCase
         $this->assertStringContainsString('メールアドレスを入力してください', session('errors')->first('email'));
     }
 
-    /** @test */
+    #[Test]
     public function 管理者_パスワード未入力(): void
     {
         $this->createAdmin();
@@ -38,7 +39,7 @@ class AdminLoginTest extends TestCase
         $this->assertStringContainsString('パスワードを入力してください', session('errors')->first('password'));
     }
 
-    /** @test */
+    #[Test]
     public function 管理者_不一致の資格情報(): void
     {
         $this->createAdmin();
