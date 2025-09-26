@@ -40,7 +40,7 @@ Route::post('/logout', function () {
 // ▼ 一般ユーザー用ページ（初回設定が完了している場合のみ）
 // ====================
 
-Route::middleware(['auth', 'verified', 'first.login'])->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/attendance', [AttendanceController::class, 'create'])->name('attendance.create');
     Route::post('/attendance/start', [AttendanceController::class, 'startWork'])->name('attendance.start');
     Route::post('/attendance/end', [AttendanceController::class, 'endWork'])->name('attendance.end');

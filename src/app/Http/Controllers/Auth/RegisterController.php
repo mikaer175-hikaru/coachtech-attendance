@@ -22,6 +22,7 @@ class RegisterController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => $request->password,
+            'is_first_login' => false,
         ]);
 
         event(new Registered($user));
@@ -29,6 +30,6 @@ class RegisterController extends Controller
         // 自動ログインする（打刻画面に行けるように）
         auth()->login($user);
 
-        return redirect()->route('login')->with('status', '登録が完了しました。メールを確認してください。');
+        return redirect()->route('attendance.create');
     }
 }

@@ -35,7 +35,7 @@ class Kernel extends HttpKernel
     /**
      * 名前付きミドルウェア（ルーティングで使う）
      */
-    protected $routeMiddleware = [
+    protected $middlewareAliases = [
         'auth' => \App\Http\Middleware\Authenticate::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'first.login' => \App\Http\Middleware\RedirectIfFirstLogin::class,

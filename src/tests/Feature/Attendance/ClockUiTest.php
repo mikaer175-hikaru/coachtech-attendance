@@ -65,9 +65,30 @@ final class ClockUiTest extends TestCase
     }
 
     #[Test]
-    public function 休憩中ステータスが表示される_後で実装(): void
+    public function 休憩中ステータスが表示される(): void
     {
-        $this->markTestSkipped('休憩の内部判定仕様確定後に実装');
+        $user = $this->createUser();
+        $user->markEmailAsVerified();
+        $this->actingAs($user);
+
+        $attendance = Attendance::factory()
+            ->working(today()) // ← これで startあり endなし（今日）
+            ->create(['user_id' => $user->id]);
+
+        \App\Models\BreakTime::create([
+            'attendance_id' => $attendance->id,
+            'break_start'   => now()->setTime(10, 0),
+            'break_end'     => null,
+        ]);
+
+        $this->assertDatabaseHas('break_times', [
+            'attendance_id' => $attendance->id,
+            'break_end'     => null,
+        ]);
+
+        $res = $this->get('/attendance');
+        $res->assertOk();
+        $res->assertSee('休憩中');
     }
 
     #[Test]

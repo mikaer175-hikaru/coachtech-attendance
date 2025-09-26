@@ -46,7 +46,7 @@ class AttendanceController extends Controller
     public function show(Attendance $attendance)
     {
         $attendance->load(['user:id,name', 'breaks']);
-        return view('admin.attendances.show', compact('attendance'));
+        return view('admin.attendance.show', compact('attendance'));
     }
 
     public function update(UpdateAttendanceRequest $request, Attendance $attendance)
@@ -85,7 +85,7 @@ class AttendanceController extends Controller
 
         $user = User::findOrFail($id);
 
-        return view('admin.attendances.index-monthly', compact('user', 'month', 'attendances'));
+        return view('admin.attendance.index-monthly', compact('user', 'month', 'attendances'));
     }
 
     public function exportMonthlyCsv(Request $request, int $id): StreamedResponse

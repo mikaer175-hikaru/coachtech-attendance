@@ -61,7 +61,7 @@ class UserFactory extends Factory
     {
         return $this->state(fn () => [
             'is_admin'       => false,
-            'is_first_login' => true,
+            'is_first_login' => false,
         ]);
     }
 }

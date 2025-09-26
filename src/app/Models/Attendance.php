@@ -13,22 +13,20 @@ class Attendance extends Model
 {
     use HasFactory;
 
-    // ===== ステータス定数（ビューやコントローラでのマジック文字列回避） =====
+    // ===== ステータス定数 =====
     public const STATUS_OFF      = 'off';      // 勤務外
     public const STATUS_WORKING  = 'working';  // 出勤中
     public const STATUS_BREAKING = 'breaking'; // 休憩中
     public const STATUS_ENDED    = 'ended';    // 退勤済
 
-    // ===== 一括代入許可カラム（設計に応じて note/status を追加・削除） =====
+    // ===== 一括代入許可カラム =====
     protected $fillable = [
         'user_id',
         'work_date',
         'start_time',
         'end_time',
-        'break_start_time',
-        'break_end_time',
-        'status', // 使わない場合は外してください
-        'note',   // 使わない場合は外してください
+        'status',
+        'note',
     ];
 
     // ===== 型変換 =====
@@ -36,8 +34,6 @@ class Attendance extends Model
         'work_date'        => 'date',
         'start_time'       => 'datetime',
         'end_time'         => 'datetime',
-        'break_start_time' => 'datetime',
-        'break_end_time'   => 'datetime',
     ];
 
     // ===== リレーション =====
@@ -51,8 +47,32 @@ class Attendance extends Model
     // 休憩（将来の複数休憩テーブル用。作成前でも定義してOK）
     public function breaks(): HasMany
     {
-        // break_times を作成後に有効化されます
         return $this->hasMany(BreakTime::class)->orderBy('break_start');
+    }
+
+    public function isBreaking(): bool
+    {
+        // 複数休憩テーブル側：break_end が null の行がある
+        $ongoingInBreaks = $this->breaks()->open()->exists();
+
+        // 旧単一休憩カラム側：start あり && end なし
+        $legacyOngoing   = !empty($this->break_start_time) && empty($this->break_end_time);
+
+        return $ongoingInBreaks || $legacyOngoing;
+    }
+
+    public function getComputedStatusAttribute(): string
+    {
+        if ($this->end_time) {
+            return self::STATUS_ENDED;        // 退勤済
+        }
+        if ($this->isBreaking()) {
+            return self::STATUS_BREAKING;     // 休憩中
+        }
+        if ($this->start_time) {
+            return self::STATUS_WORKING;      // 出勤中
+        }
+        return self::STATUS_OFF;              // 勤務外
     }
 
     // ===== クエリスコープ =====
@@ -95,22 +115,19 @@ class Attendance extends Model
     // 休憩合計（分）
     public function getTotalBreakMinutesAttribute(): int
     {
-        // hasMany の集計
+        // リレーションがロード済みならそれを使う
         $breaks = $this->relationLoaded('breaks') ? $this->breaks : $this->getRelationValue('breaks');
+
         if ($breaks && $breaks->count() > 0) {
             return (int) $breaks->sum(function ($b) {
                 if (!$b->break_start || !$b->break_end) return 0;
+
                 $start = $b->break_start instanceof Carbon ? $b->break_start : Carbon::parse($b->break_start);
                 $end   = $b->break_end   instanceof Carbon ? $b->break_end   : Carbon::parse($b->break_end);
+
                 return max(0, $start->diffInMinutes($end));
             });
         }
-
-        // 単一休憩カラム（移行中サポート）
-        if ($this->break_start_time && $this->break_end_time) {
-            return max(0, $this->break_start_time->diffInMinutes($this->break_end_time));
-        }
-        return 0;
     }
 
     // 実働（分）
@@ -141,6 +158,6 @@ class Attendance extends Model
         return $m > 0 ? sprintf('%d:%02d', intdiv($m, 60), $m % 60) : '';
     }
     public function getBreakMinutesAttribute(): int {
-        return $this->total_break_minutes; // 後方互換
+        return $this->total_break_minutes;
     }
 }
