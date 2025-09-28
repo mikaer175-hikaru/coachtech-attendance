@@ -138,6 +138,95 @@
     text-align: right;
 }
 
+/* =========================================
+   申請詳細（管理者）  ※一覧と同ファイルに追記
+   ========================================= */
+
+.request-detail {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 48px 16px 80px;
+    color: #222;
+    box-sizing: border-box;
+}
+
+.request-detail__heading {
+    font-size: 24px;
+    font-weight: 800;
+    margin: 0 0 16px;
+}
+
+/* テーブルを囲むカード風ラッパ（一覧のUIに合わせる） */
+.request-detail__card {
+    border: 1px solid #eee;
+    border-radius: 12px;
+    background: #fff;
+    overflow: hidden;
+}
+
+/* フラッシュ */
+.request-detail__flash {
+    max-width: 1200px;
+    margin: 0 auto 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.request-detail__flash--success {
+    background: #ecfdf3;
+    color: #08643c;
+    border: 1px solid #a6f4c5;
+}
+
+.request-detail__flash--error {
+    background: #fef3f2;
+    color: #7a271a;
+    border: 1px solid #fecdca;
+}
+
+/* ボタン行（右下配置） */
+.request-detail__actions {
+    display: flex;
+    justify-content: flex-end;
+    padding: 14px 16px;
+    border-top: 1px solid #eee;
+}
+
+/* ボタン（一覧のトーンに合わせた主ボタン） */
+.request-detail__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 120px;
+    height: 40px;
+    padding: 0 14px;
+    border-radius: 10px;
+    border: 1px solid #111;
+    background: #111;
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background .2s, opacity .15s, transform .02s;
+}
+
+.request-detail__button:hover {
+    opacity: .9;
+}
+
+.request-detail__button:active {
+    transform: translateY(1px);
+}
+
+.request-detail__button--disabled {
+    background: #bdbdbd;
+    border-color: #bdbdbd;
+    color: #fff;
+    cursor: default;
+}
+
 /* -----------------------------------------
    レスポンシブ
    ----------------------------------------- */
@@ -187,5 +276,24 @@
 
     .request-table__cell--ellipsis {
         max-width: 300px;
+    }
+
+    .request-detail {
+        padding: 32px 12px 56px;
+    }
+
+    .request-detail__heading {
+        font-size: 20px;
+        margin-bottom: 12px;
+    }
+
+    .request-detail__actions {
+        padding: 12px;
+    }
+
+    .request-detail__button {
+        min-width: 110px;
+        height: 38px;
+        font-size: 13px;
     }
 }

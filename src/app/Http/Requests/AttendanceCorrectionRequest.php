@@ -4,21 +4,16 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 
 class AttendanceCorrectionRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return auth()->check();
+        return true;
     }
 
     protected function prepareForValidation(): void
     {
-        $note      = $this->input('note');
-        $startTime = $this->input('start_time');
-        $endTime   = $this->input('end_time');
-
         $trim = static fn ($v) => is_string($v) ? trim(preg_replace('/\s/u', ' ', $v)) : $v;
 
         $breaks = $this->input('breaks', []);
@@ -36,22 +31,24 @@ class AttendanceCorrectionRequest extends FormRequest
         }
 
         $this->merge([
-            'note'       => is_string($note) ? trim($note) : $note,
-            'start_time' => ($startTime === '' ? null : $trim($startTime)),
-            'end_time'   => ($endTime === '' ? null : $trim($endTime)),
+            'note'       => is_string($this->input('note')) ? trim($this->input('note')) : $this->input('note'),
+            'start_time' => ($this->input('start_time') === '' ? null : $trim($this->input('start_time'))),
+            'end_time'   => ($this->input('end_time') === '' ? null : $trim($this->input('end_time'))),
             'breaks'     => $breaks,
         ]);
     }
 
     public function rules(): array
     {
+        $hm = ['nullable', 'regex:/^\d{1,2}:\d{2}$/'];
+
         return [
-            'start_time' => ['nullable', 'date_format:H:i'],
-            'end_time'   => ['nullable', 'date_format:H:i'],
-            'note'       => ['required', 'string', 'max:200'],
+            'start_time'       => $hm,
+            'end_time'         => $hm,
+            'note'             => ['required', 'string', 'max:200'],
             'breaks'           => ['array', 'max:20'],
-            'breaks.*.start'   => ['nullable', 'date_format:H:i'],
-            'breaks.*.end'     => ['nullable', 'date_format:H:i'],
+            'breaks.*.start'   => $hm,
+            'breaks.*.end'     => $hm,
         ];
     }
 
@@ -67,7 +64,6 @@ class AttendanceCorrectionRequest extends FormRequest
                 return;
             }
 
-            // 休憩の検証
             foreach ($rows as $i => $b) {
                 $bs = $b['start'] ?? null;
                 $be = $b['end'] ?? null;
@@ -84,7 +80,7 @@ class AttendanceCorrectionRequest extends FormRequest
             }
 
             $toMin = static function (?string $hm): ?int {
-                if (!$hm || !preg_match('/^\d{2}:\d{2}$/', $hm)) return null;
+                if (!$hm || !preg_match('/^\d{1,2}:\d{2}$/', $hm)) return null;
                 [$h, $m] = explode(':', $hm);
                 return (int)$h * 60 + (int)$m;
             };
@@ -99,15 +95,20 @@ class AttendanceCorrectionRequest extends FormRequest
             }
             usort($intervals, fn($a, $b) => $a['s'] <=> $b['s']);
             for ($i = 1; $i < count($intervals); $i++) {
-                $prev = $intervals[$i - 1];
-                $curr = $intervals[$i];
-                if ($curr['s'] < $prev['e']) {
-                    $v->errors()->add("breaks.{$curr['i']}.start", '休憩時間が不適切な値です');
+                if ($intervals[$i]['s'] < $intervals[$i - 1]['e']) {
+                    $v->errors()->add("breaks.{$intervals[$i]['i']}.start", '休憩時間が不適切な値です');
                 }
             }
 
             if (!filled($this->input('note'))) {
                 $v->errors()->add('note', '備考を記入してください');
+            }
+
+            // 最低1項目は入力必須
+            $hasAny = filled($start) || filled($end)
+                   || collect($rows)->contains(fn($b) => filled($b['start'] ?? null) || filled($b['end'] ?? null));
+            if (!$hasAny) {
+                $v->errors()->add('start_time', '出勤・退勤・休憩のいずれかを入力してください');
             }
         });
     }
@@ -117,12 +118,16 @@ class AttendanceCorrectionRequest extends FormRequest
         return [
             'note.required'                 => '備考を記入してください',
             'note.max'                      => '備考は200文字以内で入力してください',
-            'start_time.date_format'        => '出勤時間もしくは退勤時間が不適切な値です',
-            'end_time.date_format'          => '出勤時間もしくは退勤時間が不適切な値です',
+            'start_time.regex'              => '出勤時間もしくは退勤時間が不適切な値です',
+            'end_time.regex'                => '出勤時間もしくは退勤時間が不適切な値です',
             'breaks.array'                  => '休憩の形式が不正です',
             'breaks.max'                    => '休憩は20件以内で入力してください',
-            'breaks.*.start.date_format'    => '休憩時間が不適切な値です',
-            'breaks.*.end.date_format'      => '休憩時間もしくは退勤時間が不適切な値です',
+            'breaks.*.start.regex'          => '休憩時間が不適切な値です',
+            'breaks.*.end.regex'            => '休憩時間もしくは退勤時間が不適切な値です',
         ];
     }
+
+    public function scopeOwnedBy($q, int $userId) { return $q->where('user_id', $userId); }
+    public function scopePending($q)  { return $q->where('status', 'pending'); }
+    public function scopeApproved($q) { return $q->where('status', 'approved'); }
 }

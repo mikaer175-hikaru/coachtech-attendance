@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
-use App\Models\StampCorrectionRequest;
+use App\Models\AttendanceCorrectRequest;
 
 class UserRequestController extends Controller
 {
@@ -20,7 +20,7 @@ class UserRequestController extends Controller
 
         // ============== 管理者：全ユーザー分 ==============
         if (Gate::allows('admin')) {
-            $base = StampCorrectionRequest::query()
+            $base = AttendanceCorrectRequest::query()
                 ->when($attendanceId, fn ($q) => $q->where('attendance_id', $attendanceId))
                 ->with([
                     // 名前表示のため user を attendance 経由で取得
@@ -47,7 +47,7 @@ class UserRequestController extends Controller
         // ============== 一般ユーザー：本人のみ ==============
         $userId = $request->user()->id;
 
-        $base = StampCorrectionRequest::ownedBy($userId)
+        $base = AttendanceCorrectRequest::ownedBy($userId)
             ->when($attendanceId, fn ($q) => $q->where('attendance_id', $attendanceId))
             ->with(['attendance:id,work_date']);
 
@@ -67,7 +67,7 @@ class UserRequestController extends Controller
     }
 
     // 申請詳細（一般ユーザーのみ使用）
-    public function show(Request $http, StampCorrectionRequest $requestModel)
+    public function show(Request $http, AttendanceCorrectRequest $requestModel)
     {
         // 自分の申請のみ閲覧可（アーリーリターン）
         if ($requestModel->user_id !== $http->user()->id) {

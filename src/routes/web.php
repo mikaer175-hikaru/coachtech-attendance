@@ -2,16 +2,19 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Middleware\EnsureAdmin;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\UserRequestController;
+use App\Http\Controllers\StampCorrectionRequestController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Admin\AttendanceController as AdminAttendanceController;
 use App\Http\Controllers\Admin\StaffAttendanceController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\StampCorrectionApproveController;
+use App\Http\Controllers\Admin\StampCorrectionListController as AdminList;
 use App\Http\Controllers\Admin\Auth\LoginController as AdminLoginController;
 
 // ====================
@@ -69,10 +72,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/attendance/{attendance}', [AttendanceController::class, 'show'])
         ->whereNumber('attendance')
         ->name('attendance.show');
-
-    // 申請一覧（一般ユーザー）
-    Route::get('/stamp_correction_request/list', [UserRequestController::class, 'index'])
-        ->name('requests.index');
 });
 
 // ====================
@@ -117,19 +116,44 @@ Route::middleware(['auth', 'verified', 'can:admin'])
     });
 
 // ====================
-// ▼ 管理者も共通の申請一覧・承認画面
+// ▼ 一般ユーザー申請
+// ====================
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    // 一覧
+    Route::get('/stamp-requests', [StampCorrectionRequestController::class, 'index'])
+        ->name('stamp_requests.index');
+
+    // “申請詳細”は存在せず、勤怠詳細へリダイレクトする仕様
+    Route::get('/stamp-requests/{stamp_request}', [StampCorrectionRequestController::class, 'show'])
+        ->name('stamp_requests.show');
+
+    // 作成（テストがこの名前を要求）
+    Route::post('/stamp-requests/{attendance}', [StampCorrectionRequestController::class, 'store'])
+        ->whereNumber('attendance')
+        ->name('stamp_requests.store');
+});
+
+// ====================
+// ▼ 管理者も共通の申請一覧（入口を共通パスに集約）
+// ====================
+
+Route::middleware(['auth','verified'])
+    ->get('/stamp_correction_request/list', [UserRequestController::class, 'index'])
+    ->name('admin.stamp_requests.index');
+
+// ====================
+// ▼ 管理者：申請詳細/承認/却下（専用パスでOK）
 // ====================
 
 Route::middleware(['auth', 'verified', 'can:admin'])
-    ->prefix('admin')
-    ->group(function () {
-        // 承認詳細の表示（確認画面）
-        Route::get('/stamp_correction_request/approve/{request}',
-            [StampCorrectionApproveController::class, 'show'])
-            ->name('admin.stamp_requests.approve.show');
+    ->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/stamp-requests/{correction}', [StampCorrectionApproveController::class, 'show'])
+            ->name('stamp_requests.show');
 
-        // 承認実行
-        Route::post('/stamp_correction_request/approve/{request}',
-            [StampCorrectionApproveController::class, 'approve'])
-            ->name('admin.stamp_requests.approve.update');
+        Route::post('/stamp-requests/{correction}/approve', [StampCorrectionApproveController::class, 'approve'])
+            ->name('stamp_requests.approve');
+
+        Route::post('/stamp-requests/{correction}/reject', [StampCorrectionApproveController::class, 'reject'])
+            ->name('stamp_requests.reject');
     });

@@ -29,7 +29,6 @@ return new class extends Migration
                 $table->boolean('is_admin')->default(false);
             }
 
-            // index名を固定する場合はこのままでOK（存在時はtry/catchで回避）
             try { $table->index('is_admin', 'idx_users_is_admin'); } catch (\Throwable $e) {}
             try { $table->index('is_first_login', 'idx_users_is_first_login'); } catch (\Throwable $e) {}
         });

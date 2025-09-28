@@ -1,7 +1,10 @@
 @extends('layouts.app')
 
+@section('css')
+  <link rel="stylesheet" href="{{ asset('css/attendance-detail.css') }}">
+@endsection
+
 @section('content')
-<link rel="stylesheet" href="{{ asset('css/attendance-detail.css') }}">
 
 <div class="attendance-detail">
     <h1 class="attendance-detail__heading">勤怠詳細</h1>
@@ -30,7 +33,7 @@
     @endif
 
     {{-- フォーム開始：修正申請のPOST --}}
-    <form method="POST" action="{{ route('requests.index', ['attendance' => $attendance->id]) }}">
+    <form method="POST" action="{{ route('stamp_requests.store', $attendance) }}">
         @csrf
 
         <section class="attendance-card">

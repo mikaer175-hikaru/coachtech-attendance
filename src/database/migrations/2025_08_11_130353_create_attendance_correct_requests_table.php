@@ -14,9 +14,16 @@ return new class extends Migration
             $t->foreignId('user_id')->constrained()->onDelete('cascade');
             $t->dateTime('new_start_time')->nullable();
             $t->dateTime('new_end_time')->nullable();
-            $t->json('new_breaks')->nullable(); //[{"start":"HH:mm","end":"HH:mm"},...]
+            $t->json('new_breaks')->nullable(); // [{"start":"HH:mm","end":"HH:mm"},...]
             $t->text('note');
-            $t->enum('status',['pending','approved','rejected'])->default('pending');
+            $t->enum('status', ['pending','approved','rejected'])->default('pending');
+            $t->timestamp('approved_at')->nullable();
+            $t->timestamp('rejected_at')->nullable();
+            $t->index(['user_id', 'status']);
+            $t->index('attendance_id');
+            $t->index('approved_at');
+            $t->index('created_at');
+
             $t->timestamps();
         });
     }
