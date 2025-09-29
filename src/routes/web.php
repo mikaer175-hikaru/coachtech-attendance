@@ -128,7 +128,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/stamp-requests/{stamp_request}', [StampCorrectionRequestController::class, 'show'])
         ->name('stamp_requests.show');
 
-    // 作成（テストがこの名前を要求）
+    // POST作成
     Route::post('/stamp-requests/{attendance}', [StampCorrectionRequestController::class, 'store'])
         ->whereNumber('attendance')
         ->name('stamp_requests.store');

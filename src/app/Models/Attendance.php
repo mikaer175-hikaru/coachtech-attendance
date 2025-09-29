@@ -160,4 +160,7 @@ class Attendance extends Model
     public function getBreakMinutesAttribute(): int {
         return $this->total_break_minutes;
     }
+    public function getRouteKeyName(): string {
+        return 'id';
+    }
 }

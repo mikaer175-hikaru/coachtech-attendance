@@ -33,7 +33,7 @@
     @endif
 
     {{-- フォーム開始：修正申請のPOST --}}
-    <form method="POST" action="{{ route('stamp_requests.store', $attendance) }}">
+    <form method="POST" action="{{ route('stamp_requests.store', ['attendance' => $attendance->id]) }}">
         @csrf
 
         <section class="attendance-card">
