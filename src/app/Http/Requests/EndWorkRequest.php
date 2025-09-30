@@ -11,12 +11,12 @@ class EndWorkRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true; // 認可制御が別にあれば true
+        return true;
     }
 
     public function rules(): array
     {
-        return []; // 入力項目がないため空でOK
+        return [];
     }
 
     public function withValidator($validator)

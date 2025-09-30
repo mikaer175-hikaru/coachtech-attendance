@@ -55,8 +55,6 @@ body {
     width: auto;
 }
 
-.header__nav {}
-
 .header__menu {
     display: flex;
     align-items: center;

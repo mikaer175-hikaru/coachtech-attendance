@@ -39,6 +39,7 @@
     border-radius: 2px;
 }
 
+/* タブ（下線のみ） */
 .request-list__tabs {
     display: flex;
     gap: 48px;
@@ -64,6 +65,7 @@
     color: var(--black);
 }
 
+/* テーブル（白カード） */
 .request-list__table-wrap {
     overflow: hidden;
     border: 1px solid var(--line);
@@ -101,16 +103,20 @@
     background: var(--muted);
 }
 
+/* 名前/理由は左寄せ */
 .request-table__body .request-table__cell:nth-child(2),
 .request-table__body .request-table__cell:nth-child(4) {
     text-align: left;
+}
 
+/* 理由は省略 */
 .request-table__cell--ellipsis {
     max-width: 360px;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
+/* 詳細リンクはテキストリンク */
 .request-list__link {
     color: var(--black);
     text-decoration: none;
@@ -121,7 +127,7 @@
     text-decoration: underline;
 }
 
-/* ページネーション */
+/* ページネーション（右寄せ） */
 .request-list__pagination {
     margin-top: 14px;
     text-align: right;

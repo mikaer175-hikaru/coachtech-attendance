@@ -10,7 +10,7 @@ class UpdateAttendanceRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        $attendance = $this->route('attendance'); // ルートモデルバインディング想定
+        $attendance = $this->route('attendance');
         return auth()->check() && $attendance && (int)$attendance->user_id === (int)auth()->id();
     }
 
@@ -30,7 +30,6 @@ class UpdateAttendanceRequest extends FormRequest
 
     public function messages(): array
     {
-        // ★ 設計書の評価対象文言に合わせてここは必要に応じて調整
         return [
             'start_time.date_format'         => '出勤は「HH:MM」形式で入力してください',
             'end_time.date_format'           => '退勤は「HH:MM」形式で入力してください',
