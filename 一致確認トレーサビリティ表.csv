@@ -1,0 +1,14 @@
+﻿ID,Category,Name,Route/Path,Controller@Action,View,Status,Test (PHPUnit class/method),VisualRef (screenshot or figma),Notes
+US001,US,一般ユーザーの会員登録,"/register (GET, POST)",Auth\RegisterController@showForm / register,auth/register.blade.php,確認中,Tests\Feature\Auth\RegisterTest::*,会員登録画面（一般ユーザー）.png,登録後は /attendance に遷移（設計）
+US005,US,管理者ログアウト,/admin/logout (POST),Fortify / Auth logic,-,確認中,Tests\Feature\Admin\AdminLogoutTest::*,ログイン画面（管理者）.png,ヘッダーのボタンから正常にログアウト（FN017）
+US006,US,一般ユーザーの打刻（出勤/休憩/退勤）,"/attendance (GET, POST)",AttendanceController@create / startWork / startBreak / endBreak / endWork,attendance/create.blade.php,確認中,Tests\Feature\Attendance\StampTest::*,勤怠登録画面_出勤前（一般ユーザー）.png; 勤怠登録画面_出勤後（一般ユーザー）.png; 勤怠登録画面_休憩中（一般ユーザー）.png; 勤怠登録画面_退勤後（一般ユーザー）.png,休憩は複数回可・履歴は詳細に反映（US006 / FN018〜FN022）
+PG03,PG,勤怠登録画面（一般）,/attendance (GET),AttendanceController@create,attendance/create.blade.php,実装済(要照合),Tests\Feature\Attendance\AttendanceCreateViewTest::*,勤怠登録画面_*（一般ユーザー）.png,ステータス表示（勤務外/出勤中/休憩中/退勤済）
+PG04,PG,勤怠一覧（一般）,/attendance/list,AttendanceController@index,attendance/index.blade.php,実装済(要照合),Tests\Feature\Attendance\AttendanceListTest::*,—,
+PG05,PG,勤怠詳細（一般）,"/attendance/{id} (GET, PUT)",AttendanceController@show / update,attendance/show.blade.php,実装済(要照合),Tests\Feature\Attendance\AttendanceDetailTest::*,勤怠詳細画面（一般ユーザー）.png; 勤怠詳細画面＿承認待ち勤怠のケース（一般ユーザー）.png,相関チェック（出勤<退勤、休憩<退勤 等）
+PG06,PG,申請一覧（一般）,/stamp_correction_request/list,StampCorrectionRequestController@index,requests/index.blade.php,実装済(要照合),Tests\Feature\StampRequests\UserStampRequestListTest::*,申請一覧画面（一般ユーザー）.png,タブ切替（承認待ち/承認済み）
+PG07,PG,ログイン（管理者）,"/admin/login (GET, POST)",Admin\LoginController@showForm / login,admin/auth/login.blade.php,実装済(要照合),Tests\Feature\Admin\AdminLoginTest::*,ログイン画面（管理者）.png,
+PG08,PG,勤怠一覧（管理者）,/admin/attendance/list?date=YYYY-MM-DD,Admin\AttendanceController@index,admin/attendances/index.blade.php,実装済(要照合),Tests\Feature\Admin\AdminAttendanceListTest::*,勤怠一覧画面（管理者）.png,前日/翌日ナビゲーション
+PG09,PG,勤怠詳細（管理者・編集可）,"/admin/attendance/{id} (GET, PUT)",Admin\AttendanceController@show / update,admin/attendances/show.blade.php,実装済(要照合),Tests\Feature\Admin\AdminAttendanceDetailValidationTest::*,勤怠詳細画面（管理者）.png,更新後は /admin/attendance/staff/{id}?month=YYYY-MM にリダイレクト（設計）
+PG10,PG,修正申請承認（管理者）,/admin/stamp_correction_request/{id}/approve (POST),Admin\StampCorrectionApprovalController@approve,admin/requests/approve.blade.php,要確認,Tests\Feature\Admin\StampApprovalTest::*,修正申請承認画面（管理者）.png,承認→勤怠へ反映→履歴保持
+PG11,PG,スタッフ別月次勤怠（管理者）,/admin/attendance/staff/{id}?month=YYYY-MM,Admin\StaffAttendanceController@month,admin/attendances/staff_month.blade.php,実装済(要照合),Tests\Feature\Admin\StaffListTest::ユーザー別月次...,スタッフ別勤怠一覧画面（管理者）.png,PG09更新後の遷移先
+PG12,PG,スタッフ一覧（管理者）,/admin/staff/list,Admin\StaffController@index,admin/staff/index.blade.php,実装済(要照合),Tests\Feature\Admin\StaffListTest::*,スタッフ一覧画面（管理者）.png,氏名/メール表示（FN041）、詳細→月次遷移（FN042）

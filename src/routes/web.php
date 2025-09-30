@@ -55,6 +55,18 @@ Route::post('/logout', function () {
 // ====================
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    // 勤怠一覧
+    Route::get('/attendance/list', [AttendanceController::class, 'index'])
+        ->name('attendance.list');
+
+    // 勤怠詳細（暗黙モデルバインディング）
+    Route::get('/attendance/{attendance}', [AttendanceController::class, 'show'])
+        ->whereNumber('attendance')
+        ->name('attendance.show');
+    Route::put('/attendance/{attendance}', [AttendanceController::class, 'update'])
+        ->name('attendance.update');
+
+    // 打刻系
     Route::get('/attendance', [AttendanceController::class, 'create'])->name('attendance.create');
     Route::post('/attendance/start', [AttendanceController::class, 'startWork'])->name('attendance.start');
     Route::post('/attendance/end', [AttendanceController::class, 'endWork'])->name('attendance.end');
@@ -64,14 +76,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 // 認証済みユーザー（初回チェック不要）でも見られるページ
 Route::middleware(['auth', 'verified'])->group(function () {
-    // 勤怠一覧
-    Route::get('/attendance/list', [AttendanceController::class, 'index'])
-        ->name('attendance.list');
-
-    // 勤怠詳細（暗黙モデルバインディング）
-    Route::get('/attendance/{attendance}', [AttendanceController::class, 'show'])
-        ->whereNumber('attendance')
-        ->name('attendance.show');
 });
 
 // ====================

@@ -3,17 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\UpdateAttendanceRequest;
 use App\Models\Attendance;
 use App\Models\BreakTime;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
-use App\Http\Requests\Attendance\StartWorkRequest;
-use App\Http\Requests\Attendance\EndWorkRequest;
-use App\Http\Requests\Attendance\StartBreakRequest;
-use App\Http\Requests\Attendance\EndBreakRequest;
+use App\Http\Requests\UpdateAttendanceRequest;
+use App\Http\Requests\StartWorkRequest;
+use App\Http\Requests\EndWorkRequest;
+use App\Http\Requests\StartBreakRequest;
+use App\Http\Requests\EndBreakRequest;
+use App\Http\Requests\Admin\UpdateAttendanceRequest;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AttendanceController extends Controller
@@ -174,23 +175,37 @@ class AttendanceController extends Controller
     }
 
     // 管理者：勤怠更新（※break_times 一本化のため単一休憩カラムは扱わない）
-    public function update(UpdateAttendanceRequest $request, Attendance $attendance)
+    public function update(UpdateAttendanceRequest $request, \App\Models\Attendance $attendance)
     {
-        $v = $request->validated();
+        // 承認待ち保護（念のため二重チェック）
+        if (($attendance->status ?? null) === 'pending') {
+            return back()->with('error', '承認待ちの勤怠は編集できません');
+        }
 
-        $attendance->start_time = $v['start_time'] ?? null;
-        $attendance->end_time   = $v['end_time']   ?? null;
-        $attendance->note       = $v['note']       ?? null;
-        $attendance->save();
+        DB::transaction(function () use ($request, $attendance) {
+            // 勤怠本体
+            $attendance->start_time = $request->input('start_time') ? now()->parse($request->input('start_time')) : null;
+            $attendance->end_time   = $request->input('end_time')   ? now()->parse($request->input('end_time'))   : null;
+            $attendance->note       = $request->input('note');
+            $attendance->save();
 
-        $month = $attendance->work_date
-            ? Carbon::parse($attendance->work_date)->format('Y-m')
-            : now()->format('Y-m');
+            // 休憩は一旦全削除→再作成（YAGNI：高度な差分更新は不要ならやらない）
+            $attendance->breakTimes()->delete();
 
-        return redirect()->route('admin.attendance.staff.monthly', [
-            'user'  => $attendance->user_id,
-            'month' => $month,
-        ])->with('success', '勤怠を修正しました。');
+            $breaks = collect($request->input('breaks', []))
+                ->filter(fn($b) => !empty($b['start']) || !empty($b['end']));
+
+            foreach ($breaks as $b) {
+                $attendance->breakTimes()->create([
+                    'start_time' => !empty($b['start']) ? now()->parse($b['start']) : null,
+                    'end_time'   => !empty($b['end'])   ? now()->parse($b['end'])   : null,
+                ]);
+            }
+        });
+
+        return redirect()
+            ->route('attendance.show', $attendance->id)
+            ->with('success', '勤怠を更新しました。');
     }
 
     // 管理者：日別一覧
