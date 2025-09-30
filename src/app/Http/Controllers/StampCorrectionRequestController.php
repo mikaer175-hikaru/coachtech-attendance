@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\AttendanceCorrectionRequest as CorrectionRequest;
+use App\Http\Requests\AttendanceCorrectionRequest as AttendanceCorrectionFormRequest;
 use App\Models\Attendance;
 use App\Models\AttendanceCorrectRequest;
 use Illuminate\Http\Request;
@@ -46,56 +46,49 @@ class StampCorrectionRequestController extends Controller
     }
 
     // 修正申請の保存（勤怠詳細からの POST）
-    public function store(CorrectionRequest $request)
+    function store(AttendanceCorrectionFormRequest $request, Attendance $attendance)
     {
-        // ★ ルートに {attendance} は無い。body の attendance_id から取得する
-        $attendanceId = (int) $request->input('attendance_id');
-        $attendance   = Attendance::findOrFail($attendanceId);
+        // 本人以外は 403
+        abort_if((int) $attendance->user_id !== (int) Auth::id(), 403);
 
-        abort_if($attendance->user_id !== Auth::id(), 403);
-
-        $workDate = $attendance->work_date instanceof Carbon
-            ? $attendance->work_date->copy()
-            : Carbon::parse($attendance->work_date);
-
-        $toDateTime = static function (?string $hm) use ($workDate) {
-            if (!$hm) {
-                return null;
-            }
-            [$h, $m] = array_pad(explode(':', $hm), 2, 0);
-            return $workDate->copy()->setTime((int) $h, (int) $m);
-        };
-
-        // 同一勤怠の pending があればバリデーションエラー扱い
-        $existsPending = AttendanceCorrectRequest::query()
-            ->where('attendance_id', $attendanceId)
+        // 同一勤怠の pending が既にあるなら back() でメッセージ
+        $exists = AttendanceCorrectRequest::where('attendance_id', $attendance->id)
+            ->where('user_id', Auth::id()) // 念のため user_id でも絞る
             ->where('status', AttendanceCorrectRequest::STATUS_PENDING)
             ->exists();
 
-        if ($existsPending) {
+        if ($exists) {
             return back()
                 ->with('error', 'この勤怠には承認待ちの修正申請が既に存在します。')
                 ->withInput();
         }
 
-        DB::transaction(function () use ($request, $attendance, $toDateTime) {
+        $workDate = $attendance->work_date instanceof Carbon
+            ? $attendance->work_date->copy()
+            : Carbon::parse($attendance->work_date);
+
+        $toDT = static function (?string $hm) use ($workDate) {
+            if (!$hm) return null;
+            [$h, $m] = array_pad(explode(':', $hm), 2, 0);
+            return $workDate->copy()->setTime((int)$h, (int)$m);
+        };
+
+        DB::transaction(function () use ($request, $attendance, $toDT) {
             AttendanceCorrectRequest::create([
                 'attendance_id'  => $attendance->id,
                 'user_id'        => Auth::id(),
-                'new_start_time' => $toDateTime($request->input('start_time')),
-                'new_end_time'   => $toDateTime($request->input('end_time')),
-                'new_breaks'     => $request->input('breaks', []), // casts: array/json
+                'new_start_time' => $toDT($request->input('start_time')),
+                'new_end_time'   => $toDT($request->input('end_time')),
+                'new_breaks'     => $request->input('breaks', []),
                 'note'           => (string) $request->input('note'),
                 'status'         => AttendanceCorrectRequest::STATUS_PENDING,
             ]);
 
-            // 勤怠を承認待ち状態に
             $attendance->update(['status' => 'pending']);
         });
 
-        // 一覧へ（テスト親和）
-        return redirect()
-            ->route('stamp_requests.index')
+        // テストはリダイレクトでOK判定
+        return redirect()->route('stamp_requests.index')
             ->with('success', '修正申請を送信しました。承認待ちです。');
     }
 }

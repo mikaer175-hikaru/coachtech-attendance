@@ -118,16 +118,19 @@ class Attendance extends Model
         // リレーションがロード済みならそれを使う
         $breaks = $this->relationLoaded('breaks') ? $this->breaks : $this->getRelationValue('breaks');
 
-        if ($breaks && $breaks->count() > 0) {
-            return (int) $breaks->sum(function ($b) {
-                if (!$b->break_start || !$b->break_end) return 0;
-
-                $start = $b->break_start instanceof Carbon ? $b->break_start : Carbon::parse($b->break_start);
-                $end   = $b->break_end   instanceof Carbon ? $b->break_end   : Carbon::parse($b->break_end);
-
-                return max(0, $start->diffInMinutes($end));
-            });
+        // 空なら 0 を返す（ここが無いと none returned になる）
+        if (!$breaks || $breaks->count() === 0) {
+            return 0;
         }
+
+        return (int) $breaks->sum(function ($b) {
+            if (!$b->break_start || !$b->break_end) return 0;
+
+            $start = $b->break_start instanceof Carbon ? $b->break_start : Carbon::parse($b->break_start);
+            $end   = $b->break_end   instanceof Carbon ? $b->break_end   : Carbon::parse($b->break_end);
+
+            return max(0, $start->diffInMinutes($end));
+        });
     }
 
     // 実働（分）
