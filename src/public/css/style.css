@@ -1,156 +1,154 @@
-/* ===============================
-   Layout / Header / Global（一般）
-   =============================== */
+    /* ===============================
+    Layout / Header / Global（一般）
+    =============================== */
 
-:root {
-    --header-h: 64px;
-    --content-max: 1540px;
-    --gap: 24px;
-    --bg-page: #f3f4f6;
-    --gray-900: #000;
-    --white: #fff;
-}
-
-html,
-body {
-    height: 100%;
-}
-
-body {
-    margin: 0;
-    color: #111;
-    background: var(--bg-page);
-    -webkit-text-size-adjust: 100%;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-        "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif;
-}
-
-/* === ヘッダー === */
-.header {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    height: var(--header-h);
-    background: var(--gray-900);
-    color: var(--white);
-    display: flex;
-    align-items: center;
-}
-
-.header__inner {
-    max-width: var(--content-max);
-    height: 100%;
-    margin: 0 auto;
-    padding: 0 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--gap);
-}
-
-/* ロゴ */
-.header__logo img {
-    display: block;
-    height: 28px;
-    width: auto;
-}
-
-.header__menu {
-    display: flex;
-    align-items: center;
-    gap: 28px;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-
-.header__item {
-    display: flex;
-    align-items: center;
-}
-
-.header__link,
-.header__logout-button {
-    color: var(--white);
-    text-decoration: none;
-    font-weight: 700;
-    font-size: 16px;
-    line-height: 1;
-    display: inline-flex;
-    align-items: center;
-    gap: .4em;
-    padding: 8px 6px;
-    border-radius: 8px;
-}
-
-.header__link:hover,
-.header__logout-button:hover {
-    opacity: .85;
-}
-
-.header__logout-button {
-    appearance: none;
-    border: 0;
-    background: transparent;
-    cursor: pointer;
-}
-
-.header__link--active {
-    background: rgba(255, 255, 255, 0.12);
-}
-
-:where(a, button).header__link:focus-visible,
-:where(a, button).header__logout-button:focus-visible {
-    outline: 2px solid #60a5fa;
-    outline-offset: 2px;
-}
-
-/* === メインコンテンツ === */
-.content {
-    min-height: calc(100vh - var(--header-h));
-    padding: 32px 20px 64px;
-}
-
-.content>* {
-    max-width: var(--content-max);
-    margin-inline: auto;
-}
-
-/* ===============================
-   レスポンシブ
-   =============================== */
-
-/* Tablet: 768–850px） */
-@media (min-width: 768px) and (max-width: 850px) {
     :root {
-        --gap: 20px;
+        --header-h: 64px;
+        --content-max: 1540px;
+        --gap: 24px;
+        --bg-page: #f3f4f6;
+        --gray-900: #000;
+        --white: #fff;
+    }
+
+    html,
+    body {
+        height: 100%;
+    }
+
+    body {
+        margin: 0;
+        color: #111;
+        background: var(--bg-page);
+        -webkit-text-size-adjust: 100%;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+            "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif;
+    }
+
+    /* === ヘッダー === */
+    .header {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        height: var(--header-h);
+        background: var(--gray-900);
+        color: var(--white);
     }
 
     .header__inner {
-        padding: 0 20px;
+        max-width: var(--content-max);
+        height: 100%;
+        margin: 0 auto;
+        padding: 0 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--gap);
+    }
+
+    /* ロゴ */
+    .header__logo img {
+        display: block;
+        height: 28px;
+        width: auto;
     }
 
     .header__menu {
-        gap: 22px;
+        display: flex;
+        align-items: center;
+        gap: 28px;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .header__item {
+        display: flex;
+        align-items: center;
     }
 
     .header__link,
     .header__logout-button {
-        font-size: 15px;
+        color: var(--white);
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 16px;
+        line-height: 1;
+        display: inline-flex;
+        align-items: center;
+        gap: .4em;
+        padding: 8px 6px;
+        border-radius: 8px;
     }
 
-    .header__logo img {
-        height: 26px;
-    }
-}
-
-/* PC: 1400–1540px */
-@media (min-width: 1400px) and (max-width: 1540px) {
-    .header__logo img {
-        height: 30px;
+    .header__link:hover,
+    .header__logout-button:hover {
+        opacity: .85;
     }
 
-    .header__menu {
-        gap: 32px;
+    .header__logout-button {
+        appearance: none;
+        border: 0;
+        background: transparent;
+        cursor: pointer;
     }
-}
+
+    .header__link--active {
+        background: rgba(255, 255, 255, 0.12);
+    }
+
+    :where(a, button).header__link:focus-visible,
+    :where(a, button).header__logout-button:focus-visible {
+        outline: 2px solid #60a5fa;
+        outline-offset: 2px;
+    }
+
+    /* === メインコンテンツ === */
+    .content {
+        min-height: calc(100vh - var(--header-h));
+        padding: 32px 20px 64px;
+    }
+
+    .content>* {
+        max-width: var(--content-max);
+        margin-inline: auto;
+    }
+
+    /* ===============================
+    レスポンシブ
+    =============================== */
+
+    /* Tablet: 768–850px） */
+    @media (min-width: 768px) and (max-width: 850px) {
+        :root {
+            --gap: 20px;
+        }
+
+        .header__inner {
+            padding: 0 20px;
+        }
+
+        .header__menu {
+            gap: 22px;
+        }
+
+        .header__link,
+        .header__logout-button {
+            font-size: 15px;
+        }
+
+        .header__logo img {
+            height: 26px;
+        }
+    }
+
+    /* PC: 1400–1540px */
+    @media (min-width: 1400px) and (max-width: 1540px) {
+        .header__logo img {
+            height: 30px;
+        }
+
+        .header__menu {
+            gap: 32px;
+        }
+    }

@@ -1,83 +1,95 @@
-/* ============= メール承認画面 ============= */
+/* verify.css - メール認証案内画面 */
 
 .verify {
-    min-height: calc(100vh - 64px);
-    display: grid;
-    place-items: center;
-    padding: 6rem 1.5rem;
-    background: #fff;
-    color: #111;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif;
+    padding: 48px 16px 64px;
 }
 
 .verify__container {
-    text-align: center;
-    max-width: 720px;
-    width: 100%;
+    max-width: 640px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    padding: 32px 24px;
 }
 
 .verify__title {
-    font-size: clamp(1.25rem, 2.2vw + 0.6rem, 1.5rem);
-    font-weight: 700;
-    letter-spacing: .02em;
-    margin: 0 0 1.25rem;
+    margin: 0 0 12px;
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1.4;
 }
 
 .verify__lead {
-    font-size: clamp(1rem, 1.2vw + .6rem, 1.125rem);
-    line-height: 1.9;
-    margin: 0 0 2.5rem;
+    margin: 0 0 20px;
+    font-size: 14px;
+    color: #333;
 }
 
-.verify__cta {
+.verify__flash {
+    margin: 0 0 16px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background-color: #eaf7ea;
+    color: #1b6b1b;
+    font-size: 13px;
+}
+
+.verify__hint {
+    margin: 0 0 16px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background-color: #f6f6f9;
+    color: #4b4b66;
+    font-size: 12px;
+}
+
+.verify__resend,
+.verify__logout {
+    margin: 12px 0 0;
+}
+
+.verify__button {
     display: inline-block;
-    min-width: 260px;
-    padding: 1rem 2rem;
-    border-radius: 12px;
-    background: #e6e6e6;
-    color: #111;
-    font-weight: 700;
-    font-size: 1.125rem;
-    text-decoration: none;
-    border: 1px solid #cfcfcf;
-    box-shadow: 0 1px 0 #bfbfbf inset;
-    transition: transform .03s ease, filter .15s ease;
-}
-
-.verify__cta:hover {
-    filter: brightness(0.98);
-}
-
-.verify__cta:active {
-    transform: translateY(1px);
-}
-
-.verify__resend {
-    margin-top: 1.75rem;
-}
-
-.verify__resend-link {
-    appearance: none;
+    padding: 10px 16px;
+    border-radius: 999px;
     border: none;
-    background: none;
-    color: #2a6df5;
-    font-size: 0.95rem;
+    background: #222;
+    color: #fff;
+    font-size: 14px;
     cursor: pointer;
-    padding: .25rem .5rem;
+}
+
+.verify__button:hover {
+    opacity: 0.9;
+}
+
+.verify__link {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 6px 8px;
+    border: none;
+    background: transparent;
+    color: #444;
+    font-size: 13px;
     text-decoration: underline;
+    cursor: pointer;
 }
 
-.verify__resend-link:hover {
-    text-decoration: none;
+/* タブレット（768-850px） */
+@media (min-width: 768px) and (max-width: 850px) {
+    .verify__container {
+        padding: 36px 28px;
+    }
 }
 
-@media (max-width: 480px) {
+/* PC（1400-1540px） */
+@media (min-width: 1400px) and (max-width: 1540px) {
     .verify {
-        padding: 4rem 1rem;
+        padding-top: 64px;
     }
 
-    .verify__cta {
-        min-width: 220px;
-        width: 100%;
+    .verify__container {
+        max-width: 720px;
     }
 }

@@ -18,8 +18,10 @@ use App\Http\Controllers\Admin\Auth\LoginController as AdminLoginController;
 // ▼ 会員登録・ログイン（一般ユーザー）
 // ====================
 
-// ExampleTest 用（トップが 200）
-Route::get('/', fn () => response('OK', 200));
+// トップは未ログインならログインへ
+Route::get('/', function () {
+    return redirect()->route('login');
+});
 
 // 会員登録
 Route::get('/register', [RegisterController::class, 'showForm'])->name('register');
@@ -30,11 +32,17 @@ Route::get('/email/verify', function () {
     return view('auth.verify-email');
 })->name('verification.notice');
 
-// 署名付きリンクの着地（パスはそのまま）
+// 署名付きリンクの着地
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
     $request->fulfill();
-    return redirect('/attendance');
-})->middleware('signed')->name('verification.verify');
+    return redirect()->route('attendance.create');
+})->middleware(['auth','signed','throttle:6,1'])->name('verification.verify');
+
+// 認証メール再送
+Route::post('/email/verification-notification', function () {
+    request()->user()->sendEmailVerificationNotification();
+    return back()->with('status', 'verification-link-sent');
+})->middleware(['auth','throttle:6,1'])->name('verification.send');
 
 // ログイン/ログアウト
 Route::get('/login', [LoginController::class, 'showForm'])->name('login');

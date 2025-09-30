@@ -7,10 +7,6 @@
 @section('content')
 <div class="login">
     <div class="login__container">
-        <div class="login__logo">
-            <img src="{{ asset('images/logo.png') }}" alt="COACHTECHロゴ">
-        </div>
-
         <h2 class="login__title">ログイン</h2>
 
         <form action="{{ route('login.submit') }}" method="POST" class="login__form">

@@ -1,7 +1,7 @@
 <header class="admin-header">
     <div class="admin-header__inner">
         <a href="{{ route('admin.attendance.list') }}" class="admin-header__logo">
-            <img src="{{ asset('images/logo-white.png') }}" alt="COACHTECHロゴ" class="admin-header__logo-img">
+            <img src="{{ asset('images/logo.svg') }}" alt="COACHTECHロゴ" class="admin-header__logo-img">
         </a>
 
         @auth('admin')

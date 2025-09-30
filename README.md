@@ -2,12 +2,14 @@
 
 ## 環境構築
 
-1. Docker を起動する  
-2. プロジェクト直下で以下を実行
+1. Docker を起動する
+
+2. 依存関係のインストール & .env 準備
    ```bash
-   make init
-   ```
-   ※ Makefile によって主要コマンドを省略可能
+   docker compose up -d --build
+   docker compose exec app composer install
+   cp src/.env.example src/.env
+   docker compose exec app php artisan key:generate
 
 3. コンテナ起動後、以下でマイグレーションとシーディングを実行
    ```bash

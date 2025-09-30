@@ -35,8 +35,8 @@ class StartBreakRequest extends FormRequest
                 return;
             }
 
-            $hasOngoingBreak = $attendance->breakTimes()
-                ->whereNull('end_time')
+            $hasOngoingBreak = $attendance->breaks()
+                ->whereNull('break_end')
                 ->exists();
 
             if ($hasOngoingBreak) {
