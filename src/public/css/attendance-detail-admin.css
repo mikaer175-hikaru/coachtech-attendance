@@ -1,13 +1,16 @@
-/* ===== レイアウト ===== */
+/* =========================================================
+   管理者勤怠詳細
+   ========================================================= */
+
+/* レイアウト */
 .detail {
     max-width: 980px;
     margin: 0 auto;
     padding: 48px 16px 72px;
-    background: #f1f0f3;
 }
 
 .detail__header {
-    margin-bottom: 16px;
+    margin: 0 0 16px;
 }
 
 .detail__title {
@@ -16,6 +19,7 @@
     gap: 10px;
     font-size: 22px;
     font-weight: 800;
+    margin: 0;
 }
 
 .detail__title-bar {
@@ -26,7 +30,6 @@
     border-radius: 3px;
 }
 
-/* ===== フラッシュ ===== */
 .detail__flash {
     margin: 12px 0 18px;
     padding: 10px 12px;
@@ -43,13 +46,17 @@
 .detail__flash--error {
     background: #fde8e8;
     color: #a21d1d;
+    list-style: none;
+    /* liのポチを消す */
+    padding-left: 12px;
 }
 
-/* ===== カード（表風） ===== */
 .detail__card {
     background: #fff;
     border-radius: 12px;
     overflow: hidden;
+    border: 1px solid #ececec;
+    /* 薄い縁取りでスクショ感 */
     box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
 }
 
@@ -67,8 +74,8 @@
 
 .detail__th {
     padding: 18px 20px;
-    background: #fff;
     font-weight: 700;
+    background: #fff;
 }
 
 .detail__td {
@@ -91,7 +98,6 @@
     font-weight: 700;
 }
 
-/* 範囲（時刻〜時刻） */
 .detail__td--range {
     display: flex;
     align-items: center;
@@ -99,13 +105,18 @@
 }
 
 .detail__time {
-    width: 140px;
+    width: 120px;
     height: 40px;
+    padding: 0 10px;
     border: 1px solid #ddd;
     border-radius: 8px;
-    padding: 0 10px;
-    font-size: 14px;
     background: #f9f9f9;
+    font-size: 14px;
+}
+
+.detail__time:focus {
+    outline: 2px solid #111;
+    outline-offset: 2px;
 }
 
 .detail__tilde {
@@ -116,12 +127,17 @@
 /* テキストエリア */
 .detail__textarea {
     width: 100%;
+    padding: 12px;
     border: 1px solid #ddd;
     border-radius: 10px;
-    padding: 12px;
-    font-size: 14px;
     background: #f9f9f9;
+    font-size: 14px;
     resize: vertical;
+}
+
+.detail__textarea:focus {
+    outline: 2px solid #111;
+    outline-offset: 2px;
 }
 
 /* アクション（右下ボタン） */
@@ -134,18 +150,26 @@
 }
 
 .detail__button {
+    padding: 12px 28px;
     border: none;
     border-radius: 10px;
-    padding: 12px 28px;
-    font-size: 14px;
-    font-weight: 800;
     background: #111;
     color: #fff;
+    font-size: 14px;
+    font-weight: 800;
     cursor: pointer;
+    transition: opacity 0.15s ease;
 }
 
-/* ===== レスポンシブ ===== */
-/* タブレット（768–850px） */
+.detail__button:hover {
+    opacity: 0.9;
+}
+
+/* =========================================================
+   レスポンシブ
+   ========================================================= */
+
+/* Tablet（768–850px） */
 @media (min-width: 768px) and (max-width: 850px) {
     .detail {
         max-width: 760px;
@@ -154,10 +178,11 @@
 
     .detail__row {
         grid-template-columns: 190px 1fr;
+        min-height: 68px;
     }
 
     .detail__time {
-        width: 130px;
+        width: 110px;
     }
 }
 

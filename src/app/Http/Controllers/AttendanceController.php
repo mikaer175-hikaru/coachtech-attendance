@@ -9,12 +9,12 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
-use App\Http\Requests\UpdateAttendanceRequest;
+use App\Http\Requests\UpdateAttendanceRequest as UserUpdateAttendanceRequest;
 use App\Http\Requests\StartWorkRequest;
 use App\Http\Requests\EndWorkRequest;
 use App\Http\Requests\StartBreakRequest;
 use App\Http\Requests\EndBreakRequest;
-use App\Http\Requests\Admin\UpdateAttendanceRequest;
+use App\Http\Requests\Admin\UpdateAttendanceRequest as AdminUpdateAttendanceRequest;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AttendanceController extends Controller
@@ -175,7 +175,7 @@ class AttendanceController extends Controller
     }
 
     // 管理者：勤怠更新（※break_times 一本化のため単一休憩カラムは扱わない）
-    public function update(UpdateAttendanceRequest $request, \App\Models\Attendance $attendance)
+    public function update(UserUpdateAttendanceRequest $request, Attendance $attendance)
     {
         // 承認待ち保護（念のため二重チェック）
         if (($attendance->status ?? null) === 'pending') {

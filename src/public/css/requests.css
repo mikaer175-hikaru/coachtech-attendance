@@ -1,12 +1,14 @@
-/* 申請一覧（一般ユーザー） */
-/* BEM＋セマンティック。IDと!importantは使わない */
+/* 申請一覧（一般ユーザー）*/
 
-/* ベース */
 .request-list {
     max-width: 980px;
     margin: 0 auto;
     padding: 32px 16px 64px;
     line-height: 1.6;
+}
+
+.u-hidden {
+    display: none;
 }
 
 .request-list__heading {
@@ -19,6 +21,7 @@
     display: flex;
     gap: 12px;
     margin: 8px 0 20px;
+    flex-wrap: wrap;
 }
 
 .request-list__tab {
@@ -39,6 +42,13 @@
 .request-list__tab--active {
     background-color: #2b6cb0;
     color: #fff;
+}
+
+/* keyboard focus */
+.request-list__tab:focus-visible,
+.request-card__link:focus-visible {
+    outline: 3px solid rgba(43, 108, 176, .45);
+    outline-offset: 2px;
 }
 
 .request-list__section {
@@ -64,6 +74,13 @@
 
 .request-card__meta {
     grid-column: 1 / 2;
+    line-height: 1.5;
+}
+
+.request-card__id {
+    margin: 0 0 4px;
+    font-weight: 700;
+    color: #2d3748;
 }
 
 .request-card__date {
@@ -81,17 +98,28 @@
 }
 
 .request-card__status--pending {
-    background-color: #fff7e6;
-    color: #b7791f;
+    background-color: #fdecc8;
+    /* was #fff7e6 */
+    color: #8a5a10;
+    /* was #b7791f */
 }
 
 .request-card__status--approved {
-    background-color: #e6fffa;
-    color: #2c7a7b;
+    background-color: #c9fbf5;
+    /* was #e6fffa */
+    color: #1c5f60;
+    /* was #2c7a7b */
 }
 
 .request-card__body {
     grid-column: 1 / 2;
+    overflow-wrap: anywhere;
+}
+
+.request-card__note {
+    margin: 0 0 6px;
+    font-size: 14px;
+    color: #2d3748;
 }
 
 .request-card__type,
@@ -127,10 +155,12 @@
 }
 
 .request-list__pager {
-    margin-top: 12px;
+    margin-top: 16px;
+    /* was 12px */
+    display: flex;
+    justify-content: center;
 }
 
-/* 申請詳細 */
 .request-detail {
     max-width: 760px;
     margin: 0 auto;
@@ -169,6 +199,7 @@
 
 .request-detail__desc {
     color: #333;
+    overflow-wrap: anywhere;
 }
 
 .request-detail__actions {
@@ -185,8 +216,53 @@
     font-weight: 700;
 }
 
-/* --- レスポンシブ --- */
-/* タブレット：768-850px */
+/* ========== Responsive ========== */
+/* Mobile ～767px */
+@media (max-width: 767px) {
+    .request-list {
+        padding: 24px 12px 48px;
+    }
+
+    .request-list__heading {
+        font-size: 20px;
+        margin-bottom: 12px;
+    }
+
+    .request-list__tabs {
+        gap: 8px;
+        margin: 6px 0 16px;
+    }
+
+    .request-card {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        padding: 12px;
+    }
+
+    .request-card__actions {
+        grid-column: auto;
+        justify-self: start;
+    }
+
+    .request-card__link {
+        padding: 8px 10px;
+    }
+
+    .request-list__section-title {
+        font-size: 16px;
+        margin-bottom: 8px;
+    }
+
+    .request-detail {
+        padding: 28px 12px 56px;
+    }
+
+    .request-detail__row {
+        grid-template-columns: 120px 1fr;
+    }
+}
+
+/* Tablet 768–850px */
 @media (min-width: 768px) and (max-width: 850px) {
     .request-list {
         max-width: 820px;
@@ -206,7 +282,7 @@
     }
 }
 
-/* PC：1400-1540px */
+/* PC 1400–1540px */
 @media (min-width: 1400px) and (max-width: 1540px) {
     .request-list {
         max-width: 1120px;

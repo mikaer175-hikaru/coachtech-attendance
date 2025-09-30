@@ -6,7 +6,6 @@
     <title>COACHTECH 勤怠管理</title>
     <link rel="stylesheet" href="{{ asset('css/reset.css') }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-    {{-- 互換のため両方受ける --}}
     @yield('css')
     @yield('styles')
 </head>
@@ -14,7 +13,7 @@
 <header class="header">
     <div class="header__inner">
         <a class="header__logo" href="{{ url('/') }}">
-            <img src="{{ asset('images/logo-white.png') }}" alt="COACHTECHロゴ">
+            <img src="{{ asset('images/logo.svg') }}" alt="COACHTECHロゴ">
         </a>
 
         @auth
@@ -23,7 +22,7 @@
                     {{-- 「勤怠」：存在するルートだけ表示して安全に --}}
                     @if (Route::has('attendance.index'))
                         <li class="header__item">
-                            <a class="header__link" href="{{ route('attendance.index') }}">勤怠一覧</a>
+                            <a class="header__link" href="{{ route('attendance.list') }}">勤怠一覧</a>
                         </li>
                     @endif
                     @if (Route::has('attendance.create'))
@@ -32,7 +31,7 @@
                         </li>
                     @endif
 
-                    {{-- 申請一覧（ここが重要）--}}
+                    {{-- 申請一覧 --}}
                     <li class="header__item">
                         <a class="header__link" href="{{ route('stamp_requests.index') }}" aria-label="申請一覧へ">
                             <span aria-hidden="true">申請</span>

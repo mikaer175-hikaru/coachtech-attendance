@@ -49,4 +49,14 @@ class AttendanceCorrectRequest extends Model
             default               => '不明',
         };
     }
+
+    public function scopeOwnedBy(\Illuminate\Database\Eloquent\Builder $q, int $userId)
+    {
+        return $q->where('user_id', $userId);
+    }
+
+    public function scopeLatestApproved(\Illuminate\Database\Eloquent\Builder $q)
+    {
+        return $q->orderByDesc('approved_at');
+    }
 }

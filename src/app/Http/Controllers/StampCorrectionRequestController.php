@@ -37,11 +37,9 @@ class StampCorrectionRequestController extends Controller
         return view('requests.index', compact('tab', 'pending', 'approved'));
     }
 
-    // 申請“詳細” → 勤怠詳細へリダイレクト（テスト仕様）
+    // 申請“詳細” → 勤怠詳細へリダイレクト
     public function show(AttendanceCorrectRequest $stamp_request)
     {
-        abort_if($stamp_request->user_id !== Auth::id(), 403);
-
         return redirect()->route('attendance.show', $stamp_request->attendance_id);
     }
 

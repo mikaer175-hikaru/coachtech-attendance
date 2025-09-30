@@ -1,7 +1,10 @@
 @extends('admin.layouts.admin')
 
+@section('css')
+    <link rel="stylesheet" href="{{ asset('css/admin-requests.css') }}">
+@endsection
+
 @section('content')
-<link rel="stylesheet" href="{{ asset('css/admin-requests.css') }}">
 
 <section class="request-detail">
     <h1 class="request-detail__heading">勤怠詳細</h1>

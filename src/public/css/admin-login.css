@@ -1,65 +1,28 @@
-.admin-login,
-.admin-header {
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+/* =========================================================
+   管理者ログインページ
+   ========================================================= */
+
+/* ベース */
+.admin-login {
+    max-width: 700px;
+    margin: 120px auto;
+    padding: 0 16px 64px;
+    text-align: center;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto,
+        "Noto Sans JP", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
     color: #111;
 }
 
-.admin-header {
-    background: #000;
-}
-
-.admin-header__inner {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.admin-header__logo {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    text-decoration: none;
-    color: #fff;
-    font-weight: 800;
-    font-size: 18px;
-    letter-spacing: 0.04em;
-}
-
-.admin-header__logout-form {
-    margin: 0;
-}
-
-.admin-header__logout-button {
-    border: 1px solid #fff;
-    background: transparent;
-    color: #fff;
-    padding: 8px 16px;
-    border-radius: 10px;
-    cursor: pointer;
-}
-
-.admin-header__logout-button:hover {
-    opacity: 0.9;
-}
-
-.admin-login {
-    max-width: 600px;
-    margin: 80px auto;
-    padding: 0 16px 64px;
-    text-align: center;
-}
-
+/* 見出し */
 .admin-login__heading {
-    font-size: 26px;
+    font-size: 30px;
     font-weight: 800;
-    margin-bottom: 48px;
+    margin: 0 0 52px;
 }
 
+/* フラッシュ */
 .admin-login__flash {
-    margin-bottom: 20px;
+    margin: 0 0 20px;
     padding: 10px 12px;
     border-radius: 8px;
     font-size: 14px;
@@ -76,19 +39,22 @@
     color: #0b7a3b;
 }
 
+/* フォーム */
 .admin-login__form {
     display: flex;
     flex-direction: column;
     gap: 32px;
 }
 
+/* 入力行 */
 .admin-login__field {
     text-align: left;
 }
 
+/* ラベル/必須 */
 .admin-login__label {
     display: inline-block;
-    margin-bottom: 10px;
+    margin: 0 0 10px;
     font-weight: 700;
     font-size: 14px;
     color: #222;
@@ -99,6 +65,7 @@
     font-weight: 800;
 }
 
+/* 入力 */
 .admin-login__input {
     width: 100%;
     padding: 12px 14px;
@@ -113,6 +80,7 @@
     outline-offset: 2px;
 }
 
+/* チェックボックス */
 .admin-login__checkbox {
     display: inline-flex;
     align-items: center;
@@ -121,34 +89,40 @@
     color: #333;
 }
 
+/* エラー文言 */
 .admin-login__error {
-    margin-top: 6px;
+    margin: 6px 0 0;
     color: #b00020;
     font-size: 13px;
 }
 
+/* ボタン */
 .admin-login__actions {
     margin-top: 8px;
 }
 
 .admin-login__button {
     width: 100%;
-    padding: 14px;
+    padding: 16px;
     border: none;
     border-radius: 12px;
     background: #000;
     color: #fff;
     font-weight: 700;
-    font-size: 16px;
+    font-size: 17px;
     cursor: pointer;
-    transition: opacity .15s ease-in-out;
+    transition: opacity 0.15s ease-in-out;
 }
 
 .admin-login__button:hover {
     opacity: 0.9;
 }
 
-/* ▼ タブレット (768-850px) */
+/* =========================================================
+   レスポンシブ
+   ========================================================= */
+
+/* Tablet (768–850px) */
 @media (min-width: 768px) and (max-width: 850px) {
     .admin-login {
         max-width: 640px;
@@ -167,7 +141,7 @@
     }
 }
 
-/* ▼ PC (1400-1540px) */
+/* PC (1400–1540px) */
 @media (min-width: 1400px) and (max-width: 1540px) {
     .admin-login {
         max-width: 700px;

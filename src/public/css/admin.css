@@ -1,83 +1,113 @@
-/* ===== 管理共通レイアウト / ヘッダー ===== */
+/* ===========================
+   管理ヘッダー
+   =========================== */
 .admin-header {
     background: #000;
     color: #fff;
+    height: 64px;
+    display: flex;
+    align-items: center;
 }
 
 .admin-header__inner {
-    max-width: 1200px;
+    max-width: 1540px;
+    width: 100%;
     margin: 0 auto;
-    padding: 14px 16px;
+    padding: 0 24px;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 16px;
 }
 
 .admin-header__logo-img {
     display: block;
-    height: 26px;
+    height: 28px;
 }
 
 .admin-header__nav {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 32px;
 }
 
 .admin-header__link {
     color: #fff;
     text-decoration: none;
     font-weight: 700;
-    font-size: 14px;
+    font-size: 15px;
+    line-height: 1;
+    padding: 8px 6px;
+    border-radius: 8px;
 }
 
 .admin-header__link:hover {
-    opacity: 0.9;
+    opacity: 0.85;
 }
 
 .admin-header__logout-form {
-    margin: 0 0 0 8px;
+    margin-left: 8px;
 }
 
 .admin-header__logout-button {
-    border: 1px solid #fff;
+    border: none;
     background: transparent;
     color: #fff;
-    padding: 8px 14px;
-    border-radius: 10px;
-    cursor: pointer;
     font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    padding: 8px 6px;
+    border-radius: 8px;
 }
 
 .admin-header__logout-button:hover {
-    opacity: 0.9;
+    opacity: 0.85;
 }
 
-/* コンテンツ余白 */
+.admin-header__link--active {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+:where(a, button).admin-header__link:focus-visible,
+:where(a, button).admin-header__logout-button:focus-visible {
+    outline: 2px solid #60a5fa;
+    outline-offset: 2px;
+}
+
 .admin-main {
-    max-width: 1200px;
+    max-width: 1540px;
+    /* ← 1200 → 1540 */
     margin: 0 auto;
     padding: 24px 16px 64px;
 }
 
-/* タブレット */
+/* ===========================
+   レスポンシブ要件
+   =========================== */
 @media (min-width: 768px) and (max-width: 850px) {
     .admin-header__inner {
-        padding: 16px 20px;
+        padding: 0 20px;
     }
 
     .admin-header__logo-img {
         height: 28px;
     }
+
+    .admin-header__nav {
+        gap: 24px;
+    }
 }
 
-/* PC(1400-1540px) */
 @media (min-width: 1400px) and (max-width: 1540px) {
     .admin-header__inner {
-        padding: 18px 24px;
+        padding: 0 24px;
     }
 
     .admin-header__logo-img {
         height: 30px;
+    }
+
+    .admin-header__nav {
+        gap: 36px;
     }
 }

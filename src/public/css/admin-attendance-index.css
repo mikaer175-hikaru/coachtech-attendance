@@ -1,17 +1,32 @@
+/* =========================================================
+   管理者勤怠一覧
+   ========================================================= */
+
 .admin-attendance {
     max-width: 920px;
     margin: 32px auto 64px;
     padding: 0 16px;
 }
 
-/* 見出し「2023年6月1日の勤怠」 */
 .admin-attendance__title {
+    position: relative;
     font-size: 24px;
     font-weight: 800;
     margin: 0 0 16px;
+    padding-left: 16px;
 }
 
-/* 日付ナビ（グレーの角丸バー） */
+.admin-attendance__title::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.22em;
+    width: 6px;
+    height: 1em;
+    background: #111;
+    border-radius: 2px;
+}
+
 .admin-attendance__nav {
     display: grid;
     grid-template-columns: 1fr auto 1fr;
@@ -35,7 +50,8 @@
     color: #111827;
     border: 1px solid #e5e7eb;
     text-decoration: none;
-    transition: opacity .15s ease;
+    transition: opacity 0.15s ease;
+    line-height: 1;
 }
 
 .admin-attendance__nav-btn--next {
@@ -43,7 +59,7 @@
 }
 
 .admin-attendance__nav-btn:hover {
-    opacity: .85;
+    opacity: 0.85;
 }
 
 .admin-attendance__nav-center {
@@ -69,6 +85,7 @@
 .admin-attendance__table {
     width: 100%;
     border-collapse: collapse;
+    table-layout: fixed;
 }
 
 .admin-attendance__table thead th {
@@ -85,6 +102,7 @@
     text-align: center;
     padding: 12px 10px;
     border-bottom: 1px solid #f0f0f0;
+    white-space: nowrap;
 }
 
 .admin-attendance__detail {
@@ -110,6 +128,10 @@
     text-align: center;
 }
 
+/* =========================
+   レスポンシブ
+   ========================= */
+
 /* Tablet: 768–850px */
 @media (min-width: 768px) and (max-width: 850px) {
     .admin-attendance__title {
@@ -123,7 +145,7 @@
     }
 }
 
-/* Wide PC: 1400–1540px */
+/* PC: 1400–1540px */
 @media (min-width: 1400px) and (max-width: 1540px) {
     .admin-attendance__title {
         font-size: 26px;

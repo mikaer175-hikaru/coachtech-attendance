@@ -2,9 +2,6 @@
 
 @section('styles')
     <link rel="stylesheet" href="{{ asset('css/requests.css') }}">
-    <style>
-      .u-hidden { display: none; }
-    </style>
 @endsection
 
 @section('content')
@@ -41,7 +38,7 @@
                 </div>
                 <div class="request-card__actions">
                     {{-- 申請詳細へ（→ コントローラが勤怠詳細に302） --}}
-                    <a class="request-card__link" href="{{ route('stamp_requests.show', $item->id) }}">詳細</a>
+                    <a class="request-card__link" href="{{ route('attendance.show', $item->attendance_id) }}">詳細</a>
                 </div>
             </article>
         @empty
@@ -70,7 +67,7 @@
                     @isset($item->reason)<p class="request-card__reason">理由：{{ $item->reason }}</p>@endisset
                 </div>
                 <div class="request-card__actions">
-                    <a class="request-card__link" href="{{ route('stamp_requests.show', $item->id) }}">詳細</a>
+                    <a class="request-card__link" href="{{ route('attendance.show', $item->attendance_id) }}">詳細</a>
                 </div>
             </article>
         @empty

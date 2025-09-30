@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@section('css')
+    <link rel="stylesheet" href="{{ asset('css/register.css') }}">
+@endsection
+
 @section('content')
 <main class="register">
     <div class="register__container">

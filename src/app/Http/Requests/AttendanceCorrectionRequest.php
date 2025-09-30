@@ -126,8 +126,4 @@ class AttendanceCorrectionRequest extends FormRequest
             'breaks.*.end.regex'            => '休憩時間もしくは退勤時間が不適切な値です',
         ];
     }
-
-    public function scopeOwnedBy($q, int $userId) { return $q->where('user_id', $userId); }
-    public function scopePending($q)  { return $q->where('status', 'pending'); }
-    public function scopeApproved($q) { return $q->where('status', 'approved'); }
 }

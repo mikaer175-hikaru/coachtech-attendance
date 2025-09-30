@@ -1,272 +1,261 @@
-/* =========================================
-   申請一覧（管理者）
-   ========================================= */
+/* =========================================================
+   申請一覧/詳細（管理者）
+   ========================================================= */
 
-/* ベースレイアウト */
+:root {
+    --card-radius: 12px;
+    --ring: #60a5fa;
+    --line: #eee;
+    --muted: #f9fafb;
+    --text: #222;
+    --text-weak: #666;
+    --black: #111;
+}
+
+/* ===== 一覧 ===== */
 .request-list {
-    max-width: 1200px;
+    max-width: 920px;
     margin: 0 auto;
-    padding: 48px 16px 80px;
-    color: #222;
-    background: transparent;
+    padding: 32px 16px 64px;
     box-sizing: border-box;
 }
 
 .request-list__heading {
+    position: relative;
     font-size: 24px;
     font-weight: 800;
     margin: 0 0 16px;
+    padding-left: 16px;
 }
 
-/* タブ（サーバーサイド切替リンク） */
+.request-list__heading::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.22em;
+    width: 6px;
+    height: 1em;
+    background: var(--black);
+    border-radius: 2px;
+}
+
 .request-list__tabs {
-    display: inline-flex;
+    display: flex;
+    gap: 48px;
     align-items: center;
-    gap: 12px;
-    border-bottom: 1px solid #e6e6e6;
+    padding-bottom: 10px;
     margin-bottom: 16px;
-    padding-bottom: 8px;
+    border-bottom: 1px solid #e3e4e8;
 }
 
 .request-list__tab {
     display: inline-block;
-    padding: 10px 14px;
-    border-radius: 10px;
+    padding: 8px 0;
     text-decoration: none;
     font-weight: 700;
-    color: #666;
-    background: #f7f7f7;
-    border: 1px solid #e6e6e6;
-    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    color: var(--text-weak);
 }
 
 .request-list__tab:hover {
-    background: #f0f4ff;
-    color: #2b66c3;
-    border-color: #cfe0ff;
+    color: var(--black);
 }
 
 .request-list__tab--active {
-    color: #2b66c3;
-    background: #eef5ff;
-    border-color: #cfe0ff;
-    box-shadow: 0 0 0 2px rgba(43, 102, 195, 0.12) inset;
+    color: var(--black);
 }
 
-/* テーブルラッパー */
 .request-list__table-wrap {
-    overflow: auto;
-    border: 1px solid #eee;
-    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: var(--card-radius);
     background: #fff;
 }
 
-/* テーブル */
 .request-table {
     width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    min-width: 960px;
-    table-layout: auto;
+    border-collapse: collapse;
+    table-layout: fixed;
+    min-width: 880px;
 }
 
 .request-table__head {
-    background: #fafafa;
+    background: var(--muted);
 }
 
-.request-table__row:nth-child(even) .request-table__cell {
-    background: #fcfcfc;
+.request-table__row {
+    border-bottom: 1px solid var(--line);
 }
 
 .request-table__cell {
     padding: 12px 14px;
-    border-bottom: 1px solid #eee;
-    vertical-align: middle;
     font-size: 14px;
     line-height: 1.5;
-    color: #222;
+    color: var(--text);
     white-space: nowrap;
+    text-align: center;
 }
 
 .request-table__cell--head {
-    position: sticky;
-    top: 0;
-    z-index: 1;
     font-weight: 700;
     color: #333;
-    background: #fafafa;
+    background: var(--muted);
 }
+
+.request-table__body .request-table__cell:nth-child(2),
+.request-table__body .request-table__cell:nth-child(4) {
+    text-align: left;
 
 .request-table__cell--ellipsis {
     max-width: 360px;
-    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-/* 詳細リンク */
 .request-list__link {
-    display: inline-block;
-    padding: 6px 12px;
-    border-radius: 8px;
-    border: 1px solid #2b66c3;
-    color: #2b66c3;
+    color: var(--black);
     text-decoration: none;
     font-weight: 700;
-    background: #fff;
-    transition: background 0.2s, transform 0.05s;
 }
 
 .request-list__link:hover {
-    background: #eaf2ff;
-}
-
-.request-list__link:active {
-    transform: translateY(1px);
-}
-
-.request-list__link--disabled {
-    pointer-events: none;
-    border-color: #ccc;
-    color: #aaa;
-    background: #f4f4f4;
+    text-decoration: underline;
 }
 
 /* ページネーション */
 .request-list__pagination {
-    margin-top: 16px;
+    margin-top: 14px;
     text-align: right;
 }
 
-/* =========================================
-   申請詳細（管理者）  ※一覧と同ファイルに追記
-   ========================================= */
-
+/* ===== 詳細 ===== */
 .request-detail {
-    max-width: 1200px;
+    max-width: 920px;
     margin: 0 auto;
-    padding: 48px 16px 80px;
-    color: #222;
+    padding: 32px 16px 64px;
     box-sizing: border-box;
 }
 
 .request-detail__heading {
+    position: relative;
     font-size: 24px;
     font-weight: 800;
     margin: 0 0 16px;
+    padding-left: 16px;
 }
 
-/* テーブルを囲むカード風ラッパ（一覧のUIに合わせる） */
+.request-detail__heading::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.22em;
+    width: 6px;
+    height: 1em;
+    background: var(--black);
+    border-radius: 2px;
+}
+
+/* カード */
 .request-detail__card {
-    border: 1px solid #eee;
-    border-radius: 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--card-radius);
     background: #fff;
     overflow: hidden;
 }
 
-/* フラッシュ */
-.request-detail__flash {
-    max-width: 1200px;
-    margin: 0 auto 12px;
-    padding: 10px 14px;
-    border-radius: 8px;
+/* 2列テーブル */
+.request-detail .request-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.request-detail .request-table__row {
+    border-bottom: 1px solid var(--line);
+}
+
+.request-detail .request-table__cell {
+    padding: 16px 20px;
     font-size: 14px;
-    box-sizing: border-box;
+    line-height: 1.6;
+    color: var(--text);
+    white-space: nowrap;
+    text-align: center;
 }
 
-.request-detail__flash--success {
-    background: #ecfdf3;
-    color: #08643c;
-    border: 1px solid #a6f4c5;
+.request-detail .request-table__cell--head {
+    width: 220px;
+    text-align: left;
+    font-weight: 700;
+    color: #333;
+    background: #fff;
 }
 
-.request-detail__flash--error {
-    background: #fef3f2;
-    color: #7a271a;
-    border: 1px solid #fecdca;
-}
-
-/* ボタン行（右下配置） */
+/* アクション（右下） */
 .request-detail__actions {
     display: flex;
     justify-content: flex-end;
-    padding: 14px 16px;
-    border-top: 1px solid #eee;
+    padding: 20px;
+    border-top: 1px solid var(--line);
+    background: #fff;
 }
 
-/* ボタン（一覧のトーンに合わせた主ボタン） */
+/* 承認ボタン（状態クラスのみで見た目切替） */
 .request-detail__button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     min-width: 120px;
     height: 40px;
-    padding: 0 14px;
+    padding: 0 16px;
     border-radius: 10px;
-    border: 1px solid #111;
-    background: #111;
+    border: 1px solid var(--black);
+    background: var(--black);
     color: #fff;
-    font-weight: 700;
+    font-weight: 800;
     font-size: 14px;
+    letter-spacing: 0.02em;
     cursor: pointer;
-    transition: background .2s, opacity .15s, transform .02s;
 }
 
 .request-detail__button:hover {
-    opacity: .9;
+    opacity: 0.9;
 }
 
-.request-detail__button:active {
-    transform: translateY(1px);
+.request-detail__button:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
 }
 
-.request-detail__button--disabled {
-    background: #bdbdbd;
-    border-color: #bdbdbd;
+/* 承認済み（灰） */
+.request-detail__button--disabled,
+.request-detail__button[disabled] {
+    background: #777;
+    border-color: #777;
     color: #fff;
     cursor: default;
+    opacity: 1;
 }
 
-/* -----------------------------------------
-   レスポンシブ
-   ----------------------------------------- */
-
-/* PC (1400–1540px) */
-@media (min-width: 1400px) and (max-width: 1540px) {
-    .request-list {
-        max-width: 1280px;
-        padding-left: 24px;
-        padding-right: 24px;
-    }
-
-    .request-list__heading {
-        font-size: 26px;
-    }
-}
-
+/* ===== レスポンシブ ===== */
 /* Tablet (768–850px) */
 @media (min-width: 768px) and (max-width: 850px) {
-    .request-list {
-        padding: 32px 12px 56px;
+
+    .request-list,
+    .request-detail {
+        padding: 28px 12px 56px;
     }
 
-    .request-list__heading {
-        font-size: 20px;
-        margin-bottom: 12px;
+    .request-list__heading,
+    .request-detail__heading {
+        font-size: 22px;
     }
 
     .request-list__tabs {
-        gap: 8px;
-    }
-
-    .request-list__tab {
-        padding: 8px 12px;
-        font-weight: 700;
-        border-radius: 8px;
+        gap: 28px;
     }
 
     .request-table {
-        min-width: 880px;
+        min-width: 840px;
     }
 
     .request-table__cell {
@@ -274,26 +263,21 @@
         font-size: 13px;
     }
 
-    .request-table__cell--ellipsis {
-        max-width: 300px;
-    }
-
-    .request-detail {
-        padding: 32px 12px 56px;
-    }
-
-    .request-detail__heading {
-        font-size: 20px;
-        margin-bottom: 12px;
-    }
-
-    .request-detail__actions {
-        padding: 12px;
-    }
-
-    .request-detail__button {
-        min-width: 110px;
-        height: 38px;
+    .request-detail .request-table__cell {
+        padding: 14px 16px;
         font-size: 13px;
+    }
+
+    .request-detail .request-table__cell--head {
+        width: 190px;
+    }
+}
+
+/* PC (1400–1540px) */
+@media (min-width: 1400px) and (max-width: 1540px) {
+
+    .request-list__heading,
+    .request-detail__heading {
+        font-size: 26px;
     }
 }

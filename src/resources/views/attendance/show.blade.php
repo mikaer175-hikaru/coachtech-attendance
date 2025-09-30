@@ -1,19 +1,23 @@
 @extends('layouts.app')
 
 @section('css')
-  <link rel="stylesheet" href="{{ asset('css/attendance-detail.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/attendance-detail.css') }}">
 @endsection
 
 @section('content')
-
 <div class="attendance-detail">
     <h1 class="attendance-detail__heading">勤怠詳細</h1>
 
     @if (session('error'))
-        <p class="attendance-detail__flash attendance-detail__flash--error">{{ session('error') }}</p>
+        <p class="attendance-detail__flash attendance-detail__flash--error">
+            {{ session('error') }}
+        </p>
     @endif
+
     @if (session('success'))
-        <p class="attendance-detail__flash attendance-detail__flash--success">{{ session('success') }}</p>
+        <p class="attendance-detail__flash attendance-detail__flash--success">
+            {{ session('success') }}
+        </p>
     @endif
 
     @php
@@ -26,10 +30,10 @@
         $dateMonthDay = $date->isoFormat('M月D日');
     @endphp
 
-    @if($isPending)
-      <p class="attendance-detail__flash attendance-detail__flash--info">
-        承認待ちのため修正はできません。
-      </p>
+    @if ($isPending)
+        <p class="attendance-detail__flash attendance-detail__flash--info">
+            承認待ちのため修正はできません。
+        </p>
     @endif
 
     {{-- フォーム開始：修正申請のPOST --}}
@@ -75,7 +79,7 @@
             @enderror
 
             {{-- 休憩（回数分＋空1行） --}}
-            @foreach($breakRows as $i => $row)
+            @foreach ($breakRows as $i => $row)
                 <div class="attendance-card__row">
                     <div class="attendance-card__th">休憩{{ $i + 1 }}</div>
                     <div class="attendance-card__td attendance-card__td--range">
@@ -100,7 +104,9 @@
             <div class="attendance-card__row attendance-card__row--stack">
                 <div class="attendance-card__th">備考</div>
                 <div class="attendance-card__td">
-                    <textarea class="memo" name="note" {{ $disabled }} required>{{ old('note', $attendance->note) }}</textarea>
+                    <textarea class="memo" name="note" {{ $disabled }} required>
+                        {{ old('note', $attendance->note) }}
+                    </textarea>
                 </div>
             </div>
             @error('note')
@@ -109,7 +115,7 @@
         </section>
 
         <div class="attendance-detail__actions">
-            @if(!$isPending)
+            @if (! $isPending)
                 <button type="submit" class="btn btn--primary">修正</button>
             @endif
         </div>

@@ -1,15 +1,30 @@
-/* スタッフ一覧（管理者）*/
+/* =========================================================
+   スタッフ一覧（管理者）
+   ========================================================= */
 
 .staff-list {
-    max-width: 1120px;
+    max-width: 920px;
     margin: 0 auto;
     padding: 32px 16px 64px;
 }
 
 .staff-list__heading {
+    position: relative;
     font-size: 24px;
     font-weight: 800;
-    margin: 0;
+    margin: 0 0 16px;
+    padding-left: 16px;
+}
+
+.staff-list__heading::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.22em;
+    width: 6px;
+    height: 1em;
+    background: #111;
+    border-radius: 2px;
 }
 
 .staff-list__header {
@@ -35,6 +50,12 @@
     padding: 8px 10px;
     border: 1px solid #ddd;
     border-radius: 8px;
+    background: #fff;
+}
+
+.staff-list__month-input:focus {
+    outline: 2px solid #111;
+    outline-offset: 2px;
 }
 
 .staff-list__month-button {
@@ -46,6 +67,7 @@
     cursor: pointer;
 }
 
+/* フラッシュ */
 .staff-list__flash {
     margin: 12px 0 20px;
     padding: 10px 12px;
@@ -63,17 +85,18 @@
     color: #b12a1c;
 }
 
+/* テーブルカード */
 .staff-list__table-wrap {
     background: #fff;
     border: 1px solid #eee;
     border-radius: 12px;
-    overflow-x: auto;
+    overflow: hidden;
 }
 
 .staff-list__table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 720px;
+    table-layout: fixed;
 }
 
 .staff-list__thead {
@@ -88,6 +111,8 @@
     padding: 14px 12px;
     text-align: left;
     vertical-align: middle;
+    font-size: 14px;
+    white-space: nowrap;
 }
 
 .staff-list__cell--head {
@@ -99,26 +124,28 @@
     text-align: right;
 }
 
-.staff-list__detail-button {
-    display: inline-block;
-    padding: 8px 12px;
-    border-radius: 8px;
-    background: #2a6df4;
-    color: #fff;
+.staff-list__detail-link {
+    color: #111;
     text-decoration: none;
+    font-weight: 700;
 }
 
-.staff-list__detail-button:hover {
-    opacity: 0.9;
+.staff-list__detail-link:hover {
+    text-decoration: underline;
 }
 
+/* ページネーション */
 .staff-list__pagination {
     margin-top: 16px;
     display: flex;
     justify-content: center;
 }
 
-/* ===== タブレット (768–850px) ===== */
+/* =========================
+   レスポンシブ
+   ========================= */
+
+/* Tablet: 768–850px */
 @media (min-width: 768px) and (max-width: 850px) {
     .staff-list {
         padding: 24px 12px 48px;
@@ -132,22 +159,15 @@
         padding: 6px 8px;
     }
 
-    .staff-list__detail-button {
-        padding: 8px 10px;
+    .staff-list__cell {
+        font-size: 13px;
+        padding: 12px 10px;
     }
 }
 
-/* ===== PC (1400–1540px) ===== */
+/* PC: 1400–1540px */
 @media (min-width: 1400px) and (max-width: 1540px) {
-    .staff-list {
-        max-width: 1240px;
-    }
-
     .staff-list__heading {
         font-size: 26px;
-    }
-
-    .staff-list__cell {
-        padding: 16px 14px;
     }
 }

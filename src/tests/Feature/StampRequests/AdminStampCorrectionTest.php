@@ -39,7 +39,7 @@ final class AdminStampCorrectionTest extends TestCase
             'user_id' => $u2->id, 'attendance_id' => $a2->id, 'note' => 'APPROVED_SHOULD_NOT_APPEAR',
         ]);
 
-        $res = $this->get(route('admin.stamp_requests.index', ['tab' => 'pending']));
+        $res = $this->get(route('stamp_requests.index', ['tab' => 'pending']));
         $res->assertOk();
         $res->assertSee('PENDING_1');
         $res->assertSee('PENDING_2');
@@ -68,7 +68,7 @@ final class AdminStampCorrectionTest extends TestCase
             'user_id' => $u->id, 'attendance_id' => $a->id, 'note' => 'PENDING_SHOULD_NOT_APPEAR',
         ]);
 
-        $res = $this->get(route('admin.stamp_requests.index', ['tab' => 'approved']));
+        $res = $this->get(route('stamp_requests.index', ['tab' => 'approved']));
         $res->assertOk();
         $content = $res->getContent();
         $res->assertSee('NEW');
