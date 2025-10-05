@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\AttendanceCorrectionRequest as AttendanceCorrectionFormRequest;
 use App\Models\Attendance;
-use App\Models\AttendanceCorrectRequest;
+use App\Models\StampCorrectionRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
