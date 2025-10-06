@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
 use App\Models\StampCorrectionRequest as ACR;
 
 class UserRequestController extends Controller
@@ -19,17 +18,16 @@ class UserRequestController extends Controller
         $attendanceId = $request->integer('attendance_id');
 
         // ============== 管理者：全ユーザー分 ==============
-        if (Gate::allows('admin')) {
-            $pending = ACR::with(['attendance:id,work_date,user_id', 'attendance.user:id,name'])
-                ->pending()
-                ->when($attendanceId, fn ($q) => $q->where('attendance_id', $attendanceId))
-                ->latest() // created_at desc
+        if ($request->user()->can('admin')) {
+            $base = ACR::with(['attendance:id,work_date,user_id', 'attendance.user:id,name'])
+                ->when($attendanceId, fn ($q) => $q->where('attendance_id', $attendanceId));
+
+            $pending = (clone $base)->pending()
+                ->latest()
                 ->paginate(10, ['*'], 'pending_page');
 
-            $approved = ACR::with(['attendance:id,work_date,user_id', 'attendance.user:id,name'])
-                ->approved()
-                ->when($attendanceId, fn ($q) => $q->where('attendance_id', $attendanceId))
-                ->latestApproved() // approved_at desc
+            $approved = (clone $base)->approved()
+                ->latestApproved()
                 ->paginate(10, ['*'], 'approved_page');
 
             return view('admin.stamp_requests.index', compact('tab', 'pending', 'approved', 'attendanceId'));
@@ -38,17 +36,15 @@ class UserRequestController extends Controller
         // ============== 一般ユーザー：本人のみ ==============
         $userId = $request->user()->id;
 
-        $pending = ACR::with(['attendance:id,work_date'])
+        $base = ACR::with(['attendance:id,work_date'])
             ->ownedBy($userId)
-            ->pending()
-            ->when($attendanceId, fn ($q) => $q->where('attendance_id', $attendanceId))
+            ->when($attendanceId, fn ($q) => $q->where('attendance_id', $attendanceId));
+
+        $pending = (clone $base)->pending()
             ->latest()
             ->paginate(10, ['*'], 'pending_page');
 
-        $approved = ACR::with(['attendance:id,work_date'])
-            ->ownedBy($userId)
-            ->approved()
-            ->when($attendanceId, fn ($q) => $q->where('attendance_id', $attendanceId))
+        $approved = (clone $base)->approved()
             ->latestApproved()
             ->paginate(10, ['*'], 'approved_page');
 
@@ -56,20 +52,21 @@ class UserRequestController extends Controller
     }
 
     // 申請詳細（一般ユーザーのみ使用：勤怠詳細へ転送）
-    public function show(Request $http, ACR $requestModel)
+    public function show(Request $http, ACR $stamp_request)
     {
-        // 自分の申請のみ閲覧可（アーリーリターン）
-        if ($requestModel->user_id !== $http->user()->id) {
+        // 自分の申請のみ閲覧可
+        if ($stamp_request->user_id !== $http->user()->id) {
             abort(403);
         }
 
-        if (!$requestModel->attendance_id) {
+        if (! $stamp_request->attendance_id) {
             return redirect()->route('stamp_requests.index')
                 ->with('error', 'この申請には勤怠情報が紐づいていません。');
         }
 
-        // 勤怠詳細へ転送（一般ユーザーの詳細ルート名に合わせる）
-        return redirect()->route('attendance.show', $requestModel->attendance_id);
+        // 勤怠詳細へ転送
+        return redirect()->route('attendance.show', $stamp_request->attendance_id);
     }
 }
+
 

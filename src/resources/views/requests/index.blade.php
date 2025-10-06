@@ -1,82 +1,101 @@
-@extends('layouts.app')
+@extends($isAdmin ? 'admin.layouts.admin' : 'layouts.app')
 
 @section('styles')
-    <link rel="stylesheet" href="{{ asset('css/requests.css') }}">
+    {{-- 一般/管理 共通CSS（必要なら分岐してもOK） --}}
+    <link rel="stylesheet" href="{{ asset($isAdmin ? 'css/admin-requests.css' : 'css/requests.css') }}">
 @endsection
 
 @section('content')
-<main class="request-list" aria-labelledby="page-title">
-    <h1 id="page-title" class="request-list__heading">申請一覧</h1>
+<main class="request-list" aria-labelledby="request-list-heading">
+    <h1 id="request-list-heading" class="request-list__heading">申請一覧</h1>
 
     {{-- タブ --}}
-    <nav class="request-list__tabs" aria-label="申請の種類">
-        <a href="{{ route('stamp_requests.index', ['tab' => 'pending']) }}"
-           class="request-list__tab {{ $tab === 'pending' ? 'request-list__tab--active' : '' }}">
-           承認待ち
+    @php $current = $tab === 'approved' ? 'approved' : 'pending'; @endphp
+    <nav class="request-list__tabs" aria-label="申請タブ">
+        <a class="request-list__tab {{ $current === 'pending' ? 'request-list__tab--active' : '' }}"
+           href="{{ route('stamp_requests.index', ['tab' => 'pending']) }}"
+           aria-current="{{ $current === 'pending' ? 'page' : 'false' }}">
+            承認待ち
         </a>
-        <a href="{{ route('stamp_requests.index', ['tab' => 'approved']) }}"
-           class="request-list__tab {{ $tab === 'approved' ? 'request-list__tab--active' : '' }}">
-           承認済み
+        <a class="request-list__tab {{ $current === 'approved' ? 'request-list__tab--active' : '' }}"
+           href="{{ route('stamp_requests.index', ['tab' => 'approved']) }}"
+           aria-current="{{ $current === 'approved' ? 'page' : 'false' }}">
+            承認済み
         </a>
     </nav>
 
-    {{-- 承認待ちリスト（HTMLは常に出力。見た目だけ切替） --}}
-    <section class="request-list__section {{ $tab === 'approved' ? 'u-hidden' : '' }}" aria-labelledby="pending-title">
-        <h2 id="pending-title" class="request-list__section-title">承認待ち</h2>
+    @php
+        /** @var \Illuminate\Pagination\LengthAwarePaginator $list */
+        $list = $current === 'approved' ? $approved : $pending;
+    @endphp
 
-        @forelse ($pending as $item)
-            <article class="request-card">
-                <div class="request-card__meta">
-                    <p class="request-card__id">#{{ $item->id }}</p>
-                    <p class="request-card__date">申請日：{{ optional($item->created_at)->format('Y/m/d H:i') }}</p>
-                    <p class="request-card__status request-card__status--pending">承認待ち</p>
-                </div>
-                <div class="request-card__body">
-                    <p class="request-card__note">備考：{{ $item->note }}</p>
-                    @isset($item->type)<p class="request-card__type">種別：{{ $item->type }}</p>@endisset
-                    @isset($item->reason)<p class="request-card__reason">理由：{{ $item->reason }}</p>@endisset
-                </div>
-                <div class="request-card__actions">
-                    {{-- 申請詳細へ（→ コントローラが勤怠詳細に302） --}}
-                    <a class="request-card__link" href="{{ route('attendance.show', $item->attendance_id) }}">詳細</a>
-                </div>
-            </article>
-        @empty
-            <p class="request-list__empty">承認待ちの申請はありません。</p>
-        @endforelse
+    <div class="request-list__table-wrap" role="region" aria-label="申請一覧テーブル">
+        <table class="request-table">
+            <thead class="request-table__head">
+                <tr class="request-table__row">
+                    <th class="request-table__cell request-table__cell--head">状態</th>
+                    @if($isAdmin)
+                        <th class="request-table__cell request-table__cell--head">名前</th>
+                    @endif
+                    <th class="request-table__cell request-table__cell--head">対象日時</th>
+                    <th class="request-table__cell request-table__cell--head">申請理由</th>
+                    <th class="request-table__cell request-table__cell--head">
+                        {{ $current === 'pending' ? '申請日時' : '承認日時' }}
+                    </th>
+                    <th class="request-table__cell request-table__cell--head">詳細</th>
+                </tr>
+            </thead>
+            <tbody class="request-table__body">
+                @forelse ($list as $req)
+                    <tr class="request-table__row">
+                        <td class="request-table__cell">
+                            {{ $req->status_label ?? ($current === 'pending' ? '承認待ち' : '承認済み') }}
+                        </td>
 
-        <div class="request-list__pager">
-            {{ $pending->appends(['approved_page' => request('approved_page'), 'tab' => 'pending'])->links() }}
-        </div>
-    </section>
+                        @if($isAdmin)
+                            <td class="request-table__cell">
+                                {{ $req->user?->name ?? optional(optional($req->attendance)->user)->name ?? '-' }}
+                            </td>
+                        @endif
 
-    {{-- 承認済みリスト（HTMLは常に出力。見た目だけ切替） --}}
-    <section class="request-list__section {{ $tab === 'pending' ? 'u-hidden' : '' }}" aria-labelledby="approved-title">
-        <h2 id="approved-title" class="request-list__section-title">承認済み</h2>
+                        <td class="request-table__cell">
+                            @php $d = optional($req->attendance)->work_date; @endphp
+                            {{ $d ? \Illuminate\Support\Carbon::parse($d)->format('Y/m/d') : '-' }}
+                        </td>
 
-        @forelse ($approved as $item)
-            <article class="request-card">
-                <div class="request-card__meta">
-                    <p class="request-card__id">#{{ $item->id }}</p>
-                    <p class="request-card__date">申請日：{{ optional($item->created_at)->format('Y/m/d H:i') }}</p>
-                    <p class="request-card__status request-card__status--approved">承認済み</p>
-                </div>
-                <div class="request-card__body">
-                    <p class="request-card__note">備考：{{ $item->note }}</p>
-                    @isset($item->type)<p class="request-card__type">種別：{{ $item->type }}</p>@endisset
-                    @isset($item->reason)<p class="request-card__reason">理由：{{ $item->reason }}</p>@endisset
-                </div>
-                <div class="request-card__actions">
-                    <a class="request-card__link" href="{{ route('attendance.show', $item->attendance_id) }}">詳細</a>
-                </div>
-            </article>
-        @empty
-            <p class="request-list__empty">承認済みの申請はありません。</p>
-        @endforelse
+                        <td class="request-table__cell request-table__cell--ellipsis" title="{{ $req->note }}">
+                            {{ $req->note }}
+                        </td>
 
-        <div class="request-list__pager">
-            {{ $approved->appends(['pending_page' => request('pending_page'), 'tab' => 'approved'])->links() }}
-        </div>
-    </section>
+                        <td class="request-table__cell">
+                            {{ $current === 'pending'
+                                ? optional($req->created_at)->format('Y/m/d')
+                                : optional($req->approved_at)->format('Y/m/d') }}
+                        </td>
+
+                        <td class="request-table__cell">
+                            @if($isAdmin)
+                                {{-- 管理者：申請詳細（承認/却下）へ --}}
+                                <a class="request-list__link" href="{{ route('admin.stamp_requests.show', $req) }}">詳細</a>
+                            @else
+                                {{-- 一般：勤怠詳細へ（FN033） --}}
+                                <a class="request-list__link" href="{{ route('attendance.show', $req->attendance_id) }}">詳細</a>
+                            @endif
+                        </td>
+                    </tr>
+                @empty
+                    <tr class="request-table__row">
+                        <td class="request-table__cell" colspan="{{ $isAdmin ? 6 : 5 }}">
+                            {{ $current === 'pending' ? '承認待ちの申請はありません。' : '承認済みの申請はありません。' }}
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+
+    <nav class="request-list__pagination" aria-label="ページネーション">
+        {{ $list->onEachSide(1)->withQueryString()->links() }}
+    </nav>
 </main>
 @endsection

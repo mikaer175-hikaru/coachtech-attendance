@@ -3,13 +3,13 @@
 namespace Database\Factories;
 
 use App\Models\Attendance;
-use App\Models\AttendanceCorrectRequest;
+use App\Models\StampCorrectionRequest;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class AttendanceCorrectRequestFactory extends Factory
+class StampCorrectionRequestFactory extends Factory
 {
-    protected $model = AttendanceCorrectRequest::class;
+    protected $model = StampCorrectionRequest::class;
 
     public function definition(): array
     {
@@ -20,7 +20,7 @@ class AttendanceCorrectRequestFactory extends Factory
             'new_end_time'   => null,
             'new_breaks'     => [],
             'note'           => 'テスト修正申請',
-            'status'         => AttendanceCorrectRequest::STATUS_PENDING,
+            'status'         => StampCorrectionRequest::STATUS_PENDING,
             'approved_at'    => null,
             'rejected_at'    => null,
         ];
@@ -28,13 +28,15 @@ class AttendanceCorrectRequestFactory extends Factory
 
     public function pending(): self
     {
-        return $this->state(fn () => ['status' => AttendanceCorrectRequest::STATUS_PENDING]);
+        return $this->state(fn () => [
+            'status' => StampCorrectionRequest::STATUS_PENDING,
+        ]);
     }
 
     public function approved(): self
     {
         return $this->state(fn () => [
-            'status'      => AttendanceCorrectRequest::STATUS_APPROVED,
+            'status'      => StampCorrectionRequest::STATUS_APPROVED,
             'approved_at' => now(),
         ]);
     }
@@ -42,7 +44,7 @@ class AttendanceCorrectRequestFactory extends Factory
     public function rejected(): self
     {
         return $this->state(fn () => [
-            'status'      => AttendanceCorrectRequest::STATUS_REJECTED,
+            'status'      => StampCorrectionRequest::STATUS_REJECTED,
             'rejected_at' => now(),
         ]);
     }
