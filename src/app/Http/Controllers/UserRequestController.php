@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
-use App\Models\AttendanceCorrectRequest as ACR;
+use App\Models\StampCorrectionRequest as ACR;
 
 class UserRequestController extends Controller
 {

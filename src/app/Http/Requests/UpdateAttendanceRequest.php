@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Attendance;
+namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator as ValidationValidator;
@@ -83,10 +83,6 @@ class UpdateAttendanceRequest extends FormRequest
         ];
     }
 
-    /**
-     * HH:MM → Carbon 変換（null許容）
-     * @param string|null $keyOrValue form input key or raw value when $raw=true
-     */
     private function t(?string $keyOrValue, bool $raw = false): ?Carbon
     {
         $v = $raw ? $keyOrValue : $this->input($keyOrValue);
