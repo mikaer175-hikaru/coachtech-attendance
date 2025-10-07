@@ -43,6 +43,16 @@ class StampCorrectionRequest extends Model
     public function scopeApproved($q) { return $q->where('status', self::STATUS_APPROVED); }
     public function scopeRejected($q) { return $q->where('status', self::STATUS_REJECTED); }
 
+    public function scopeLatestApproved($q)
+    {
+        return $q->orderByDesc('approved_at')->orderByDesc('id');
+    }
+
+    public function scopeLatest($q)
+    {
+        return $q->orderByDesc('created_at')->orderByDesc('id');
+    }
+
     protected $appends = ['start_time', 'end_time'];
     public function getStartTimeAttribute() { return $this->new_start_time; }
     public function getEndTimeAttribute()   { return $this->new_end_time; }

@@ -1,4 +1,4 @@
-@extends('admin.layouts.admin')
+@extends('layouts.app')
 
 @section('css')
     <link rel="stylesheet" href="{{ asset('css/staff-list.css') }}">
@@ -62,7 +62,7 @@
         </section>
 
         <nav class="staff-list__pagination" aria-label="ページネーション">
-            {{ $users->links() }}
+            {{ $users->onEachSide(1)->links('components.pagination') }}
         </nav>
     </section>
 @endsection

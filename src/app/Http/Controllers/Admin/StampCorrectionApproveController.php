@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\AttendanceCorrectRequest;
+use App\Models\StampCorrectionRequest;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -11,7 +11,7 @@ use Illuminate\View\View;
 class StampCorrectionApproveController extends Controller
 {
     // 詳細表示（管理者）
-    public function show(AttendanceCorrectRequest $correction): View
+    public function show(StampCorrectionRequest $correction): View
     {
         $correction->load(['attendance.user']);
 
@@ -19,14 +19,14 @@ class StampCorrectionApproveController extends Controller
             'req'        => $correction,
             'attendance' => $correction->attendance,
             'user'       => $correction->attendance?->user,
-            'isApproved' => $correction->status === AttendanceCorrectRequest::STATUS_APPROVED,
+            'isApproved' => $correction->status === StampCorrectionRequest::STATUS_APPROVED,
         ]);
     }
 
     // 承認（管理者）
-    public function approve(AttendanceCorrectRequest $correction): RedirectResponse
+    public function approve(StampCorrectionRequest $correction): RedirectResponse
     {
-        if ($correction->status === AttendanceCorrectRequest::STATUS_APPROVED) {
+        if ($correction->status === StampCorrectionRequest::STATUS_APPROVED) {
             abort(422, 'Already approved');
         }
 
@@ -44,7 +44,7 @@ class StampCorrectionApproveController extends Controller
                 $attendance->save();
             }
 
-            $correction->status      = AttendanceCorrectRequest::STATUS_APPROVED;
+            $correction->status      = StampCorrectionRequest::STATUS_APPROVED;
             $correction->approved_at = now();
             $correction->rejected_at = null;
             $correction->save();
@@ -54,14 +54,14 @@ class StampCorrectionApproveController extends Controller
     }
 
     // 却下（管理者）
-    public function reject(AttendanceCorrectRequest $correction): RedirectResponse
+    public function reject(StampCorrectionRequest $correction): RedirectResponse
     {
-        if ($correction->status === AttendanceCorrectRequest::STATUS_APPROVED) {
+        if ($correction->status === StampCorrectionRequest::STATUS_APPROVED) {
             abort(422, 'Already approved');
         }
 
         DB::transaction(function () use ($correction) {
-            $correction->status      = AttendanceCorrectRequest::STATUS_REJECTED;
+            $correction->status      = StampCorrectionRequest::STATUS_REJECTED;
             $correction->rejected_at = now();
             $correction->save();
         });

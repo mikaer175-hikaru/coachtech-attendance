@@ -141,6 +141,102 @@
     justify-content: center;
 }
 
+/* ---- Custom small pagination ---- */
+.c-pagination {
+    margin-top: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.c-pagination__list {
+    display: flex;
+    gap: 6px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.c-pagination__item {}
+
+.c-pagination__link {
+    display: inline-flex;
+    min-width: 32px;
+    height: 32px;
+    padding: 0 8px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    color: #111;
+    text-decoration: none;
+    font-size: 14px;
+    line-height: 1;
+}
+
+.c-pagination__item--active .c-pagination__link {
+    background: #111;
+    color: #fff;
+    border-color: #111;
+    cursor: default;
+}
+
+.c-pagination__item--disabled .c-pagination__link {
+    color: #aaa;
+    background: #f7f7f7;
+    border-color: #eee;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.c-pagination__item--ellipsis .c-pagination__link {
+    border: none;
+    background: transparent;
+    min-width: auto;
+    padding: 0 2px;
+    cursor: default;
+}
+
+.c-pagination__summary {
+    font-size: 12px;
+    color: #666;
+}
+
+/* ---- Pagination 横並び（必須） ---- */
+.c-pagination__list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.c-pagination__item {
+    display: inline-flex;
+}
+
+/* 念のため li も inline-flex に */
+.c-pagination__link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    padding: 0 8px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    color: #111;
+    text-decoration: none;
+    font-size: 14px;
+    line-height: 1;
+}
+
 /* =========================
    レスポンシブ
    ========================= */

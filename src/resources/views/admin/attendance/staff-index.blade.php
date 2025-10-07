@@ -1,5 +1,5 @@
 {{-- resources/views/admin/attendance/staff-index.blade.php --}}
-@extends('admin.layouts.admin')
+@extends('layouts.app')
 
 @section('css')
     <link rel="stylesheet" href="{{ asset('css/admin-staff-month.css') }}">

@@ -1,5 +1,5 @@
 {{-- resources/views/admin/auth/login.blade.php --}}
-@extends('admin.layouts.admin')
+@extends('layouts.app')
 
 @section('css')
     <link rel="stylesheet" href="{{ asset('css/admin-login.css') }}">
