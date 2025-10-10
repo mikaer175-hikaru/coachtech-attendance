@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 use App\Http\Requests\Admin\UpdateAttendanceRequest;
 use App\Models\Attendance;
+use App\Models\BreakTime;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -15,6 +17,11 @@ class AttendanceController extends Controller
     public function index(Request $request)
     {
         return $this->indexDaily($request);
+    }
+
+    public function breaks(): HasMany
+    {
+        return $this->hasMany(BreakTime::class, 'attendance_id')->orderBy('break_start');
     }
 
     // 日別一覧（?date=YYYY-MM-DD、無指定は今日）
@@ -53,17 +60,75 @@ class AttendanceController extends Controller
     {
         $v = $request->validated();
 
-        $attendance->start_time       = $v['start_time']       ?? null;
-        $attendance->end_time         = $v['end_time']         ?? null;
-        $attendance->break_start_time = $v['break_start_time'] ?? null;
-        $attendance->break_end_time   = $v['break_end_time']   ?? null;
-        $attendance->note             = $v['note']; // required
+        $workDate = Carbon::parse($attendance->work_date)->toDateString();
 
-        $attendance->save();
+        $start = isset($v['start_time']) && $v['start_time'] !== null
+            ? Carbon::parse("$workDate {$v['start_time']}")
+            : null;
 
-        $month = $attendance->work_date
-            ? Carbon::parse($attendance->work_date)->format('Y-m')
-            : now()->format('Y-m');
+        $end = isset($v['end_time']) && $v['end_time'] !== null
+            ? Carbon::parse("$workDate {$v['end_time']}")
+            : null;
+
+        $breakInputs = collect($v['breaks'] ?? [])
+            ->filter(fn ($b) => ($b['start'] ?? null) || ($b['end'] ?? null)) // どちらか入っていれば拾う
+            ->map(function ($b) use ($workDate) {
+                $bs = $b['start'] ?? null;
+                $be = $b['end']   ?? null;
+                return [
+                    'break_start' => $bs ? Carbon::parse("$workDate $bs") : null,
+                    'break_end'   => $be ? Carbon::parse("$workDate $be") : null,
+                ];
+            })
+            ->values();
+
+        // 休憩の整合性チェック
+        foreach ($breakInputs as $i => $b) {
+            if (is_null($b['break_start']) xor is_null($b['break_end'])) {
+                return back()
+                    ->withErrors(["breaks.$i.start" => '休憩は開始と終了の両方を入力してください。'])
+                    ->withInput();
+            }
+            if ($b['break_start'] && $b['break_end'] && $b['break_start']->gte($b['break_end'])) {
+                return back()
+                    ->withErrors(["breaks.$i.start" => '休憩の開始は終了より前である必要があります。'])
+                    ->withInput();
+            }
+        }
+
+        // 開始時刻でソートして連続比較
+        $sorted = $breakInputs->filter(fn($b) => $b['break_start'] && $b['break_end'])
+            ->sortBy('break_start')
+            ->values();
+        for ($i = 1; $i < $sorted->count(); $i++) {
+            if ($sorted[$i - 1]['break_end']->gt($sorted[$i]['break_start'])) {
+                return back()
+                    ->withErrors(["breaks.$i.start" => '休憩が重複しています。時間帯を見直してください。'])
+                    ->withInput();
+            }
+        }
+
+        // 保存
+        DB::transaction(function () use ($attendance, $start, $end, $breakInputs, $v) {
+            $attendance->start_time = $start;
+            $attendance->end_time   = $end;
+            $attendance->note       = $v['note'] ?? null;
+            $attendance->save();
+
+            // 既存の休憩を削除してから作り直す
+            $attendance->breaks()->delete();
+
+            foreach ($breakInputs as $b) {
+                if ($b['break_start'] && $b['break_end']) {
+                    $attendance->breaks()->create([
+                        'break_start' => $b['break_start'],
+                        'break_end'   => $b['break_end'],
+                    ]);
+                }
+            }
+        });
+
+        $month = Carbon::parse($attendance->work_date)->format('Y-m');
 
         return redirect()->route('admin.attendance.staff.index', [
             'id'    => $attendance->user_id,

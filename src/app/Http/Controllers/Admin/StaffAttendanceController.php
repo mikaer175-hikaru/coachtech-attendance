@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class StaffAttendanceController extends Controller
 {
-    // 一覧表示：/admin/attendance/staff/{id}?month=YYYY-MM
+    // 一覧表示
     public function index(Request $request, int $id)
     {
         $user = User::find($id);
@@ -22,19 +22,22 @@ class StaffAttendanceController extends Controller
         // 月全日リスト
         $days = $this->makeDays($start, $end);
 
-        // 当月勤怠（休憩も一括） key: work_date
+        // 当月勤怠（休憩も一括）
         $attendances = Attendance::query()
             ->with('breaks')
             ->where('user_id', $user->id)
-            ->betweenDates($start->toDateString(), $end->toDateString())
+            ->whereBetween('work_date', [$start->toDateString(), $end->toDateString()])
             ->orderBy('work_date')
             ->get()
-            ->keyBy(fn ($a) => (string) $a->work_date);
+            ->keyBy(function ($a) {
+                return $a->work_date instanceof \Carbon\CarbonInterface
+                    ? $a->work_date->toDateString()
+                    : (string) $a->work_date;
+            });
 
         // 表示行（欠損日は空欄）
         $rows = [];
         foreach ($days as $d) {
-            /** @var \App\Models\Attendance|null $a */
             $a = $attendances[$d->toDateString()] ?? null;
 
             $rows[] = [
@@ -57,7 +60,7 @@ class StaffAttendanceController extends Controller
         ]);
     }
 
-    // CSV出力：/admin/attendance/staff/{id}/csv?month=YYYY-MM
+    // CSV出力
     public function downloadCsv(Request $request, int $id): StreamedResponse
     {
         $user = User::find($id);
@@ -68,21 +71,23 @@ class StaffAttendanceController extends Controller
         $attendances = Attendance::query()
             ->with('breaks')
             ->where('user_id', $user->id)
-            ->betweenDates($start->toDateString(), $end->toDateString())
+            ->whereBetween('work_date', [$start->toDateString(), $end->toDateString()])
             ->orderBy('work_date')
             ->get()
-            ->keyBy(fn ($a) => (string) $a->work_date);
+            ->keyBy(function ($a) {
+                return $a->work_date instanceof \Carbon\CarbonInterface
+                    ? $a->work_date->toDateString()
+                    : (string) $a->work_date;
+            });
 
         $days     = $this->makeDays($start, $end);
         $filename = sprintf('attendance_%d_%s.csv', $user->id, $month->format('Y-m'));
 
         return response()->streamDownload(function () use ($days, $attendances) {
             $out = fopen('php://output', 'w');
-            // 画像の列構成に合わせる（曜日は任意。必要なら2列目に追加してOK）
             fputcsv($out, ['日付', '出勤', '退勤', '休憩', '合計', '詳細可否']);
 
             foreach ($days as $d) {
-                /** @var \App\Models\Attendance|null $a */
                 $a = $attendances[$d->toDateString()] ?? null;
 
                 fputcsv($out, [

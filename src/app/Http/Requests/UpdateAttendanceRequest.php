@@ -40,17 +40,17 @@ class UpdateAttendanceRequest extends FormRequest
         ];
     }
 
-    // 管理者用と同じく after() で相関チェックをまとめる
+    // after() で相関チェックをまとめる
     public function after(): array
     {
         return [
             function (ValidationValidator $v) {
                 $attendance = $this->route('attendance');
 
-                // 承認待ちは編集不可（仕様）
+                // 承認待ちは編集不可
                 if (($attendance->status ?? null) === 'pending') {
                     $v->errors()->add('base', '承認待ちの勤怠は編集できません');
-                    return; // アーリーリターン
+                    return;
                 }
 
                 $start = $this->t('start_time');

@@ -2,21 +2,22 @@
    スタッフ別勤怠一覧（管理者）
    ========================================================= */
 
-.staff-list {
+.staff-month {
     max-width: 920px;
     margin: 0 auto;
     padding: 32px 16px 64px;
+    font-variant-numeric: tabular-nums;
 }
 
-.staff-list__heading {
+.staff-month__title {
     position: relative;
     font-size: 24px;
     font-weight: 800;
-    margin: 0 0 16px;
+    margin: 0 0 6px;
     padding-left: 16px;
 }
 
-.staff-list__heading::before {
+.staff-month__title::before {
     content: "";
     position: absolute;
     left: 0;
@@ -27,147 +28,175 @@
     border-radius: 2px;
 }
 
-.staff-list__header {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    margin-bottom: 16px;
-}
-
-.staff-list__month-form {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.staff-list__month-label {
-    font-weight: 600;
-}
-
-.staff-list__month-input {
-    padding: 8px 10px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background: #fff;
-}
-
-.staff-list__month-input:focus {
-    outline: 2px solid #111;
-    outline-offset: 2px;
-}
-
-.staff-list__month-button {
-    padding: 8px 14px;
-    border: none;
-    border-radius: 8px;
-    background: #333;
-    color: #fff;
-    cursor: pointer;
-}
-
-/* フラッシュ */
-.staff-list__flash {
-    margin: 12px 0 20px;
-    padding: 10px 12px;
-    border-radius: 10px;
+.staff-month__user {
+    margin: 0 0 18px;
+    color: #666;
     font-size: 14px;
 }
 
-.staff-list__flash--success {
-    background-color: #e8f7ee;
-    color: #206a3a;
+.staff-month__meta {
+    margin-bottom: 12px;
 }
 
-.staff-list__flash--error {
-    background-color: #fdecea;
-    color: #b12a1c;
+.staff-month__nav {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 12px;
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    padding: 10px 12px;
 }
 
-/* テーブルカード */
-.staff-list__table-wrap {
+.staff-month__nav-btn {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    color: #111;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.staff-month__nav-btn:last-child {
+    justify-self: end;
+}
+
+.staff-month__nav-btn:hover {
+    background: #f7f7f7;
+}
+
+.staff-month__month {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: #f7f7f7;
+    border-radius: 10px;
+    font-weight: 700;
+    letter-spacing: .02em;
+}
+
+
+.staff-month__table-wrapper {
     background: #fff;
     border: 1px solid #eee;
     border-radius: 12px;
     overflow: hidden;
 }
 
-.staff-list__table {
+.staff-month__table {
     width: 100%;
     border-collapse: collapse;
     table-layout: fixed;
 }
 
-.staff-list__thead {
+.staff-month__thead {
     background: #fafafa;
 }
 
-.staff-list__row {
+.staff-month__tr {
     border-bottom: 1px solid #eee;
 }
 
-.staff-list__cell {
-    padding: 14px 12px;
-    text-align: left;
-    vertical-align: middle;
+.staff-month__th,
+.staff-month__td {
+    padding: 12px 12px;
     font-size: 14px;
+    vertical-align: middle;
     white-space: nowrap;
+    text-align: left;
 }
 
-.staff-list__cell--head {
+.staff-month__th {
     font-weight: 700;
 }
 
-.staff-list__cell--action {
-    width: 120px;
+.staff-month__th--date,
+.staff-month__td--date {
+    width: 140px;
+}
+
+.staff-month__th--time,
+.staff-month__td--time {
     text-align: right;
 }
 
-.staff-list__detail-link {
+.staff-month__th--action,
+.staff-month__td--action {
+    width: 90px;
+    text-align: right;
+}
+
+.staff-month__detail {
     color: #111;
     text-decoration: none;
     font-weight: 700;
 }
 
-.staff-list__detail-link:hover {
+.staff-month__detail:hover {
     text-decoration: underline;
 }
 
-/* ページネーション */
-.staff-list__pagination {
-    margin-top: 16px;
+.staff-month__detail--disabled {
+    color: #aaa;
+    cursor: not-allowed;
+}
+
+.staff-month__actions {
     display: flex;
+    justify-content: flex-end;
+    margin-top: 14px;
+}
+
+.staff-month__csv {
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
+    min-width: 120px;
+    height: 38px;
+    padding: 0 14px;
+    border: none;
+    border-radius: 10px;
+    background: #111;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.staff-month__csv:hover {
+    opacity: .9;
 }
 
 /* =========================
    レスポンシブ
    ========================= */
-
-/* Tablet: 768–850px */
-@media (min-width: 768px) and (max-width: 850px) {
-    .staff-list {
+@media (max-width: 768px) {
+    .staff-month {
         padding: 24px 12px 48px;
     }
 
-    .staff-list__heading {
+    .staff-month__title {
         font-size: 22px;
     }
 
-    .staff-list__month-input {
-        padding: 6px 8px;
+    .staff-month__th,
+    .staff-month__td {
+        font-size: 13px;
+        padding: 10px 10px;
     }
 
-    .staff-list__cell {
-        font-size: 13px;
-        padding: 12px 10px;
+    .staff-month__th--date,
+    .staff-month__td--date {
+        width: 120px;
     }
 }
 
-/* PC: 1400–1540px */
-@media (min-width: 1400px) and (max-width: 1540px) {
-    .staff-list__heading {
-        font-size: 26px;
-    }
+body {
+    background: #f5f5f5;
 }

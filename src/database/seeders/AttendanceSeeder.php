@@ -2,37 +2,61 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\User;
 use App\Models\Attendance;
-use Illuminate\Support\Carbon;
+use App\Models\User;
+use Illuminate\Database\Seeder;
+use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 
 class AttendanceSeeder extends Seeder
 {
     public function run(): void
     {
-        $users = User::where('is_admin', false)->get(); // 一般ユーザーのみ対象
+        // ===== 設定（必要なら変更）=====
+        $mode        = 'last30';       // 'last30' か 'month'
+        $targetMonth = '2025-10';      // $mode='month' のときに使う YYYY-MM
+        $absenceRate = 10;             // 欠勤率（%）
+        // =============================
 
-        // 直近30日ぶんの平日データを作成
-        $days = 30;
+        // 対象ユーザー（一般ユーザーのみ）
+        $users = User::where('is_admin', false)->get();
+        if ($users->isEmpty()) {
+            $users = User::factory()->count(5)->create();
+        }
+
+        // 期間を決める
+        if ($mode === 'month') {
+            $start = Carbon::parse($targetMonth . '-01')->startOfDay();
+            $end   = (clone $start)->endOfMonth();
+        } else { // last30 (直近30日)
+            $end   = Carbon::today()->endOfDay();
+            $start = (clone $end)->subDays(29)->startOfDay();
+        }
+
+        // 重複防止：対象期間の勤怠を事前削除（ユーザー単位）
+        foreach ($users as $u) {
+            Attendance::where('user_id', $u->id)
+                ->whereBetween('work_date', [$start->toDateString(), $end->toDateString()])
+                ->delete();
+        }
+
+        // 平日のみ生成（欠勤を確率で混ぜる）
+        $period = CarbonPeriod::create($start, '1 day', $end);
 
         foreach ($users as $user) {
-            for ($i = 0; $i < $days; $i++) {
-                $date = Carbon::today()->subDays($i);
-                if ($date->isWeekend()) {
-                    continue; // 週末はスキップ（勤務外）
+            foreach ($period as $day) {
+                if ($day->isWeekend()) {
+                    continue; // 週末はスキップ
+                }
+                if (random_int(1, 100) <= $absenceRate) {
+                    continue; // 欠勤
                 }
 
-                // 欠勤/半休の揺らぎ（たまに欠ける日も作る）
-                if (fake()->boolean(10)) {
-                    continue;
-                }
-
-                Attendance::factory()->create([
-                    'user_id'   => $user->id,
-                    'work_date' => $date->toDateString(),
-                    // start_time/end_time/break_minutes は Factory のロジックを利用
-                ]);
+                // → AttendanceFactory の afterCreating で BreakTime を自動作成
+                Attendance::factory()
+                    ->forUser($user)
+                    ->onDate($day->toDateString())
+                    ->create();
             }
         }
     }
