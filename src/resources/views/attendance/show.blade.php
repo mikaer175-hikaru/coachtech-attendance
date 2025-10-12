@@ -21,13 +21,11 @@
     @endif
 
     @php
-        $isPending = ($attendance->status ?? null) === 'pending';
-        $disabled  = $isPending ? 'disabled' : '';
+        $disabled = $isPending ? 'disabled' : '';
+
         $date = $attendance->work_date instanceof \Illuminate\Support\Carbon
             ? $attendance->work_date
             : \Illuminate\Support\Carbon::parse($attendance->work_date);
-        $dateYear = $date->year . '年';
-        $dateMonthDay = $date->isoFormat('M月D日');
     @endphp
 
     @if ($isPending)
@@ -58,17 +56,17 @@
                 </div>
             </div>
 
-            {{-- 出勤・退勤（編集可） --}}
+            {{-- 出勤・退勤 --}}
             <div class="attendance-card__row">
                 <div class="attendance-card__th">出勤・退勤</div>
                 <div class="attendance-card__td attendance-card__td--range">
-                    <input class="pill-input" type="text" name="start_time"
-                           value="{{ old('start_time', $attendance->start_time?->format('H:i')) }}"
-                           placeholder="HH:MM" {{ $disabled }}>
+                    <input class="pill-input" type="time" name="start_time"
+                        value="{{ old('start_time', optional($attendance->start_time)->format('H:i')) }}"
+                        {{ $disabled }}>
                     <span class="attendance-card__tilde">〜</span>
-                    <input class="pill-input" type="text" name="end_time"
-                           value="{{ old('end_time', $attendance->end_time?->format('H:i')) }}"
-                           placeholder="HH:MM" {{ $disabled }}>
+                    <input class="pill-input" type="time" name="end_time"
+                        value="{{ old('end_time', optional($attendance->end_time)->format('H:i')) }}"
+                        {{ $disabled }}>
                 </div>
             </div>
             @error('start_time')
@@ -83,13 +81,11 @@
                 <div class="attendance-card__row">
                     <div class="attendance-card__th">休憩{{ $i + 1 }}</div>
                     <div class="attendance-card__td attendance-card__td--range">
-                        <input class="pill-input" type="text" name="breaks[{{ $i }}][start]"
-                               value="{{ old("breaks.$i.start", $row['start']) }}"
-                               placeholder="HH:MM" {{ $disabled }}>
+                        <input class="pill-input" type="time" name="breaks[{{ $i }}][start]"
+                                value="{{ old("breaks.$i.start", $row['start']) }}" {{ $disabled }}>
                         <span class="attendance-card__tilde">〜</span>
-                        <input class="pill-input" type="text" name="breaks[{{ $i }}][end]"
-                               value="{{ old("breaks.$i.end", $row['end']) }}"
-                               placeholder="HH:MM" {{ $disabled }}>
+                        <input class="pill-input" type="time" name="breaks[{{ $i }}][end]"
+                                value="{{ old("breaks.$i.end", $row['end']) }}" {{ $disabled }}>
                     </div>
                 </div>
                 @error("breaks.$i.start")

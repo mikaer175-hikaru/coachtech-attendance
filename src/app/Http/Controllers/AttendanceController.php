@@ -9,6 +9,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Requests\UpdateAttendanceRequest as UserUpdateAttendanceRequest;
 use App\Http\Requests\StartWorkRequest;
 use App\Http\Requests\EndWorkRequest;
