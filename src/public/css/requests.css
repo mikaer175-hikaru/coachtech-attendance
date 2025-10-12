@@ -1,302 +1,212 @@
-/* 申請一覧（一般ユーザー）*/
+/* =========================================================
+   申請一覧（一般） — Bladeのクラスに完全対応
+   ========================================================= */
+body {
+    background: #F0EFF2;
+}
 
+/* コンテナ */
 .request-list {
-    max-width: 980px;
+    max-width: 1040px;
     margin: 0 auto;
-    padding: 32px 16px 64px;
+    padding: 56px 20px 96px;
     line-height: 1.6;
 }
 
-.u-hidden {
-    display: none;
-}
-
+/* 見出し（左バー＋太字） */
 .request-list__heading {
-    font-size: 24px;
-    font-weight: 800;
-    margin: 0 0 16px;
+    margin: 0 0 22px;
+    font-size: 28px;
+    font-weight: 900;
+    color: #111;
+    position: relative;
+    padding-left: 14px;
 }
 
+.request-list__heading::before {
+    content: "";
+    position: absolute;
+    inset: .12em auto .12em 0;
+    width: 8px;
+    border-radius: 2px;
+    background: #111;
+}
+
+/* タブ（下線式） */
 .request-list__tabs {
     display: flex;
-    gap: 12px;
-    margin: 8px 0 20px;
+    gap: 28px;
     flex-wrap: wrap;
+    border-bottom: 2px solid #E5E5E5;
+    padding: 6px 2px;
+    margin: 0 0 18px;
 }
 
 .request-list__tab {
-    display: inline-block;
-    padding: 10px 16px;
-    border-radius: 999px;
-    background-color: #f5f5f7;
-    color: #333;
+    appearance: none;
+    background: transparent;
+    border: 0;
+    color: #6B7280;
+    font-weight: 800;
     text-decoration: none;
-    font-weight: 700;
-    transition: opacity .2s ease;
+    padding: 10px 2px;
+    line-height: 1;
+    cursor: pointer;
+    position: relative;
+    font-size: 16px;
 }
 
 .request-list__tab:hover {
-    opacity: .85;
+    color: #111;
 }
 
 .request-list__tab--active {
-    background-color: #2b6cb0;
-    color: #fff;
+    color: #111;
 }
 
-/* keyboard focus */
+.request-list__tab--active::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -8px;
+    height: 3px;
+    border-radius: 2px;
+    background: #111;
+}
+
+/* テーブル外ラッパ（スクロール対策） */
+.request-list__table-wrap {
+    background: #fff;
+    border: 1px solid #EEE;
+    border-radius: 12px;
+    overflow: auto;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, .04);
+}
+
+/* テーブル本体（フラットカード風） */
+.request-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 720px;
+}
+
+.request-table__head .request-table__cell {
+    background: #FAFAFA;
+    color: #555;
+    font-weight: 800;
+    text-align: center;
+    padding: 14px 12px;
+    white-space: nowrap;
+    border-bottom: 3px solid #E1E1E1;
+}
+
+.request-table__body .request-table__row:not(:last-child) .request-table__cell {
+    border-bottom: 2px solid #EDEDED;
+}
+
+.request-table__cell {
+    text-align: center;
+    padding: 14px 12px;
+    color: #111;
+    background: #fff;
+    vertical-align: middle;
+}
+
+.request-table__cell--head {
+    font-size: 14px;
+}
+
+.request-table__cell--ellipsis {
+    max-width: 340px;
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* リンク（詳細） */
+.request-list__link {
+    display: inline-block;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: #F1F5F9;
+    color: #111;
+    text-decoration: none;
+    font-weight: 800;
+    transition: opacity .15s ease, transform .02s ease;
+}
+
+.request-list__link:hover {
+    opacity: .92;
+}
+
+.request-list__link:active {
+    transform: translateY(1px);
+}
+
+/* フォーカス可視（キーボード操作） */
 .request-list__tab:focus-visible,
-.request-card__link:focus-visible {
-    outline: 3px solid rgba(43, 108, 176, .45);
+.request-list__link:focus-visible {
+    outline: 3px solid rgba(17, 17, 17, .35);
     outline-offset: 2px;
 }
 
-.request-list__section {
-    margin-top: 8px;
-}
-
-.request-list__section-title {
-    font-size: 18px;
-    font-weight: 800;
-    margin: 0 0 12px;
-}
-
-.request-card {
-    border: 1px solid #e6e6ea;
-    border-radius: 12px;
-    padding: 14px;
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 8px 16px;
-    margin-bottom: 12px;
-    background-color: #fff;
-}
-
-.request-card__meta {
-    grid-column: 1 / 2;
-    line-height: 1.5;
-}
-
-.request-card__id {
-    margin: 0 0 4px;
-    font-weight: 700;
-    color: #2d3748;
-}
-
-.request-card__date {
-    font-size: 13px;
-    color: #666;
-    margin: 0 0 4px;
-}
-
-.request-card__status {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 700;
-}
-
-.request-card__status--pending {
-    background-color: #fdecc8;
-    /* was #fff7e6 */
-    color: #8a5a10;
-    /* was #b7791f */
-}
-
-.request-card__status--approved {
-    background-color: #c9fbf5;
-    /* was #e6fffa */
-    color: #1c5f60;
-    /* was #2c7a7b */
-}
-
-.request-card__body {
-    grid-column: 1 / 2;
-    overflow-wrap: anywhere;
-}
-
-.request-card__note {
-    margin: 0 0 6px;
-    font-size: 14px;
-    color: #2d3748;
-}
-
-.request-card__type,
-.request-card__reason {
-    margin: 0 0 4px;
-    font-size: 14px;
-}
-
-.request-card__actions {
-    grid-column: 2 / 3;
-    align-self: start;
-}
-
-.request-card__link {
-    display: inline-block;
-    padding: 8px 12px;
-    border-radius: 8px;
-    background-color: #edf2f7;
-    text-decoration: none;
-    color: #2d3748;
-    font-weight: 700;
-    transition: opacity .2s ease;
-}
-
-.request-card__link:hover {
-    opacity: .9;
-}
-
-.request-list__empty {
-    font-size: 14px;
-    color: #666;
-    padding: 16px 0;
-}
-
-.request-list__pager {
-    margin-top: 16px;
-    /* was 12px */
+/* ページネーション（Laravelデフォルトを中央寄せ） */
+.request-list__pagination {
     display: flex;
     justify-content: center;
-}
-
-.request-detail {
-    max-width: 760px;
-    margin: 0 auto;
-    padding: 32px 16px 64px;
-}
-
-.request-detail__heading {
-    font-size: 24px;
-    font-weight: 800;
-    margin: 0 0 16px;
-}
-
-.request-detail__list {
-    border: 1px solid #e6e6ea;
-    border-radius: 12px;
-    padding: 12px;
-    background-color: #fff;
-}
-
-.request-detail__row {
-    display: grid;
-    grid-template-columns: 160px 1fr;
-    gap: 8px 16px;
-    padding: 10px 0;
-    border-bottom: 1px dashed #eee;
-}
-
-.request-detail__row:last-child {
-    border-bottom: none;
-}
-
-.request-detail__term {
-    font-weight: 700;
-    color: #333;
-}
-
-.request-detail__desc {
-    color: #333;
-    overflow-wrap: anywhere;
-}
-
-.request-detail__actions {
     margin-top: 16px;
 }
 
-.request-detail__back {
-    display: inline-block;
-    padding: 8px 12px;
-    background-color: #edf2f7;
-    color: #2d3748;
-    text-decoration: none;
-    border-radius: 8px;
-    font-weight: 700;
+.request-list__pagination .pagination {
+    gap: 6px;
 }
 
-/* ========== Responsive ========== */
-/* Mobile ～767px */
-@media (max-width: 767px) {
+.request-list__pagination .page-link {
+    border-radius: 8px;
+    border: 1px solid #E5E7EB;
+    color: #111;
+}
+
+.request-list__pagination .page-item.active .page-link {
+    background: #111;
+    color: #fff;
+    border-color: #111;
+}
+
+/* ====== Responsive ====== */
+/* ～767px（スマホ） */
+@media (max-width:767px) {
     .request-list {
-        padding: 24px 12px 48px;
+        padding: 36px 14px 72px;
     }
 
     .request-list__heading {
-        font-size: 20px;
-        margin-bottom: 12px;
+        font-size: 24px;
+        margin-bottom: 14px;
     }
 
     .request-list__tabs {
-        gap: 8px;
-        margin: 6px 0 16px;
+        gap: 18px;
     }
 
-    .request-card {
-        grid-template-columns: 1fr;
-        gap: 8px;
-        padding: 12px;
-    }
-
-    .request-card__actions {
-        grid-column: auto;
-        justify-self: start;
-    }
-
-    .request-card__link {
-        padding: 8px 10px;
-    }
-
-    .request-list__section-title {
-        font-size: 16px;
-        margin-bottom: 8px;
-    }
-
-    .request-detail {
-        padding: 28px 12px 56px;
-    }
-
-    .request-detail__row {
-        grid-template-columns: 120px 1fr;
+    .request-table {
+        min-width: 640px;
     }
 }
 
-/* Tablet 768–850px */
-@media (min-width: 768px) and (max-width: 850px) {
+/* 768–1024px（タブレット） */
+@media (min-width:768px) and (max-width:1024px) {
     .request-list {
-        max-width: 820px;
-        padding: 28px 16px 56px;
-    }
-
-    .request-card {
-        grid-template-columns: 1fr auto;
-    }
-
-    .request-detail {
-        max-width: 720px;
-    }
-
-    .request-detail__row {
-        grid-template-columns: 140px 1fr;
-    }
-}
-
-/* PC 1400–1540px */
-@media (min-width: 1400px) and (max-width: 1540px) {
-    .request-list {
-        max-width: 1120px;
-    }
-
-    .request-card {
-        padding: 16px;
-    }
-
-    .request-detail {
         max-width: 880px;
+        padding: 44px 18px 84px;
     }
+}
 
-    .request-detail__row {
-        grid-template-columns: 180px 1fr;
+/* 1400px～（大画面） */
+@media (min-width:1400px) {
+    .request-list {
+        max-width: 1200px;
     }
 }

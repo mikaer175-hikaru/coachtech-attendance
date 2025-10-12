@@ -1,21 +1,39 @@
 /* =========================================================
- * 勤怠詳細（一般ユーザー）
+ * 勤怠詳細（一般ユーザー） 完成版
+ * 既存のクラス名そのまま・見た目だけ調整
  * =======================================================*/
 
-/* ベース */
+/* ページ余白と横幅 */
 .attendance-detail {
-    max-width: 920px;
+    max-width: 1040px;
+    /* ちょいワイド */
     margin: 0 auto;
-    padding: 48px 16px 64px;
+    padding: 56px 20px 80px;
 }
 
+/* 見出し：左バー + ウェイト強め */
 .attendance-detail__heading {
-    font-size: 24px;
+    position: relative;
+    font-size: 28px;
     font-weight: 800;
-    margin: 0 0 16px;
+    letter-spacing: .02em;
+    margin: 0 0 24px 0;
+    padding-left: 16px;
+    color: #111;
 }
 
-/* フラッシュメッセージ */
+.attendance-detail__heading::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: .16em;
+    width: 8px;
+    height: 1.1em;
+    background: #111;
+    border-radius: 2px;
+}
+
+/* フラッシュ */
 .attendance-detail__flash {
     margin: 12px 0 20px;
     padding: 10px 12px;
@@ -25,38 +43,39 @@
 }
 
 .attendance-detail__flash--error {
-    background-color: #fde8e8;
+    background: #fde8e8;
     color: #7f1d1d;
     border-color: #fecaca;
 }
 
 .attendance-detail__flash--success {
-    background-color: #ecfdf5;
+    background: #ecfdf5;
     color: #065f46;
     border-color: #a7f3d0;
 }
 
 .attendance-detail__flash--info {
-    background-color: #eff6ff;
+    background: #eff6ff;
     color: #1e3a8a;
     border-color: #bfdbfe;
 }
 
-/* カード */
+/* カード本体 */
 .attendance-card {
-    background-color: #fff;
-    border-radius: 16px;
-    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+    background: #fff;
     border: 1px solid #eee;
+    border-radius: 16px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .04);
     overflow: hidden;
 }
 
+/* 行レイアウト（見出し:内容 = 180:1fr） */
 .attendance-card__row {
     display: grid;
-    grid-template-columns: 160px 1fr;
-    gap: 12px;
-    border-bottom: 1px solid #f2f2f2;
-    padding: 18px 24px;
+    grid-template-columns: 180px 1fr;
+    gap: 14px;
+    padding: 20px 26px;
+    border-bottom: 1px solid #f1f1f1;
     align-items: center;
 }
 
@@ -69,7 +88,7 @@
 }
 
 .attendance-card__th {
-    color: #555;
+    color: #666;
     font-size: 14px;
     font-weight: 700;
 }
@@ -81,46 +100,47 @@
 
 .attendance-card__td--split {
     display: flex;
-    gap: 24px;
+    gap: 28px;
     align-items: center;
 }
 
 .attendance-card__td--range {
     display: flex;
-    align-items: center;
     gap: 14px;
+    align-items: center;
 }
 
 .attendance-card__tilde {
-    color: #666;
-    letter-spacing: 0.2em;
+    color: #777;
+    letter-spacing: .22em;
 }
 
-/* ピル表示＆入力 */
+/* 読み用ピル / 入力ピル */
 .pill {
     display: inline-block;
-    background-color: #f5f5f7;
-    border: 1px solid #e5e7eb;
-    border-radius: 10px;
-    padding: 8px 14px;
-    min-width: 96px;
+    min-width: 108px;
     text-align: center;
-    font-weight: 700;
+    padding: 9px 14px;
+    border-radius: 10px;
+    font-weight: 800;
     font-variant-numeric: tabular-nums;
+    background: #f7f7f9;
+    border: 1px solid #e6e7eb;
+    color: #111;
 }
 
 .pill-input {
-    width: 120px;
-    height: 36px;
-    border-radius: 8px;
-    border: 1px solid #e5e7eb;
-    background: #fbfbfb;
+    width: 132px;
+    height: 40px;
+    border-radius: 10px;
+    border: 1px solid #e6e7eb;
+    background: #fbfbfc;
     padding: 0 12px;
-    font-size: 14px;
-    font-weight: 700;
     text-align: center;
+    font-size: 15px;
+    font-weight: 800;
     font-variant-numeric: tabular-nums;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    transition: border-color .15s, box-shadow .15s, background .15s;
 }
 
 .pill-input::placeholder,
@@ -128,17 +148,7 @@
     color: #9ca3af;
 }
 
-/* 読み取り専用・無効時 */
-.pill-input[readonly],
-.memo[readonly],
-.pill-input:disabled,
-.memo:disabled {
-    background: #f6f6f6;
-    color: #666;
-    border-color: #e5e7eb;
-}
-
-/* フォーカス可視（アクセシビリティ） */
+/* フォーカス可視化 */
 .pill-input:focus-visible,
 .memo:focus-visible,
 .btn:focus-visible {
@@ -146,53 +156,63 @@
     outline-offset: 2px;
 }
 
+/* 無効/readonlyはトーンを落とす */
+.pill-input[readonly],
+.memo[readonly],
+.pill-input:disabled,
+.memo:disabled {
+    background: #f3f4f6;
+    color: #6b7280;
+    border-color: #e5e7eb;
+}
+
 /* メモ欄 */
 .memo {
     width: 100%;
-    min-height: 84px;
-    border-radius: 10px;
-    border: 1px solid #e5e7eb;
-    background: #fbfbfb;
-    padding: 12px 14px;
-    font-size: 14px;
+    min-height: 96px;
     resize: vertical;
+    background: #fbfbfc;
+    border: 1px solid #e6e7eb;
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 15px;
+    line-height: 1.6;
 }
 
-/* 入力のエラーステート */
+/* 入力エラー枠 */
 .is-error {
     border-color: #fca5a5;
-    box-shadow: 0 0 0 3px rgba(252, 165, 165, 0.25);
+    box-shadow: 0 0 0 3px rgba(252, 165, 165, .25);
 }
 
 /* 下部アクション */
 .attendance-detail__actions {
     display: flex;
     justify-content: flex-end;
-    margin-top: 20px;
+    margin-top: 22px;
 }
 
 .btn {
     appearance: none;
-    border: none;
+    border: 0;
     border-radius: 12px;
     padding: 12px 28px;
     font-weight: 800;
     font-size: 16px;
     cursor: pointer;
-    text-decoration: none;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    transition: opacity 0.15s ease, transform 0.02s ease;
+    transition: opacity .15s, transform .02s;
 }
 
 .btn--primary {
-    background-color: #111;
+    background: #111;
     color: #fff;
 }
 
 .btn--primary:hover {
-    opacity: 0.92;
+    opacity: .92;
 }
 
 .btn:active {
@@ -200,27 +220,41 @@
 }
 
 .btn:disabled {
-    opacity: 0.5;
+    opacity: .5;
     cursor: not-allowed;
 }
 
-/* レスポンシブ */
-@media (max-width: 640px) {
+/* 承認待ち注記（右下の赤い文言っぽくしたい時に使用・任意） */
+.pending-note {
+    margin-top: 10px;
+    text-align: right;
+    color: #e11d48;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+/* --- レスポンシブ --- */
+@media (max-width: 720px) {
+    .attendance-detail {
+        max-width: 640px;
+        padding: 40px 14px 64px;
+    }
+
     .attendance-card__row {
         grid-template-columns: 1fr;
-        gap: 8px;
-        padding: 14px 16px;
+        gap: 10px;
+        padding: 16px 16px;
     }
 
     .attendance-card__td--split {
-        gap: 12px;
+        gap: 14px;
     }
 
     .pill,
     .pill-input {
-        min-width: 88px;
+        min-width: 100px;
         width: 100%;
-        max-width: 180px;
+        max-width: 200px;
     }
 
     .attendance-detail__actions {
@@ -228,105 +262,27 @@
     }
 }
 
-@media (min-width: 1400px) and (max-width: 1540px) {
+@media (min-width: 1360px) {
     .attendance-detail {
-        max-width: 1080px;
-        padding: 56px 20px 72px;
+        max-width: 1120px;
+        padding: 64px 24px 88px;
     }
 
     .attendance-card__row {
         grid-template-columns: 200px 1fr;
+        padding: 22px 28px;
         gap: 16px;
-        padding: 20px 28px;
-    }
-
-    .attendance-card__th {
-        font-size: 15px;
-    }
-
-    .attendance-card__td {
-        font-size: 16px;
     }
 
     .pill {
-        min-width: 110px;
+        min-width: 116px;
         padding: 10px 16px;
         font-size: 15px;
     }
 
     .pill-input {
-        width: 140px;
-        height: 40px;
-        font-size: 15px;
-    }
-
-    .memo {
-        min-height: 96px;
-        font-size: 15px;
-    }
-
-    .attendance-detail__actions {
-        margin-top: 28px;
-    }
-
-    .btn {
-        padding: 14px 32px;
-        font-size: 16px;
-    }
-}
-
-@media (min-width: 768px) and (max-width: 850px) {
-    .attendance-detail {
-        max-width: 720px;
-        padding: 40px 16px 56px;
-    }
-
-    .attendance-card__row {
-        grid-template-columns: 140px 1fr;
-        gap: 10px;
-        padding: 16px 18px;
-    }
-
-    .attendance-card__th {
-        font-size: 13px;
-    }
-
-    .attendance-card__td {
-        font-size: 15px;
-    }
-
-    .attendance-card__td--split {
-        gap: 16px;
-    }
-
-    .attendance-card__td--range {
-        gap: 10px;
-    }
-
-    .pill {
-        min-width: 92px;
-        padding: 8px 12px;
-        font-size: 14px;
-    }
-
-    .pill-input {
-        width: 110px;
-        height: 36px;
-        font-size: 14px;
-    }
-
-    .memo {
-        min-height: 84px;
-        font-size: 14px;
-    }
-
-    .attendance-detail__actions {
-        margin-top: 18px;
-        justify-content: center;
-    }
-
-    .btn {
-        padding: 12px 24px;
+        width: 148px;
+        height: 42px;
         font-size: 15px;
     }
 }

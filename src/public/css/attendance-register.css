@@ -1,0 +1,151 @@
+/* ===== 勤怠登録（打刻） ===== */
+body {
+    background: #eeedf1;
+}
+
+.attendance {
+    max-width: 1120px;
+    margin: 0 auto;
+    min-height: calc(100vh - 96px);
+    padding: 48px 16px 88px;
+    display: grid;
+    place-items: center;
+}
+
+.attendance__status {
+    text-align: center;
+}
+
+.attendance__status-label {
+    display: inline-block;
+    min-width: 88px;
+    padding: 8px 14px;
+    margin: 12px auto 18px;
+    font: 700 14px/1.1 system-ui;
+    color: #6b6b6b;
+    background: #f2f2f4;
+    border: 1px solid #e8e8ea;
+    border-radius: 999px;
+}
+
+.attendance__date {
+    font-weight: 700;
+    font-size: 34px;
+    color: #222;
+    letter-spacing: .02em;
+    margin: 8px 0 18px;
+}
+
+.attendance__time {
+    font-weight: 900;
+    font-size: clamp(56px, 9vw, 96px);
+    line-height: 1.05;
+    color: #111;
+    margin: 6px 0 38px;
+}
+
+.message {
+    margin: 10px 0 22px;
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.message--success {
+    color: #0d7a0c;
+}
+
+.message--error {
+    color: #c21f1f;
+}
+
+.attendance__message {
+    margin-top: 28px;
+    font: 700 20px/1.2 system-ui;
+    color: #222;
+}
+
+.attendance__buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 22px;
+    margin-top: 10px;
+}
+
+.btn {
+    appearance: none;
+    border: none;
+    border-radius: 14px;
+    padding: 18px 48px;
+    cursor: pointer;
+    font-size: 22px;
+    font-weight: 800;
+    box-shadow: 0 2px 0 rgba(0, 0, 0, .08);
+    transition: transform .03s, box-shadow .15s, background .15s, color .15s, border-color .15s;
+}
+
+.btn--black {
+    background: #0f0f0f;
+    color: #fff;
+}
+
+.btn--black:hover {
+    background: #000;
+}
+
+.btn--black:active {
+    transform: translateY(1px);
+}
+
+.btn--white {
+    background: #fff;
+    color: #111;
+    border: 2px solid #e8e8ea;
+}
+
+.btn--white:hover {
+    background: #f9f9fb;
+    border-color: #e0e0e3;
+}
+
+.btn--white:active {
+    transform: translateY(1px);
+}
+
+@media (max-width:768px) {
+    .attendance {
+        padding: 40px 14px 72px;
+    }
+
+    .attendance__status-label {
+        font-size: 13px;
+        padding: 7px 12px;
+    }
+
+    .attendance__date {
+        font-size: 28px;
+    }
+
+    .attendance__time {
+        font-size: clamp(48px, 14vw, 72px);
+    }
+
+    .btn {
+        padding: 16px 36px;
+        font-size: 20px;
+    }
+
+    .attendance__buttons {
+        gap: 16px;
+    }
+}
+
+@media (max-width:420px) {
+    .btn {
+        width: 100%;
+    }
+
+    .attendance__time {
+        font-size: clamp(44px, 16vw, 64px);
+    }
+}

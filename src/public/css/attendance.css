@@ -1,185 +1,215 @@
+/* =========================================================
+   勤怠一覧（一般）
+   ========================================================= */
+
+/* ラッパー ------------------------------------------------ */
 .attendance {
-    padding: 24px;
-    max-width: 480px;
+    max-width: 1040px;
     margin: 0 auto;
+    padding: 56px 24px 96px;
 }
 
-.attendance__status {
-    background-color: #f9f9f9;
-    padding: 20px;
-    border-radius: 12px;
-    text-align: center;
-}
-
-.attendance__status-label {
-    font-size: 20px;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 12px;
-}
-
-.attendance__date,
-.attendance__time {
-    font-size: 16px;
-    color: #555;
-    margin: 4px 0;
-}
-
-.message {
-    margin-top: 16px;
-    font-size: 14px;
-    font-weight: bold;
-}
-
-.message--success {
-    color: green;
-}
-
-.message--error {
-    color: red;
-}
-
-.attendance__buttons {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 12px;
-    margin-top: 24px;
-}
-
-.btn {
-    padding: 10px 24px;
-    font-size: 16px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.btn--black {
-    background-color: #333;
-    color: white;
-}
-
-.btn--black:hover {
-    background-color: #000;
-}
-
-.btn--white {
-    background-color: white;
-    color: #333;
-    border: 1px solid #ccc;
-}
-
-.btn--white:hover {
-    background-color: #f0f0f0;
-}
-
-.attendance__message {
-    font-size: 18px;
-    color: #2c7a00;
-    margin-top: 20px;
-}
-
+/* 見出し -------------------------------------------------- */
 .attendance__title {
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 30px;
-    text-align: center;
-    color: #333;
+    position: relative;
+    margin: 0 0 28px;
+    padding-left: 14px;
+    color: #111;
+    font-size: 30px;
+    font-weight: 800;
+    line-height: 1.2;
 }
 
+.attendance__title::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.18em;
+    width: 8px;
+    height: 1.05em;
+    background: #111;
+    border-radius: 2px;
+}
+
+/* 月切り替えナビ（白いピル） ---------------------------- */
 .attendance__nav {
     display: flex;
     justify-content: center;
-    align-items: center;
     margin-bottom: 20px;
-    gap: 20px;
 }
 
 .attendance__nav-form {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 18px;
+    padding: 12px 18px;
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .04);
 }
 
 .attendance__nav-btn {
-    padding: 6px 16px;
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
+    appearance: none;
+    border: 1px solid #e6e6e6;
+    background: #fafafa;
     color: #333;
-    font-size: 14px;
-    border-radius: 4px;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 7px 14px;
+    border-radius: 8px;
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: background .15s, border-color .15s, transform .02s;
 }
 
 .attendance__nav-btn:hover {
-    background-color: #e0e0e0;
+    background: #f2f2f2;
+    border-color: #ddd;
+}
+
+.attendance__nav-btn:active {
+    transform: translateY(1px);
 }
 
 .attendance__nav-current {
-    font-weight: bold;
-    color: #333;
-    font-size: 16px;
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
+    line-height: 44px;
+    color: #111;
+    font-weight: 800;
+    font-size: 16px;
 }
 
+.attendance__nav-current i {
+    font-size: 18px;
+}
+
+/* テーブル（カード） ------------------------------------- */
 .attendance__table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 10px;
+    table-layout: fixed;
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    overflow: hidden;
+    /* ← 角丸を効かせる */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .04);
+    font-size: 15px;
+    /* 模範寄せで少し大きめ */
 }
 
-.attendance__table th,
-.attendance__table td {
-    border: 1px solid #ccc;
-    padding: 10px;
+/* ヘッダ */
+.attendance__table thead th {
+    background: #fafafa;
+    color: #737373;
+    font-weight: 800;
+    padding: 14px 12px;
+    border-bottom: 3px solid #E1E1E1;
+    /* 模範の太線 */
     text-align: center;
-    font-size: 14px;
+    white-space: nowrap;
 }
 
-.attendance__table th {
-    background-color: #f9f9f9;
-    font-weight: bold;
-    color: #555;
+/* 行区切り（模範の2pxボーダー寄せ） */
+.attendance__table tbody tr {
+    border-bottom: 2px solid #E1E1E1;
 }
 
+.attendance__table tbody tr:last-child {
+    border-bottom: none;
+}
+
+/* セル */
 .attendance__table td {
-    background-color: #fff;
+    padding: 14px 12px;
+    text-align: center;
     color: #333;
+    background: #fff;
+    white-space: nowrap;
 }
 
+/* 今日ハイライト（ほんのり） */
+.attendance__row--today td {
+    background: #FCFCFF;
+    /* うっすらブルーグレー */
+}
+
+/* ダッシュ（値なし） */
+.attendance__dash {
+    color: #B7B7B7;
+}
+
+/* 詳細リンク（黒・太字・下線なし→hoverで下線） */
 .attendance__link {
-    color: #007bff;
+    color: #000;
+    font-weight: 700;
     text-decoration: none;
-    font-weight: bold;
-    transition: color 0.2s ease;
 }
 
 .attendance__link:hover {
-    color: #0056b3;
+    text-decoration: underline;
 }
 
-/* レスポンシブ対応 */
-@media (max-width: 600px) {
-    .btn {
-        width: 100%;
-        font-size: 18px;
-    }
+.attendance__link--disabled {
+    color: #bfbfbf;
+    font-weight: 700;
+    cursor: default;
+}
 
+/* アクセシビリティ：キーボードフォーカス */
+.attendance__nav-btn:focus,
+.attendance__link:focus {
+    outline: 3px solid #9ad1ff;
+    outline-offset: 2px;
+    border-radius: 6px;
+}
+
+/* 余白・幅の微調整（各列用に付けておくと後で調整しやすい） */
+.attendance__cell--date {
+    width: 22%;
+}
+
+.attendance__cell--start,
+.attendance__cell--end,
+.attendance__cell--break,
+.attendance__cell--worked {
+    width: 13%;
+}
+
+.attendance__cell--detail {
+    width: 16%;
+}
+
+/* スマホ ----------------------------------------------- */
+@media (max-width: 640px) {
     .attendance {
-        padding: 16px;
+        max-width: 560px;
+        padding: 40px 12px 72px;
     }
 
-    .attendance__status-label {
-        font-size: 18px;
+    .attendance__title {
+        font-size: 22px;
+        margin-bottom: 22px;
     }
 
-    .attendance__date,
-    .attendance__time {
+    .attendance__nav-form {
+        gap: 12px;
+        padding: 10px 12px;
+    }
+
+    .attendance__nav-btn {
         font-size: 14px;
+        padding: 6px 12px;
+    }
+
+    .attendance__table {
+        font-size: 14px;
+    }
+
+    .attendance__table th,
+    .attendance__table td {
+        padding: 12px 8px;
     }
 }

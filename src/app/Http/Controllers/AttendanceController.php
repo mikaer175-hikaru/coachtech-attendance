@@ -20,6 +20,97 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AttendanceController extends Controller
 {
+    // 勤怠一覧 （ユーザー指定なし）
+    public function index(Request $request)
+    {
+        $user = $request->user();
+
+        // ?month=YYYY-MM（未指定は今月）
+        $month = $request->query('month', now()->format('Y-m'));
+        $m     = Carbon::createFromFormat('Y-m', $month)->startOfMonth();
+        $start = $m->copy();
+        $end   = $m->copy()->endOfMonth();
+
+        // 今月分の勤怠（休憩も一括ロード）
+        $attendances = \App\Models\Attendance::with('breaks')
+            ->where('user_id', $user->id)
+            ->whereBetween('work_date', [$start->toDateString(), $end->toDateString()])
+            ->orderBy('work_date')
+            ->get()
+            ->keyBy(function ($a) {
+                return $a->work_date instanceof \Carbon\CarbonInterface
+                    ? $a->work_date->toDateString()
+                    : (string) $a->work_date;
+            });
+
+        // カレンダーの日付を埋めて表示用の行を作る
+        $rows = [];
+        for ($d = $start->copy(); $d <= $end; $d = $d->addDay()) {
+            /** @var \App\Models\Attendance|null $a */
+            $a = $attendances[$d->toDateString()] ?? null;
+
+            $rows[] = [
+                'date'          => $d->toDateString(),        // 例: 2025-10-10
+                'start_hm'      => $a?->start_hm ?? '',       // 例: 09:00
+                'end_hm'        => $a?->end_hm ?? '',
+                'break_hm'      => $a?->break_hm ?? '',       // 例: 1:00
+                'worked_hm'     => $a?->worked_hm ?? '',      // 例: 8:00
+                'attendance_id' => $a?->id,
+            ];
+        }
+
+        return view('attendance.list', [
+            'rows'         => $rows,
+            'currentMonth' => $m->format('Y-m'),
+            'prevMonth'    => $m->copy()->subMonth()->format('Y-m'),
+            'nextMonth'    => $m->copy()->addMonth()->format('Y-m'),
+        ]);
+    }
+
+    // 勤怠詳細
+    public function show(Attendance $attendance)
+    {
+        $user = auth()->user();
+        $attendance->load(['user:id,name', 'breaks']);
+
+        // 休憩行
+        $breakRows = $attendance->breaks->sortBy('break_start')->map(fn ($b) => [
+            'start' => optional($b->break_start)->format('H:i'),
+            'end'   => optional($b->break_end)->format('H:i'),
+        ])->toArray();
+        $breakRows[] = ['start' => '', 'end' => ''];
+
+        // ここで日付の表示用文字列を用意
+        $wd = $attendance->work_date instanceof \Carbon\Carbon
+            ? $attendance->work_date
+            : ($attendance->work_date ? \Carbon\Carbon::parse($attendance->work_date) : null);
+
+        $dateYear     = $wd ? ($wd->year . '年') : '';
+        $dateMonthDay = $wd ? $wd->isoFormat('M月D日') : '';
+
+        $isPending = ($attendance->status ?? null) === 'pending';
+
+        if ($user && $user->can('admin')) {
+            return view('admin.attendance.show', [
+                'attendance'   => $attendance,
+                'breakRows'    => $breakRows,
+                'isPending'    => $isPending,
+                'dateYear'     => $dateYear,
+                'dateMonthDay' => $dateMonthDay,
+            ]);
+        }
+
+        abort_unless($user && $attendance->user_id === $user->id, 403);
+
+        return view('attendance.show', [
+            'attendance'   => $attendance,
+            'breakRows'    => $breakRows,
+            'isPending'    => $isPending,
+            'dateYear'     => $dateYear,
+            'dateMonthDay' => $dateMonthDay,
+        ]);
+    }
+
     // 打刻画面
     public function create(Request $request)
     {
@@ -27,7 +118,7 @@ class AttendanceController extends Controller
         $today = now()->toDateString();
 
         $attendance = Attendance::with('breaks')
-            ->where('user_id', $user->id)
+        ->where('user_id', $user->id)
             ->whereDate('work_date', $today)
             ->first();
 
@@ -68,30 +159,6 @@ class AttendanceController extends Controller
         ]);
     }
 
-    // 勤怠詳細
-    public function show(Attendance $attendance)
-    {
-        $user = auth()->user();
-        $attendance->load(['user:id,name', 'breaks']);
-
-        $breakRows = $attendance->breaks->map(fn ($b) => [
-            'start' => $b->break_start?->format('H:i'),
-            'end'   => $b->break_end?->format('H:i'),
-        ])->toArray();
-        // 入力用の空1行
-        $breakRows[] = ['start' => '', 'end' => ''];
-
-        if ($user && $user->can('admin')) {
-            return view('admin.attendance.show', compact('attendance'));
-        }
-
-        if (!$user || $attendance->user_id !== $user->id) {
-            abort(403);
-        }
-
-        return view('attendance.show', compact('attendance', 'breakRows'));
-    }
-
     // 出勤
     public function startWork(StartWorkRequest $request)
     {
@@ -100,7 +167,7 @@ class AttendanceController extends Controller
 
         Attendance::updateOrCreate(
             ['user_id' => $user->id, 'work_date' => $today],
-            ['start_time' => now(), 'end_time' => null] // 念のため end をクリア
+            ['start_time' => now(), 'end_time' => null]
         );
 
         return redirect()->route('attendance.create')->with('success', '出勤時刻を記録しました。');
@@ -116,7 +183,7 @@ class AttendanceController extends Controller
             ->whereDate('work_date', $today)
             ->firstOrFail();
 
-        // 未終了の休憩があればクローズ（運用保護）
+        // 未終了の休憩があればクローズ
         $attendance->breaks()
             ->whereNull('break_end')
             ->update(['break_end' => now()]);
@@ -175,80 +242,7 @@ class AttendanceController extends Controller
         return redirect()->route('attendance.create')->with('success', '休憩終了を記録しました。');
     }
 
-    // 管理者：勤怠更新（※break_times 一本化のため単一休憩カラムは扱わない）
-    public function update(UserUpdateAttendanceRequest $request, Attendance $attendance)
-    {
-        // 承認待ち保護（念のため二重チェック）
-        if (($attendance->status ?? null) === 'pending') {
-            return back()->with('error', '承認待ちの勤怠は編集できません');
-        }
-
-        DB::transaction(function () use ($request, $attendance) {
-            // 勤怠本体
-            $attendance->start_time = $request->input('start_time') ? now()->parse($request->input('start_time')) : null;
-            $attendance->end_time   = $request->input('end_time')   ? now()->parse($request->input('end_time'))   : null;
-            $attendance->note       = $request->input('note');
-            $attendance->save();
-
-            // 休憩は一旦全削除→再作成（YAGNI：高度な差分更新は不要ならやらない）
-            $attendance->breakTimes()->delete();
-
-            $breaks = collect($request->input('breaks', []))
-                ->filter(fn($b) => !empty($b['start']) || !empty($b['end']));
-
-            foreach ($breaks as $b) {
-                $attendance->breakTimes()->create([
-                    'start_time' => !empty($b['start']) ? now()->parse($b['start']) : null,
-                    'end_time'   => !empty($b['end'])   ? now()->parse($b['end'])   : null,
-                ]);
-            }
-        });
-
-        return redirect()
-            ->route('attendance.show', $attendance->id)
-            ->with('success', '勤怠を更新しました。');
-    }
-
-    // 管理者：日別一覧
-    public function indexDaily(Request $request)
-    {
-        $request->validate(['date' => ['nullable', 'date']]);
-
-        $target = $request->filled('date')
-            ? Carbon::parse($request->date)->startOfDay()
-            : now()->startOfDay();
-
-        $attendances = Attendance::with(['user:id,name'])
-            ->whereDate('work_date', $target->toDateString())
-            ->orderBy('user_id')
-            ->paginate(20)
-            ->withQueryString();
-
-        return view('admin.attendance.index', [
-            'attendances' => $attendances,
-            'targetDate'  => $target->toDateString(),
-            'titleDate'   => $target->format('Y年n月j日'),
-            'prevDate'    => $target->copy()->subDay()->toDateString(),
-            'nextDate'    => $target->copy()->addDay()->toDateString(),
-        ]);
-    }
-
-    // 管理者：月次一覧
-    public function indexMonthly(Request $request, User $user)
-    {
-        $month = $request->query('month', now()->format('Y-m'));
-        $start = Carbon::parse("{$month}-01")->startOfMonth();
-        $end   = (clone $start)->endOfMonth();
-
-        $attendances = Attendance::where('user_id', $user->id)
-            ->whereBetween('work_date', [$start->toDateString(), $end->toDateString()])
-            ->orderBy('work_date')
-            ->get();
-
-        return view('admin.attendance.index-monthly', compact('user', 'month', 'attendances'));
-    }
-
-    // 管理者：CSV出力（休憩は合計分を出力）
+    // CSV出力（休憩は合計分を出力）
     public function exportMonthlyCsv(Request $request, User $user): StreamedResponse
     {
         $month = $request->query('month', now()->format('Y-m'));

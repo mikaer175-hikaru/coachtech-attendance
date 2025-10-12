@@ -1,0 +1,270 @@
+/* =========================================================
+   勤怠一覧（一般） 完成版 CSS
+   ファイル名: public/css/attendance-list.css
+   参考デザイン準拠：太見出し / ピル型月ナビ / カード風テーブル
+   ========================================================= */
+
+/* 背景（共通のレイアウトが別にあるなら省略可） */
+body {
+    background: #F0EFF2;
+}
+
+/* コンテナ */
+.attendance {
+    max-width: 1040px;
+    /* 参考デザインに近い横幅 */
+    margin: 0 auto;
+    padding: 56px 20px 96px;
+    /* 上余白をやや広めに */
+}
+
+/* 見出し（左バー＋太字） */
+.attendance__title {
+    margin: 0 0 22px;
+    font-size: 28px;
+    font-weight: 900;
+    color: #111;
+    position: relative;
+    padding-left: 14px;
+}
+
+.attendance__title::before {
+    content: "";
+    position: absolute;
+    inset: .12em auto .12em 0;
+    width: 8px;
+    border-radius: 2px;
+    background: #111;
+}
+
+/* ================= 月ナビ（中央の白ピル） ================= */
+.attendance__nav {
+    display: flex;
+    justify-content: center;
+    margin: 0 0 22px;
+}
+
+.attendance__nav-form {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    background: #fff;
+    border: 1px solid #EEE;
+    border-radius: 12px;
+    padding: 10px 14px;
+    width: 640px;
+    /* 固定幅で中央に見せる */
+    max-width: 92vw;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, .04);
+}
+
+/* 左右ボタン（矢印は疑似要素で） */
+.attendance__nav-btn {
+    appearance: none;
+    border: 1px solid #E5E7EB;
+    background: #FAFAFA;
+    color: #333;
+    font-size: 14px;
+    font-weight: 800;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    line-height: 1;
+    transition: background .15s, border-color .15s, transform .02s;
+}
+
+.attendance__nav-btn:hover {
+    background: #F2F2F2;
+    border-color: #DDD;
+}
+
+.attendance__nav-btn:active {
+    transform: translateY(1px);
+}
+
+/* ← 前月 */
+.attendance__nav-btn--prev {
+    padding-left: 28px;
+    position: relative;
+}
+
+.attendance__nav-btn--prev::before {
+    content: "";
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    translate: 0 -50%;
+    width: 18px;
+    height: 18px;
+    opacity: .35;
+    background: no-repeat center / contain url("data:image/svg+xml,%3Csvg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2'%3E%3Cpath d='M15 18l-6-6 6-6'/%3E%3C/svg%3E");
+}
+
+/* 翌月 → */
+.attendance__nav-btn--next {
+    padding-right: 28px;
+    position: relative;
+}
+
+.attendance__nav-btn--next::after {
+    content: "";
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    translate: 0 -50%;
+    width: 18px;
+    height: 18px;
+    opacity: .35;
+    background: no-repeat center / contain url("data:image/svg+xml,%3Csvg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2'%3E%3Cpath d='M9 18l6-6-6-6'/%3E%3C/svg%3E");
+}
+
+/* 中央の年月（🗓は疑似要素で） */
+.attendance__nav-current {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 900;
+    color: #111;
+    font-size: 16px;
+    line-height: 40px;
+}
+
+.attendance__nav-current::before {
+    content: "";
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background: no-repeat center / contain url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23111' stroke-width='2'%3E%3Crect x='3' y='4' width='18' height='18' rx='2'/%3E%3Cpath d='M16 2v4M8 2v4M3 10h18'/%3E%3C/svg%3E");
+}
+
+/* ================= テーブル（カード風） ================= */
+.attendance__table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    background: #fff;
+    border: 1px solid #EEE;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .04);
+    font-size: 14px;
+}
+
+.attendance__table thead th {
+    background: #FAFAFA;
+    color: #555;
+    font-weight: 800;
+    padding: 14px 12px;
+    text-align: center;
+    white-space: nowrap;
+    border-bottom: 3px solid #E1E1E1;
+}
+
+.attendance__table tbody tr {
+    border-bottom: 2px solid #EDEDED;
+}
+
+.attendance__table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.attendance__cell {
+    padding: 14px 12px;
+    text-align: center;
+    color: #111;
+    background: #fff;
+}
+
+.attendance__cell--date {
+    font-variant-numeric: tabular-nums;
+}
+
+.attendance__cell--detail {
+    width: 88px;
+}
+
+/* 本日行の薄ハイライト（任意） */
+.attendance__row--today .attendance__cell {
+    background: #FCFCFD;
+}
+
+/* ダッシュ（データ無） */
+.attendance__dash {
+    color: #B7B7B7;
+}
+
+/* 詳細リンク */
+.attendance__link {
+    display: inline-block;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: #F1F5F9;
+    color: #111;
+    font-weight: 800;
+    text-decoration: none;
+    transition: opacity .15s ease, transform .02s ease;
+}
+
+.attendance__link:hover {
+    opacity: .92;
+}
+
+.attendance__link:active {
+    transform: translateY(1px);
+}
+
+.attendance__link--disabled {
+    background: #F5F5F7;
+    color: #9CA3AF;
+    cursor: not-allowed;
+}
+
+/* キーボードフォーカスの可視化 */
+.attendance__nav-btn:focus-visible,
+.attendance__link:focus-visible {
+    outline: 3px solid rgba(17, 17, 17, .35);
+    outline-offset: 2px;
+}
+
+/* ================== レスポンシブ ================== */
+@media (max-width:767px) {
+    .attendance {
+        padding: 36px 14px 72px;
+    }
+
+    .attendance__title {
+        font-size: 24px;
+        margin-bottom: 14px;
+    }
+
+    .attendance__nav-form {
+        width: 100%;
+    }
+
+    .attendance__table {
+        font-size: 13px;
+    }
+
+    .attendance__table thead th,
+    .attendance__cell {
+        padding: 12px 8px;
+    }
+}
+
+@media (min-width:768px) and (max-width:1024px) {
+    .attendance {
+        max-width: 880px;
+        padding: 44px 18px 84px;
+    }
+}
+
+@media (min-width:1400px) {
+    .attendance {
+        max-width: 1200px;
+    }
+
+    .attendance__nav-form {
+        width: 720px;
+    }
+}
