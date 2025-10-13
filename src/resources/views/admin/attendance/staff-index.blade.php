@@ -39,7 +39,7 @@
                 <tbody class="staff-month__tbody">
                     @foreach ($rows as $r)
                         <tr class="staff-month__tr">
-                            <td class="staff-month__td staff-month__td--date">{{ $r['date'] }}</td>
+                            <td class="staff-month__td staff-month__td--date">{{ $r['date_label'] }}</td>
                             <td class="staff-month__td staff-month__td--time">{{ $r['start_hm'] }}</td>
                             <td class="staff-month__td staff-month__td--time">{{ $r['end_hm'] }}</td>
                             <td class="staff-month__td staff-month__td--time">{{ $r['break_hm'] }}</td>

@@ -44,12 +44,19 @@
             </div>
 
             {{-- 日付（年／月日） --}}
+            @php
+                use Illuminate\Support\Carbon;
+
+                $d = $attendance->work_date instanceof Carbon
+                    ? $attendance->work_date
+                    : Carbon::parse($attendance->work_date);
+            @endphp
+
             <div class="detail__row">
                 <div class="detail__th">日付</div>
                 <div class="detail__td detail__td--split">
-                    @php($d = optional($attendance->work_date))
-                    <span class="detail__date-y">{{ $d?->year }}年</span>
-                    <span class="detail__date-md">{{ $d?->format('n月j日') }}</span>
+                    <span class="detail__date--y">{{ $d->year }}年</span>
+                    <span class="detail__date--md">{{ $d->format('n月j日') }}</span>
                 </div>
             </div>
 

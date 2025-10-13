@@ -56,7 +56,7 @@
                 @endphp
                 <tr class="attendance__row {{ $isToday ? 'attendance__row--today' : '' }}">
                     <td class="attendance__cell attendance__cell--date">
-                        {{ \Carbon\Carbon::parse($r['date'])->isoFormat('MM/DD(ddd)') }}
+                        {{ \Carbon\Carbon::parse($r['date'])->locale('ja')->isoFormat('MM/DD(ddd)') }}
                     </td>
                     <td class="attendance__cell attendance__cell--start">
                         {!! $r['start_hm'] !== '' ? e($r['start_hm']) : $dash !!}

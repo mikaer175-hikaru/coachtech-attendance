@@ -42,7 +42,8 @@ class StaffAttendanceController extends Controller
 
             $rows[] = [
                 'date'           => $d->toDateString(),
-                'weekday'        => $d->isoFormat('ddd'),
+                'date_label'     => $d->locale('ja')->isoFormat('MM/DD(ddd)'),// 例: 10/13(月)
+                'weekday'        => $d->locale('ja')->isoFormat('ddd'),
                 'start_hm'       => $a?->start_hm ?? '',
                 'end_hm'         => $a?->end_hm ?? '',
                 'break_hm'       => $a?->break_hm ?? '',

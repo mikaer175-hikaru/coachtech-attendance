@@ -16,5 +16,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions): void {
         // 例外ハンドリングのカスタマイズがあればここで登録
     })
+    ->withProviders([
+        App\Providers\LocaleServiceProvider::class,
+    ])
     ->create();
 

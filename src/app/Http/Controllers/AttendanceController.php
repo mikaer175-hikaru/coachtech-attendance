@@ -51,6 +51,9 @@ class AttendanceController extends Controller
 
             $rows[] = [
                 'date'          => $d->toDateString(),        // 例: 2025-10-10
+                'date_label'    => function_exists('intlcal_create_instance')
+                    ? $d->isoFormat('MM/DD(ddd)')
+                    : $d->format('m/d').'(['.'日月火水木金土'[$d->dayOfWeek].'])', // 例: 10/10(金)
                 'start_hm'      => $a?->start_hm ?? '',       // 例: 09:00
                 'end_hm'        => $a?->end_hm ?? '',
                 'break_hm'      => $a?->break_hm ?? '',       // 例: 1:00
