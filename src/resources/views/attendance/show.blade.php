@@ -35,7 +35,7 @@
     @endif
 
     {{-- フォーム開始：修正申請のPOST --}}
-    <form method="POST" action="{{ route('stamp_requests.store', ['attendance' => $attendance->id]) }}">
+    <form method="POST" action="{{ route('stamp_requests.store', ['attendance' => $attendance->id]) }}" autocomplete="off">
         @csrf
 
         <section class="attendance-card">
@@ -56,17 +56,20 @@
                 </div>
             </div>
 
-            {{-- 出勤・退勤 --}}
+            {{-- 出勤・退勤（承認待ちは申請値が入る） --}}
             <div class="attendance-card__row">
                 <div class="attendance-card__th">出勤・退勤</div>
                 <div class="attendance-card__td attendance-card__td--range">
+                    @php
+                        $startVal = $isPending ? ($displayStart ?? '') : old('start_time', $displayStart ?? '');
+                        $endVal   = $isPending ? ($displayEnd   ?? '') : old('end_time',   $displayEnd   ?? '');
+                    @endphp
+
                     <input class="pill-input" type="time" name="start_time"
-                        value="{{ old('start_time', optional($attendance->start_time)->format('H:i')) }}"
-                        {{ $disabled }}>
+                        value="{{ $startVal }}" {{ $isPending ? 'disabled' : '' }} autocomplete="off" step="60">
                     <span class="attendance-card__tilde">〜</span>
                     <input class="pill-input" type="time" name="end_time"
-                        value="{{ old('end_time', optional($attendance->end_time)->format('H:i')) }}"
-                        {{ $disabled }}>
+                        value="{{ $endVal }}" {{ $isPending ? 'disabled' : '' }} autocomplete="off" step="60">
                 </div>
             </div>
             @error('start_time')
@@ -81,11 +84,15 @@
                 <div class="attendance-card__row">
                     <div class="attendance-card__th">休憩{{ $i + 1 }}</div>
                     <div class="attendance-card__td attendance-card__td--range">
+                        @php
+                            $bStart = $isPending ? ($row['start'] ?? '') : old("breaks.$i.start", $row['start'] ?? '');
+                            $bEnd   = $isPending ? ($row['end']   ?? '') : old("breaks.$i.end",   $row['end']   ?? '');
+                        @endphp
                         <input class="pill-input" type="time" name="breaks[{{ $i }}][start]"
-                                value="{{ old("breaks.$i.start", $row['start']) }}" {{ $disabled }}>
-                        <span class="attendance-card__tilde">〜</span>
+                                value="{{ $bStart }}" {{ $isPending ? 'disabled' : '' }} autocomplete="off" step="60">
+                        〜
                         <input class="pill-input" type="time" name="breaks[{{ $i }}][end]"
-                                value="{{ old("breaks.$i.end", $row['end']) }}" {{ $disabled }}>
+                                value="{{ $bEnd }}" {{ $isPending ? 'disabled' : '' }} autocomplete="off" step="60">
                     </div>
                 </div>
                 @error("breaks.$i.start")
@@ -100,9 +107,10 @@
             <div class="attendance-card__row attendance-card__row--stack">
                 <div class="attendance-card__th">備考</div>
                 <div class="attendance-card__td">
-                    <textarea class="memo" name="note" {{ $disabled }} required>
-                        {{ old('note', $attendance->note) }}
-                    </textarea>
+                    @php
+                        $noteVal = $isPending ? ($attendance->note ?? '') : old('note', $attendance->note);
+                    @endphp
+                    <textarea class="memo" name="note" placeholder="電車遅延のため など" {{ $isPending ? 'disabled' : '' }} required>{{ $noteVal }}</textarea>
                 </div>
             </div>
             @error('note')
@@ -110,6 +118,7 @@
             @enderror
         </section>
 
+        {{-- 申請ボタン --}}
         <div class="attendance-detail__actions">
             @if (! $isPending)
                 <button type="submit" class="btn btn--primary">修正</button>

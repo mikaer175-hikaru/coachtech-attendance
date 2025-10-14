@@ -73,6 +73,7 @@ class StaffAttendanceController extends Controller
             ->with('breaks')
             ->where('user_id', $user->id)
             ->whereBetween('work_date', [$start->toDateString(), $end->toDateString()])
+            ->with(['breaks' => fn($q) => $q->orderBy('break_start')])
             ->orderBy('work_date')
             ->get()
             ->keyBy(function ($a) {

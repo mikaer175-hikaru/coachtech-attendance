@@ -27,14 +27,14 @@
                 <tr class="request-table__row">
                     <th class="request-table__cell request-table__cell--head">日付</th>
                     <td class="request-table__cell">
-                        {{ optional($attendance->work_date)->format('Y年n月j日') ?? '-' }}
+                        {{ optional(optional($attendance)->work_date)->format('Y/m/d') ?? '-' }}
                     </td>
                 </tr>
                 <tr class="request-table__row">
                     <th class="request-table__cell request-table__cell--head">出勤・退勤</th>
                     <td class="request-table__cell">
-                        {{ optional($attendance->start_time)->format('H:i') ?? '—' }} 〜
-                        {{ optional($attendance->end_time)->format('H:i') ?? '—' }}
+                        {{ optional(optional($attendance)->start_time)->format('H:i') ?? '-' }} 〜
+                        {{ optional(optional($attendance)->end_time)->format('H:i') ?? '-' }}
                     </td>
                 </tr>
 
@@ -71,7 +71,7 @@
                     承認済み
                 </button>
             @else
-                <form method="POST" action="{{ route('admin.stamp_requests.approve', $req) }}">
+                <form method="POST" action="{{ route('admin.stamp_requests.approve', ['stamp_request' => $req->id]) }}">
                     @csrf
                     <button type="submit" class="request-detail__button">承認</button>
                 </form>

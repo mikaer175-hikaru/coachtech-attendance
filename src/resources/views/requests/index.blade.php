@@ -1,8 +1,7 @@
-@extends($isAdmin ? 'admin.layouts.admin' : 'layouts.app')
+@extends('layouts.app')
 
 @section('styles')
-    {{-- 一般/管理 共通CSS（必要なら分岐してもOK） --}}
-    <link rel="stylesheet" href="{{ asset($isAdmin ? 'css/admin-requests.css' : 'css/requests.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/requests.css') }}">
 @endsection
 
 @section('content')

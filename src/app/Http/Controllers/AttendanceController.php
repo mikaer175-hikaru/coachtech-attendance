@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
+use App\Models\StampCorrectionRequest as ACR;
 use App\Models\BreakTime;
 use App\Models\User;
 use Carbon\Carbon;
@@ -74,43 +75,53 @@ class AttendanceController extends Controller
     public function show(Attendance $attendance)
     {
         $user = auth()->user();
+        abort_unless($user && $attendance->user_id === $user->id, 403);
+
         $attendance->load(['user:id,name', 'breaks']);
 
-        // 休憩行
+        // 休憩行（DB値で初期化）
         $breakRows = $attendance->breaks->sortBy('break_start')->map(fn ($b) => [
             'start' => optional($b->break_start)->format('H:i'),
             'end'   => optional($b->break_end)->format('H:i'),
-        ])->toArray();
-        $breakRows[] = ['start' => '', 'end' => ''];
+        ])->values()->all();
 
-        // ここで日付の表示用文字列を用意
-        $wd = $attendance->work_date instanceof \Carbon\Carbon
-            ? $attendance->work_date
-            : ($attendance->work_date ? \Carbon\Carbon::parse($attendance->work_date) : null);
-
-        $dateYear     = $wd ? ($wd->year . '年') : '';
+        $wd = $attendance->work_date ? \Carbon\Carbon::parse($attendance->work_date) : null;
+        $dateYear     = $wd ? ($wd->year.'年') : '';
         $dateMonthDay = $wd ? $wd->isoFormat('M月D日') : '';
+        $isPending    = ($attendance->status ?? null) === 'pending';
 
-        $isPending = ($attendance->status ?? null) === 'pending';
-
-        if ($user && $user->can('admin')) {
-            return view('admin.attendance.show', [
-                'attendance'   => $attendance,
-                'breakRows'    => $breakRows,
-                'isPending'    => $isPending,
-                'dateYear'     => $dateYear,
-                'dateMonthDay' => $dateMonthDay,
-            ]);
+        // ★ 承認待ちなら最新の本人申請を取得
+        $pendingRequest = null;
+        if ($isPending) {
+            $pendingRequest = ACR::where('attendance_id', $attendance->id)
+                ->where('user_id', $user->id)
+                ->where('status', ACR::STATUS_PENDING)
+                ->latest('created_at')
+                ->first();
         }
 
-        abort_unless($user && $attendance->user_id === $user->id, 403);
+        // ★ 表示値を決定（承認待ち＋申請ありなら申請値を優先）
+        $displayStart = optional($attendance->start_time)->format('H:i');
+        $displayEnd   = optional($attendance->end_time)->format('H:i');
+        if ($pendingRequest) {
+            $displayStart = optional($pendingRequest->new_start_time)->format('H:i');
+            $displayEnd   = optional($pendingRequest->new_end_time)->format('H:i');
+            $breakRows = collect($pendingRequest->new_breaks ?? [])
+                ->map(fn($b) => ['start' => $b['start'] ?? '', 'end' => $b['end'] ?? ''])
+                ->values()->all();
+        }
+
+        // 空1行を最後に
+        $breakRows[] = ['start' => '', 'end' => ''];
 
         return view('attendance.show', [
-            'attendance'   => $attendance,
-            'breakRows'    => $breakRows,
-            'isPending'    => $isPending,
-            'dateYear'     => $dateYear,
-            'dateMonthDay' => $dateMonthDay,
+            'attendance'     => $attendance,
+            'breakRows'      => $breakRows,
+            'isPending'      => $isPending,
+            'dateYear'       => $dateYear,
+            'dateMonthDay'   => $dateMonthDay,
+            'displayStart'   => $displayStart,
+            'displayEnd'     => $displayEnd,
         ]);
     }
 

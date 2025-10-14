@@ -117,18 +117,23 @@ class Attendance extends Model
     {
         $breaks = $this->breaks;
 
-        if ($breaks->isEmpty()) {
-            return 0;
-        }
+        if ($breaks->isEmpty()) return 0;
 
         return (int) $breaks->sum(function ($b) {
             if (!$b->break_start || !$b->break_end) return 0;
-
-            $start = $b->break_start instanceof Carbon ? $b->break_start : Carbon::parse($b->break_start);
-            $end   = $b->break_end   instanceof Carbon ? $b->break_end   : Carbon::parse($b->break_end);
-
-            return max(0, $start->diffInMinutes($end));
+            return $b->break_start->diffInMinutes($b->break_end);
         });
+    }
+
+    // 休憩（HH:MM）
+    public function getBreakHmAttribute(): string
+    {
+        $m = $this->total_break_minutes;
+        if ($m === 0) {
+            $hasAny = $this->relationLoaded('breaks') ? $this->breaks->isNotEmpty() : $this->breaks()->exists();
+            return $hasAny ? '0:00' : '';
+        }
+        return sprintf('%d:%02d', intdiv($m, 60), $m % 60);
     }
 
     // 実働（分）
@@ -151,21 +156,15 @@ class Attendance extends Model
     public function getStartHmAttribute(): string {
         return $this->start_time instanceof Carbon ? $this->start_time->format('H:i') : '';
     }
+
     public function getEndHmAttribute(): string {
         return $this->end_time instanceof Carbon ? $this->end_time->format('H:i') : '';
     }
-    public function getBreakHmAttribute(): string
-    {
-        $m = $this->total_break_minutes;
-        if ($m === 0) {
-            $hasAny = $this->relationLoaded('breaks') ? $this->breaks->isNotEmpty() : $this->breaks()->exists();
-            return $hasAny ? '0:00' : '';
-        }
-        return sprintf('%d:%02d', intdiv($m, 60), $m % 60);
-    }
+
     public function getBreakMinutesAttribute(): int {
         return $this->total_break_minutes;
     }
+
     public function getRouteKeyName(): string {
         return 'id';
     }

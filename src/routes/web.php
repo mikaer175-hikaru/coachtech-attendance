@@ -95,7 +95,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 // ▼ 管理者専用ルート
 // ====================
 
-Route::middleware(['auth', 'verified', 'can:admin'])
+Route::middleware(['auth:admin', 'verified', 'can:admin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
@@ -136,8 +136,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/stamp-requests', [UserRequestController::class, 'index'])
         ->name('stamp_requests.index');
 
-    // 申請詳細 → 勤怠詳細にリダイレクト
-    Route::get('/stamp-requests/{stamp_request}', [StampCorrectionRequestController::class, 'show'])
+    // 申請詳細（共通入口）：ここで管理/一般を分岐してリダイレクト
+    Route::get('/stamp-requests/{stamp_request}', [UserRequestController::class, 'show'])
         ->whereNumber('stamp_request')
         ->name('stamp_requests.show');
 
@@ -151,16 +151,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
 // ▼ 管理者：申請詳細/承認/却下（専用パス）
 // ====================
 
-Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'can:admin'])->group(function () {
-    Route::get('/stamp-requests/{correction}', [StampCorrectionApproveController::class, 'show'])
-        ->whereNumber('correction')
+Route::prefix('admin')->name('admin.')->middleware(['auth:admin', 'verified', 'can:admin'])->group(function () {
+    Route::get('/stamp-requests/{stamp_request}', [StampCorrectionApproveController::class, 'show'])
+        ->whereNumber('stamp_request')
         ->name('stamp_requests.show');
 
-    Route::post('/stamp-requests/{correction}/approve', [StampCorrectionApproveController::class, 'approve'])
-        ->whereNumber('correction')
+    Route::post('/stamp-requests/{stamp_request}/approve', [StampCorrectionApproveController::class, 'approve'])
+        ->whereNumber('stamp_request')
         ->name('stamp_requests.approve');
 
-    Route::post('/stamp-requests/{correction}/reject', [StampCorrectionApproveController::class, 'reject'])
-        ->whereNumber('correction')
+    Route::post('/stamp-requests/{stamp_request}/reject', [StampCorrectionApproveController::class, 'reject'])
+        ->whereNumber('stamp_request')
         ->name('stamp_requests.reject');
 });
