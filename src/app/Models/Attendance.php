@@ -115,11 +115,9 @@ class Attendance extends Model
     // 休憩合計（分）
     public function getTotalBreakMinutesAttribute(): int
     {
-        // リレーションがロード済みならそれを使う
-        $breaks = $this->relationLoaded('breaks') ? $this->breaks : $this->getRelationValue('breaks');
+        $breaks = $this->breaks;
 
-        // 空なら 0 を返す（ここが無いと none returned になる）
-        if (!$breaks || $breaks->count() === 0) {
+        if ($breaks->isEmpty()) {
             return 0;
         }
 
@@ -156,9 +154,14 @@ class Attendance extends Model
     public function getEndHmAttribute(): string {
         return $this->end_time instanceof Carbon ? $this->end_time->format('H:i') : '';
     }
-    public function getBreakHmAttribute(): string {
+    public function getBreakHmAttribute(): string
+    {
         $m = $this->total_break_minutes;
-        return $m > 0 ? sprintf('%d:%02d', intdiv($m, 60), $m % 60) : '';
+        if ($m === 0) {
+            $hasAny = $this->relationLoaded('breaks') ? $this->breaks->isNotEmpty() : $this->breaks()->exists();
+            return $hasAny ? '0:00' : '';
+        }
+        return sprintf('%d:%02d', intdiv($m, 60), $m % 60);
     }
     public function getBreakMinutesAttribute(): int {
         return $this->total_break_minutes;
