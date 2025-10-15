@@ -1,28 +1,65 @@
 # COACHTECH 勤怠管理アプリ
 
-## 環境構築
+## 環境構築（修正版）
 
-1. Docker を起動する
+1. リポジトリをクローン後、環境ファイルを作成（ホスト側）
+```bash
+cp src/.env.example src/.env
+```
 
-2. 依存関係のインストール & .env 準備
-   ```bash
-   docker compose up -d --build
-   docker compose exec app composer install
-   cp src/.env.example src/.env
-   docker compose exec app php artisan key:generate
+2. Docker 環境用に .env を更新（Docker Compose の db サービスを使う場合）
+- 必要に応じて以下を src/.env に設定してください：
+```
+DB_CONNECTION=mysql
+DB_HOST=db
+DB_PORT=3306
+DB_DATABASE=attendance_db
+DB_USERNAME=root
+DB_PASSWORD=password
+```
 
-3. コンテナ起動後、以下でマイグレーションとシーディングを実行
-   ```bash
-   docker compose exec app php artisan migrate --seed
-   ```
+3. コンテナをビルドして起動
+```bash
+docker compose up -d --build
+```
 
+4. PHP 依存関係をコンテナ内でインストール
+```bash
+docker compose exec app composer install
+```
+
+5. アプリキーを生成
+```bash
+docker compose exec app php artisan key:generate
+```
+
+6. マイグレーションとシードを実行
+```bash
+docker compose exec app php artisan migrate --seed
+```
+
+7. フロントエンド依存（ホストで実行）
+```bash
+cd src
+npm install
+# 開発サーバ
+npm run dev
+# 本番ビルド
+npm run build
+```
+
+8. テスト実行
+```bash
+docker compose exec app php artisan test
+```
 ---
 
 ## 使用技術
-- PHP 8.x / Laravel 10.x
-- MySQL 8.x
+- PHP 8.3.26 / Laravel 12.21.0
+- MySQL 8.0
 - Docker / Docker Compose
-- PHPUnit
+- nginx 1.29.1
+- Mailhog
 
 ---
 
@@ -51,24 +88,29 @@
 ---
 
 ## テーブル仕様（例）
+
 ### users
 | カラム名 | 型 | 制約 |
 | --- | --- | --- |
-| id | bigint | PK |
+| id | bigint / unsigned bigInteger (PK) | PK |
 | name | varchar(255) | not null |
 | email | varchar(255) | unique, not null |
+| email_verified_at | timestamp | nullable |
 | password | varchar(255) | not null |
+| remember_token | varchar(100) | nullable |
 | created_at / updated_at | timestamp |  |
+| is_first_login | boolean | not null |
+| is_admin | boolean | not null |
 
 ### attendances
 | カラム名 | 型 | 制約 |
 | --- | --- | --- |
-| id | bigint | PK |
-| user_id | bigint | FK(users.id) |
+| id | bigint / unsigned bigInteger (PK) | PK |
+| user_id | bigint / unsigned bigInteger | FK -> users.id, not null |
 | work_date | date | not null |
-| start_time | time |  |
-| end_time | time |  |
-| note | text |  |
+| start_time | time / datetime | nullable |
+| end_time | time / datetime | nullable |
+| note | text | nullable |
 | created_at / updated_at | timestamp |  |
 
 ---
@@ -85,6 +127,12 @@
 - 管理者
   - email: admin@example.com
   - password: password123
+
+---
+
+## メール承認
+- MailHog
+  - http://localhost:8025
 
 ---
 
