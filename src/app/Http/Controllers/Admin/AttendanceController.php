@@ -164,19 +164,31 @@ class AttendanceController extends Controller
     // 月次勤怠一覧（休憩も読み込む）
     public function indexMonthly(Request $request, int $id)
     {
-        $month = $request->query('month', Carbon::now()->format('Y-m'));
-        $start = Carbon::parse($month . '-01')->startOfMonth();
+        $month = $request->query('month', \Carbon\Carbon::now()->format('Y-m'));
+
+        $start = \Carbon\Carbon::parse($month . '-01')->startOfMonth();
         $end   = (clone $start)->endOfMonth();
 
-        $attendances = Attendance::with('breaks')
+        // ★ 追加：前月・翌月・表示用
+        $prev  = $start->copy()->subMonth()->format('Y-m');
+        $next  = $start->copy()->addMonth()->format('Y-m');
+        $monthLabel = $start->format('Y-m'); // 画面中央に出す用（任意）
+
+        $attendances = \App\Models\Attendance::with('breaks')
             ->where('user_id', $id)
             ->whereBetween('work_date', [$start->toDateString(), $end->toDateString()])
             ->orderBy('work_date')
             ->get();
 
-        $user = User::findOrFail($id);
+        $user = \App\Models\User::findOrFail($id);
 
-        return view('admin.attendance.index-monthly', compact('user', 'month', 'attendances'));
+        return view('admin.attendance.staff-index', [
+            'user'         => $user,
+            'attendances'  => $attendances,
+            'month'        => $monthLabel, // 既存の $month 参照に合わせるならこれでOK
+            'prev'         => $prev,       // ★ 追加
+            'next'         => $next,       // ★ 追加
+        ]);
     }
 
     // CSV出力：休憩は合計分で出力（break_times を集計）
@@ -196,23 +208,32 @@ class AttendanceController extends Controller
 
         return response()->streamDownload(function () use ($rows) {
             $out = fopen('php://output', 'w');
+
+            // Excel 対策
+            fwrite($out, "\xEF\xBB\xBF");
+
+            // ヘッダー
             fputcsv($out, ['日付', '出勤', '退勤', '休憩合計(分)', '備考']);
+
             foreach ($rows as $r) {
-                // 完了した休憩のみ合計
+                // 休憩合計(分)
                 $totalBreak = $r->breaks->sum(function ($b) {
                     if (!$b->break_start || !$b->break_end) return 0;
                     return $b->break_start->diffInMinutes($b->break_end);
                 });
 
-                fputcsv($out, [
-                    optional($r->work_date)->toDateString(),
-                    optional($r->start_time)->format('Y-m-d H:i:s'),
-                    optional($r->end_time)->format('Y-m-d H:i:s'),
-                    $totalBreak,
-                    $r->note,
-                ]);
+                // 日付は1列目、出勤/退勤は時刻だけ（H:i）で出力
+                $date  = optional($r->work_date)->toDateString();
+                $start = $r->start_time ? $r->start_time->format('H:i') : '';
+                $end   = $r->end_time   ? $r->end_time->format('H:i')   : '';
+
+                fputcsv($out, [$date, $start, $end, $totalBreak, $r->note]);
             }
+
             fclose($out);
-        }, $filename, ['Content-Type' => 'text/csv']);
+        }, $filename, [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+        ]);
     }
 }

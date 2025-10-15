@@ -117,12 +117,12 @@ Route::middleware(['auth:admin', 'verified', 'can:admin'])
             ->name('staff.list');
 
         // 月次一覧（スタッフ別）
-        Route::get('/attendance/staff/{id}', [StaffAttendanceController::class, 'index'])
+        Route::get('/attendance/staff/{id}', [\App\Http\Controllers\Admin\AttendanceController::class, 'indexMonthly'])
             ->whereNumber('id')
             ->name('attendance.staff.index');
 
         // CSV 出力
-        Route::get('/attendance/staff/{id}/csv', [StaffAttendanceController::class, 'downloadCsv'])
+        Route::get('/attendance/staff/{id}/csv', [\App\Http\Controllers\Admin\AttendanceController::class, 'exportMonthlyCsv'])
             ->whereNumber('id')
             ->name('attendance.staff.csv');
     });

@@ -19,7 +19,7 @@ class Attendance extends Model
     public const STATUS_BREAKING = 'breaking'; // 休憩中
     public const STATUS_ENDED    = 'ended';    // 退勤済
 
-    // ===== 一括代入許可カラム =====
+    // ===== 一括代入許可 =====
     protected $fillable = [
         'user_id',
         'work_date',
@@ -31,76 +31,77 @@ class Attendance extends Model
 
     // ===== 型変換 =====
     protected $casts = [
-        'work_date'        => 'date',
-        'start_time'       => 'datetime',
-        'end_time'         => 'datetime',
+        'work_date'  => 'date',
+        'start_time' => 'datetime',
+        'end_time'   => 'datetime',
     ];
 
     // ===== リレーション =====
 
-    // ユーザー
+    /** ユーザー */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    // 休憩（将来の複数休憩テーブル用。作成前でも定義してOK）
+    /** 複数休憩 */
     public function breaks(): HasMany
     {
         return $this->hasMany(BreakTime::class)->orderBy('break_start');
     }
 
+    // ===== ロジック =====
+
+    /** 休憩中かどうか（複数休憩 or レガシー単休憩） */
     public function isBreaking(): bool
     {
-        // 複数休憩テーブル側：break_end が null の行がある
-        $ongoingInBreaks = $this->breaks()->open()->exists();
-
-        // 旧単一休憩カラム側：start あり && end なし
-        $legacyOngoing   = !empty($this->break_start_time) && empty($this->break_end_time);
-
+        $ongoingInBreaks = $this->breaks()->whereNull('break_end')->exists();
+        $legacyOngoing   = !empty($this->break_start_time) && empty($this->break_end_time); // レガシー用
         return $ongoingInBreaks || $legacyOngoing;
     }
 
+    /** 現在のステータス（出退勤/休憩から算出） */
     public function getComputedStatusAttribute(): string
     {
         if ($this->end_time) {
-            return self::STATUS_ENDED;        // 退勤済
+            return self::STATUS_ENDED;
         }
         if ($this->isBreaking()) {
-            return self::STATUS_BREAKING;     // 休憩中
+            return self::STATUS_BREAKING;
         }
         if ($this->start_time) {
-            return self::STATUS_WORKING;      // 出勤中
+            return self::STATUS_WORKING;
         }
-        return self::STATUS_OFF;              // 勤務外
+        return self::STATUS_OFF;
     }
 
     // ===== クエリスコープ =====
 
-    // 指定年月
+    /** 指定年月の勤怠 */
     public function scopeOfMonth(Builder $q, int $year, int $month): Builder
     {
         return $q->whereYear('work_date', $year)->whereMonth('work_date', $month);
     }
 
-    // 指定日
+    /** 指定日の勤怠 */
     public function scopeOnDate(Builder $q, Carbon|string $date): Builder
     {
         $d = $date instanceof Carbon ? $date->toDateString() : (string) $date;
         return $q->whereDate('work_date', $d);
     }
 
-    // 期間
+    /** 期間（両端含む） */
     public function scopeBetweenDates(Builder $q, Carbon|string $from, Carbon|string $to): Builder
     {
         $f = $from instanceof Carbon ? $from->toDateString() : (string) $from;
         $t = $to   instanceof Carbon ? $to->toDateString()   : (string) $to;
-        return $q->whereDate('work_date', '>=', $f)->whereDate('work_date', '<=', $t);
+        return $q->whereDate('work_date', '>=', $f)
+                ->whereDate('work_date', '<=', $t);
     }
 
     // ===== 表示用アクセサ =====
 
-    // ステータスの日本語ラベル
+    /** ステータス日本語ラベル */
     public function getStatusLabelAttribute(): string
     {
         return match ($this->status) {
@@ -112,60 +113,102 @@ class Attendance extends Model
         };
     }
 
-    // 休憩合計（分）
+    /** 休憩合計（分） */
     public function getTotalBreakMinutesAttribute(): int
     {
         $breaks = $this->breaks;
 
-        if ($breaks->isEmpty()) return 0;
+        if ($breaks->isEmpty()) {
+            return 0;
+        }
 
-        return (int) $breaks->sum(function ($b) {
-            if (!$b->break_start || !$b->break_end) return 0;
+        return (int) $breaks->sum(function (BreakTime $b) {
+            if (!$b->break_start || !$b->break_end) {
+                return 0;
+            }
+            // BreakTime 側は casts で datetime を想定
             return $b->break_start->diffInMinutes($b->break_end);
         });
     }
 
-    // 休憩（HH:MM）
+    /** 休憩（H:MM） */
     public function getBreakHmAttribute(): string
     {
         $m = $this->total_break_minutes;
+
         if ($m === 0) {
-            $hasAny = $this->relationLoaded('breaks') ? $this->breaks->isNotEmpty() : $this->breaks()->exists();
+            // レコードが存在するがゼロ分であれば 0:00、レコード自体なければ空
+            $hasAny = $this->relationLoaded('breaks')
+                ? $this->breaks->isNotEmpty()
+                : $this->breaks()->exists();
+
             return $hasAny ? '0:00' : '';
         }
         return sprintf('%d:%02d', intdiv($m, 60), $m % 60);
     }
 
-    // 実働（分）
+    /** 実働（分） */
     public function getWorkedMinutesAttribute(): int
     {
         if (!$this->start_time || !$this->end_time) {
             return 0;
         }
-        $baseMinutes = $this->start_time->diffInMinutes($this->end_time);
-        return max(0, $baseMinutes - $this->total_break_minutes);
+        $base = $this->start_time->diffInMinutes($this->end_time);
+        return max(0, $base - $this->total_break_minutes);
     }
 
-    // 実働（HH:MM 文字列）
+    /** 実働（H:MM） */
     public function getWorkedHmAttribute(): string
     {
         $m = $this->worked_minutes;
         return sprintf('%d:%02d', intdiv($m, 60), $m % 60);
     }
 
-    public function getStartHmAttribute(): string {
+    /** 出勤（HH:MM） */
+    public function getStartHmAttribute(): string
+    {
         return $this->start_time instanceof Carbon ? $this->start_time->format('H:i') : '';
     }
 
-    public function getEndHmAttribute(): string {
+    /** 退勤（HH:MM） */
+    public function getEndHmAttribute(): string
+    {
         return $this->end_time instanceof Carbon ? $this->end_time->format('H:i') : '';
     }
 
-    public function getBreakMinutesAttribute(): int {
-        return $this->total_break_minutes;
+    // ===== 休憩同期（承認時などで使用） =====
+
+    /**
+     * 休憩を丸ごと入れ替え
+     * $items 例: [['start' => '12:00', 'end' => '13:00'], ...]
+     */
+    public function syncBreaks(array $items): void
+    {
+        $this->breaks()->delete();
+
+        foreach ($items as $b) {
+            if (empty($b['start']) || empty($b['end'])) {
+                continue; // 不正はスキップ（アーリーリターン）
+            }
+
+            $start = Carbon::parse($this->work_date . ' ' . $b['start']);
+            $end   = Carbon::parse($this->work_date . ' ' . $b['end']);
+
+            if ($end->lte($start)) {
+                continue;
+            }
+
+            $this->breaks()->create([
+                'break_start' => $start,
+                'break_end'   => $end,
+            ]);
+        }
     }
 
-    public function getRouteKeyName(): string {
+    // ===== ルートキー（明示） =====
+
+    public function getRouteKeyName(): string
+    {
         return 'id';
     }
 }

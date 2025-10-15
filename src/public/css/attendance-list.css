@@ -4,11 +4,6 @@
    参考デザイン準拠：太見出し / ピル型月ナビ / カード風テーブル
    ========================================================= */
 
-/* 背景（共通のレイアウトが別にあるなら省略可） */
-body {
-    background: #F0EFF2;
-}
-
 /* コンテナ */
 .attendance {
     max-width: 1040px;
@@ -39,9 +34,14 @@ body {
 
 /* ================= 月ナビ（中央の白ピル） ================= */
 .attendance__nav {
-    display: flex;
-    justify-content: center;
-    margin: 0 0 22px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 12px;
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    padding: 10px 12px;
 }
 
 .attendance__nav-form {

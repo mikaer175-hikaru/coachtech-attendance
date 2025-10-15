@@ -16,10 +16,10 @@
                 {{-- 月ナビ（前月／対象月／翌月） --}}
                 <nav class="staff-month__nav" aria-label="月ナビゲーション">
                     <a class="staff-month__nav-btn"
-                       href="{{ route('admin.attendance.staff.index', ['id' => $user->id, 'month' => $prev]) }}">‹ 前月</a>
+                        href="{{ route('admin.attendance.staff.index', ['id' => $user->id, 'month' => $prev]) }}">‹ 前月</a>
                     <span class="staff-month__month" aria-label="対象月">{{ $month }}</span>
                     <a class="staff-month__nav-btn"
-                       href="{{ route('admin.attendance.staff.index', ['id' => $user->id, 'month' => $next]) }}">翌月 ›</a>
+                        href="{{ route('admin.attendance.staff.index', ['id' => $user->id, 'month' => $next]) }}">翌月 ›</a>
                 </nav>
             </div>
         </header>
@@ -37,17 +37,19 @@
                     </tr>
                 </thead>
                 <tbody class="staff-month__tbody">
-                    @foreach ($rows as $r)
+                    @foreach ($attendances as $att)
                         <tr class="staff-month__tr">
-                            <td class="staff-month__td staff-month__td--date">{{ $r['date_label'] }}</td>
-                            <td class="staff-month__td staff-month__td--time">{{ $r['start_hm'] }}</td>
-                            <td class="staff-month__td staff-month__td--time">{{ $r['end_hm'] }}</td>
-                            <td class="staff-month__td staff-month__td--time">{{ $r['break_hm'] }}</td>
-                            <td class="staff-month__td staff-month__td--time">{{ $r['worked_hm'] }}</td>
+                            <td class="staff-month__td staff-month__td--date">
+                                {{ \Illuminate\Support\Carbon::parse($att->work_date)->format('m/d(D)') }}
+                            </td>
+                            <td class="staff-month__td staff-month__td--time">{{ $att->start_hm ?: '—' }}</td>
+                            <td class="staff-month__td staff-month__td--time">{{ $att->end_hm   ?: '—' }}</td>
+                            <td class="staff-month__td staff-month__td--time">{{ $att->break_hm ?: '—' }}</td>
+                            <td class="staff-month__td staff-month__td--time">{{ $att->worked_hm }}</td>
                             <td class="staff-month__td staff-month__td--action">
-                                @if ($r['attendance_id'])
+                                @if($att->exists)
                                     <a class="staff-month__detail"
-                                       href="{{ route('admin.attendance.show', $r['attendance_id']) }}">詳細</a>
+                                        href="{{ route('admin.attendance.show', $att) }}">詳細</a>
                                 @else
                                     <span class="staff-month__detail staff-month__detail--disabled">詳細</span>
                                 @endif

@@ -255,40 +255,4 @@ class AttendanceController extends Controller
 
         return redirect()->route('attendance.create')->with('success', '休憩終了を記録しました。');
     }
-
-    // CSV出力（休憩は合計分を出力）
-    public function exportMonthlyCsv(Request $request, User $user): StreamedResponse
-    {
-        $month = $request->query('month', now()->format('Y-m'));
-        $start = Carbon::parse("{$month}-01")->startOfMonth();
-        $end   = (clone $start)->endOfMonth();
-
-        $rows = Attendance::with('breaks')
-            ->where('user_id', $user->id)
-            ->whereBetween('work_date', [$start->toDateString(), $end->toDateString()])
-            ->orderBy('work_date')
-            ->get();
-
-        $filename = "attendance_{$user->id}_{$month}.csv";
-
-        return response()->streamDownload(function () use ($rows) {
-            $out = fopen('php://output', 'w');
-            fputcsv($out, ['日付', '出勤', '退勤', '休憩合計(分)', '備考']);
-            foreach ($rows as $r) {
-                $totalBreak = $r->breaks->sum(function ($b) {
-                    if (!$b->break_start || !$b->break_end) return 0;
-                    return $b->break_start->diffInMinutes($b->break_end);
-                });
-
-                fputcsv($out, [
-                    optional($r->work_date)->toDateString(),
-                    optional($r->start_time)->format('Y-m-d H:i:s'),
-                    optional($r->end_time)->format('Y-m-d H:i:s'),
-                    $totalBreak,
-                    $r->note,
-                ]);
-            }
-            fclose($out);
-        }, $filename, ['Content-Type' => 'text/csv']);
-    }
 }
