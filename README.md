@@ -1,57 +1,92 @@
 # COACHTECH 勤怠管理アプリ
 
-## 環境構築（修正版）
+## 環境構築
 
-1. リポジトリをクローン後、環境ファイルを作成（ホスト側）
+# 1. リポジトリをクローン → .env 作成
 ```bash
 cp src/.env.example src/.env
 ```
-
-2. Docker 環境用に .env を更新（Docker Compose の db サービスを使う場合）
-- 必要に応じて以下を src/.env に設定してください：
-```
+# 2. .evn 設定（src/.env）
+## DB 設定
 DB_CONNECTION=mysql
-DB_HOST=db
+DB_HOST=mysql_db
 DB_PORT=3306
 DB_DATABASE=attendance_db
 DB_USERNAME=root
 DB_PASSWORD=password
-```
+## メール送信設定
+MAIL_MAILER=smtp
+MAIL_HOST=mailhog
+MAIL_PORT=1025
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_ENCRYPTION=null
+MAIL_FROM_ADDRESS=no-reply@example.test
+MAIL_FROM_NAME="COACHTECH Attendance"
 
-3. コンテナをビルドして起動
+# 3. コンテナ起動
 ```bash
 docker compose up -d --build
 ```
 
-4. PHP 依存関係をコンテナ内でインストール
+# 4. 依存インストール & アプリキー
 ```bash
-docker compose exec app composer install
-```
-
-5. アプリキーを生成
-```bash
+docker compose exec app composer install -o
 docker compose exec app php artisan key:generate
 ```
 
-6. マイグレーションとシードを実行
+# 5. マイグレーション & シーディング
 ```bash
 docker compose exec app php artisan migrate --seed
 ```
 
-7. フロントエンド依存（ホストで実行）
+# 6. フロントエンド
 ```bash
 cd src
 npm install
-# 開発サーバ
+# 開発
 npm run dev
 # 本番ビルド
 npm run build
 ```
+---
 
-8. テスト実行
+# pull 後の再セットアップ（環境差の不具合を防ぐ）
 ```bash
-docker compose exec app php artisan test
+# 1) コンテナをビルド・起動
+docker compose up -d --build
+
+# 2) PHP 依存を再インストール
+docker compose exec app composer install -o
+
+# 3) .env を MySQL + file セッションに統一
+docker compose exec app bash -lc "
+sed -i '
+s/^DB_CONNECTION=.*/DB_CONNECTION=mysql/;
+s/^DB_HOST=.*/DB_HOST=mysql_db/;
+s/^DB_PORT=.*/DB_PORT=3306/;
+s/^DB_DATABASE=.*/DB_DATABASE=attendance_db/;
+s/^DB_USERNAME=.*/DB_USERNAME=root/;
+s/^DB_PASSWORD=.*/DB_PASSWORD=password/;
+s/^SESSION_DRIVER=.*/SESSION_DRIVER=file/
+' .env || true
+"
+
+# 4) Laravel のキャッシュを全削除
+docker compose exec app php artisan optimize:clear
+
+# 5) マイグレーション（必要に応じて）
+docker compose exec app php artisan migrate --force || true
+
+# 6) storage / cache の権限整備
+docker compose exec app bash -lc '
+mkdir -p storage/framework/{cache,sessions,views} bootstrap/cache
+chown -R www-data:www-data storage bootstrap/cache
+find storage bootstrap/cache -type d -exec chmod 775 {} \;
+find storage bootstrap/cache -type f -exec chmod 664 {} \;
+'
 ```
+
 ---
 
 ## 使用技術
