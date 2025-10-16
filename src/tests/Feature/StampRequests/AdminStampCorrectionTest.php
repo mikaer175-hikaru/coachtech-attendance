@@ -3,7 +3,7 @@
 namespace Tests\Feature\StampRequests;
 
 use App\Models\Attendance;
-use App\Models\AttendanceCorrectRequest;
+use App\Models\StampCorrectionRequest as AttendanceCorrectRequest;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Feature\Support\CreatesUsers;
@@ -21,7 +21,7 @@ final class AdminStampCorrectionTest extends TestCase
     public function 承認待ち一覧に全ユーザーの申請が表示される(): void
     {
         $admin = $this->createAdmin();
-        $this->actingAs($admin);
+        $this->actingAs($admin, 'admin');
 
         $u1 = $this->createUser(['email' => 'u1@example.com']);
         $u2 = $this->createUser(['email' => 'u2@example.com']);
@@ -50,7 +50,7 @@ final class AdminStampCorrectionTest extends TestCase
     public function 承認済み一覧に承認済み申請のみ表示され_承認日時の降順で並ぶ(): void
     {
         $admin = $this->createAdmin();
-        $this->actingAs($admin);
+        $this->actingAs($admin, 'admin');
 
         $u = $this->createUser();
 
@@ -87,7 +87,7 @@ final class AdminStampCorrectionTest extends TestCase
     public function 詳細画面に申請内容が表示される(): void
     {
         $admin = $this->createAdmin();
-        $this->actingAs($admin);
+        $this->actingAs($admin, 'admin');
 
         $u = $this->createUser();
         $att = Attendance::factory()->off(today())->create(['user_id' => $u->id]);
@@ -110,7 +110,7 @@ final class AdminStampCorrectionTest extends TestCase
     public function 承認で申請がapprovedになり_勤怠の該当フィールドに反映される(): void
     {
         $admin = $this->createAdmin();
-        $this->actingAs($admin);
+        $this->actingAs($admin, 'admin');
 
         $u = $this->createUser();
 
@@ -146,7 +146,7 @@ final class AdminStampCorrectionTest extends TestCase
     public function 既にapprovedな申請は二重承認できず422が返る想定(): void
     {
         $admin = $this->createAdmin();
-        $this->actingAs($admin);
+        $this->actingAs($admin, 'admin');
 
         $u = $this->createUser();
         $att = Attendance::factory()->off(today())->create(['user_id' => $u->id]);
@@ -166,7 +166,7 @@ final class AdminStampCorrectionTest extends TestCase
     public function 却下で申請がrejectedになり_勤怠は変更されない(): void
     {
         $admin = $this->createAdmin();
-        $this->actingAs($admin);
+        $this->actingAs($admin, 'admin');
 
         $u = $this->createUser();
 
@@ -207,7 +207,7 @@ final class AdminStampCorrectionTest extends TestCase
     public function 一般ユーザーは承認や却下を実行できない(): void
     {
         $user = $this->createUser();
-        $this->actingAs($user);
+        $this->actingAs($user, 'admin');
 
         $att = Attendance::factory()->off(today())->create(['user_id' => $user->id]);
         $req = AttendanceCorrectRequest::factory()->pending()->create([

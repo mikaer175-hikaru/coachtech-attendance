@@ -18,7 +18,7 @@ final class StaffListTest extends TestCase
         $u1 = $this->createUser(['name' => '一人目', 'email' => 'u1@example.com']);
         $u2 = $this->createUser(['name' => '二人目', 'email' => 'u2@example.com']);
 
-        $this->actingAs($admin);
+        $this->actingAs($admin, 'admin');
         $res = $this->get('/admin/staff/list');
 
         $res->assertOk();
@@ -32,7 +32,7 @@ final class StaffListTest extends TestCase
     public function ユーザー別月次の前月翌月切替_リンク文言のみ検証(): void
     {
         $admin = $this->createAdmin();
-        $this->actingAs($admin);
+        $this->actingAs($admin, 'admin');
 
         $res = $this->get('/admin/attendance/staff/1?month=2025-08');
         $res->assertStatus(200);

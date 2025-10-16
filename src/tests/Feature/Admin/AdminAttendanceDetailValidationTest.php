@@ -16,7 +16,7 @@ final class AdminAttendanceDetailValidationTest extends TestCase
     public function 出勤時間退勤時間の逆転で_バリデーションメッセージ(): void
     {
         $admin = $this->createAdmin();
-        $this->actingAs($admin);
+        $this->actingAs($admin, 'admin');
 
         $attendance = Attendance::factory()->create();
 
@@ -40,7 +40,7 @@ final class AdminAttendanceDetailValidationTest extends TestCase
     public function 休憩時間が退勤より後で_バリデーションメッセージ(): void
     {
         $admin = $this->createAdmin();
-        $this->actingAs($admin);
+        $this->actingAs($admin, 'admin');
 
         $attendance = Attendance::factory()->create([
             'start_time' => '09:00',
@@ -68,7 +68,7 @@ final class AdminAttendanceDetailValidationTest extends TestCase
     public function 備考未入力で_バリデーションメッセージ(): void
     {
         $admin = $this->createAdmin();
-        $this->actingAs($admin);
+        $this->actingAs($admin, 'admin');
 
         $attendance = Attendance::factory()->create([
             'start_time' => '09:00',
@@ -87,4 +87,4 @@ final class AdminAttendanceDetailValidationTest extends TestCase
         $res->assertSessionHasErrors(['note']);
         $this->assertStringContainsString('備考を記入してください', session('errors')->first('note'));
     }
-    }
+}

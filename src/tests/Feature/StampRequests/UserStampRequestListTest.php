@@ -3,7 +3,7 @@
 namespace Tests\Feature\StampRequests;
 
 use App\Models\Attendance;
-use App\Models\AttendanceCorrectRequest;
+use App\Models\StampCorrectionRequest as AttendanceCorrectRequest;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Feature\Support\CreatesUsers;
@@ -100,7 +100,7 @@ final class UserStampRequestListTest extends TestCase
             'user_id' => $other->id, 'attendance_id' => $attOther->id, 'note' => 'OTHER_APPROVED',
         ]);
 
-        $res = $this->get('/stamp-requests');
+        $res = $this->get('/stamp-requests?tab=approved');
         $res->assertOk();
         $res->assertSee('ME_NEW');
         $res->assertSee('ME_OLD');

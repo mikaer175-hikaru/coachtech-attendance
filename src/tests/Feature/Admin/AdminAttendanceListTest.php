@@ -17,7 +17,7 @@ final class AdminAttendanceListTest extends TestCase
     public function 当日勤怠が一覧表示される(): void
     {
         $admin = $this->createAdmin();
-        $this->actingAs($admin);
+        $this->actingAs($admin, 'admin');
 
         Attendance::factory()->count(2)->create([
             'work_date' => Carbon::today()->toDateString(),
@@ -32,7 +32,7 @@ final class AdminAttendanceListTest extends TestCase
     public function 前日ボタンで前日が表示される(): void
     {
         $admin = $this->createAdmin();
-        $this->actingAs($admin);
+        $this->actingAs($admin, 'admin');
 
         $yesterday = Carbon::yesterday()->format('Y-m-d');
         $res = $this->get('/admin/attendance/list?date=' . $yesterday);
@@ -44,7 +44,7 @@ final class AdminAttendanceListTest extends TestCase
     public function 翌日ボタンで翌日が表示される(): void
     {
         $admin = $this->createAdmin();
-        $this->actingAs($admin);
+        $this->actingAs($admin, 'admin');
 
         $tomorrow = Carbon::tomorrow()->format('Y-m-d');
         $res = $this->get('/admin/attendance/list?date=' . $tomorrow);

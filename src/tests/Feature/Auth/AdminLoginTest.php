@@ -50,6 +50,7 @@ class AdminLoginTest extends TestCase
         ]);
 
         $res->assertRedirect('/admin/login');
-        $res->assertSessionHas('error', 'ログイン情報が登録されていません');
+        $res->assertSessionHasErrors(['email']);
+        $this->assertStringContainsString('メールアドレスまたはパスワードが正しくありません。', session('errors')->first('email'));
     }
 }

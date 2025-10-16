@@ -38,7 +38,7 @@ services:
     restart: unless-stopped
 
   mailhog:
-    image: mailhog/
+    image: mailhog/mailhog:v1.0.1
     ports:
       - "8025:8025"
     restart: unless-stopped
