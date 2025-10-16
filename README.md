@@ -8,21 +8,21 @@ cp src/.env.example src/.env
 ```
 # 2. .evn 設定（src/.env）
 ## DB 設定
-DB_CONNECTION=mysql
-DB_HOST=mysql_db
-DB_PORT=3306
-DB_DATABASE=attendance_db
-DB_USERNAME=root
-DB_PASSWORD=password
+- DB_CONNECTION=mysql
+- DB_HOST=mysql_db
+- DB_PORT=3306
+- DB_DATABASE=attendance_db
+- DB_USERNAME=root
+- DB_PASSWORD=password
 ## メール送信設定
-MAIL_MAILER=smtp
-MAIL_HOST=mailhog
-MAIL_PORT=1025
-MAIL_USERNAME=null
-MAIL_PASSWORD=null
-MAIL_ENCRYPTION=null
-MAIL_FROM_ADDRESS=no-reply@example.test
-MAIL_FROM_NAME="COACHTECH Attendance"
+- MAIL_MAILER=smtp
+- MAIL_HOST=mailhog
+- MAIL_PORT=1025
+- MAIL_USERNAME=null
+- MAIL_PASSWORD=null
+- MAIL_ENCRYPTION=null
+- MAIL_FROM_ADDRESS=no-reply@example.test
+- MAIL_FROM_NAME="COACHTECH Attendance"
 
 # 3. コンテナ起動
 ```bash
