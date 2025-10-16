@@ -40,15 +40,6 @@ docker compose exec app php artisan key:generate
 docker compose exec app php artisan migrate --seed
 ```
 
-# 6. フロントエンド
-```bash
-cd src
-npm install
-# 開発
-npm run dev
-# 本番ビルド
-npm run build
-```
 ---
 
 # pull 後の再セットアップ（環境差の不具合を防ぐ）
