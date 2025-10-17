@@ -23,6 +23,9 @@ cp src/.env.example src/.env
 - MAIL_ENCRYPTION=null
 - MAIL_FROM_ADDRESS=no-reply@example.test
 - MAIL_FROM_NAME="COACHTECH Attendance"
+## その他の推奨
+- APP_URL=http://localhost:8080
+- SESSION_DRIVER=file
 
 # 3. コンテナ起動
 ```bash
@@ -33,12 +36,25 @@ docker compose up -d --build
 ```bash
 docker compose exec app composer install -o
 docker compose exec app php artisan key:generate
+docker compose exec app php artisan storage:link
 ```
 
 # 5. マイグレーション & シーディング
 ```bash
-docker compose exec app php artisan migrate --seed
+docker compose exec app php artisan migrate:fresh --seed
 ```
+
+---
+
+## メール送信（MailHog）
+
+- UI: http://localhost:8025
+
+- .env を更新したらキャッシュをクリア：
+```bash
+docker compose exec app php artisan optimize:clear
+```
+  - 送信をスキップしたい場合は MAIL_MAILER=log。本文は storage/logs/laravel.log に出力。
 
 ---
 
@@ -153,12 +169,6 @@ find storage bootstrap/cache -type f -exec chmod 664 {} \;
 - 管理者
   - email: admin@example.com
   - password: password123
-
----
-
-## メール承認
-- MailHog
-  - http://localhost:8025
 
 ---
 

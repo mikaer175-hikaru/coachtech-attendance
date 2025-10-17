@@ -2,34 +2,41 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use App\Models\User;
 
 class UsersTableSeeder extends Seeder
 {
     public function run(): void
     {
-        // 管理者ユーザー
-        User::factory()->admin()->create([
-            'name'              => 'Admin User',
-            'email'             => 'admin@example.com',
-            'password'          => Hash::make('password123'),
-            'email_verified_at' => now(),
-        ]);
+        // 管理者ユーザー（unique を付けて重複回避）
+        User::updateOrCreate(
+            ['email' => 'admin@example.com'],
+            [
+                'name'            => 'Admin User',
+                'password'        => Hash::make('password123'),
+                'is_admin'        => true,
+                'is_first_login'  => false,
+                'email_verified_at' => now(),
+            ]
+        );
 
-        // 一般ユーザー
-        User::factory()->general()->create([
-            'name'              => 'General User',
-            'email'             => 'user@example.com',
-            'password'          => Hash::make('password123'),
-            'email_verified_at' => now(),
-        ]);
+        // 一般ユーザー（unique を付けて重複回避）
+        User::updateOrCreate(
+            ['email' => 'user@example.com'],
+            [
+                'name'            => 'General User',
+                'password'        => Hash::make('password123'),
+                'is_admin'        => false,
+                'is_first_login'  => false,
+                'email_verified_at' => now(),
+            ]
+        );
 
-        // その他ダミー一般ユーザー（8件）
-        User::factory()->general()->count(8)->create([
-            'password'          => Hash::make('password123'),
-            'email_verified_at' => now(),
-        ]);
+        // その他ダミー一般ユーザー
+        User::factory()->count(10)->sequence(fn ($s) => [
+            'email' => "dummy{$s->index}@example.com",
+        ])->create();
     }
 }
