@@ -37,25 +37,25 @@
                     </tr>
                 </thead>
                 <tbody class="staff-month__tbody">
-                    @foreach ($attendances as $att)
-                        <tr class="staff-month__tr">
-                            <td class="staff-month__td staff-month__td--date">
-                                {{ \Illuminate\Support\Carbon::parse($att->work_date)->format('m/d(D)') }}
-                            </td>
-                            <td class="staff-month__td staff-month__td--time">{{ $att->start_hm ?: '—' }}</td>
-                            <td class="staff-month__td staff-month__td--time">{{ $att->end_hm   ?: '—' }}</td>
-                            <td class="staff-month__td staff-month__td--time">{{ $att->break_hm ?: '—' }}</td>
-                            <td class="staff-month__td staff-month__td--time">{{ $att->worked_hm }}</td>
-                            <td class="staff-month__td staff-month__td--action">
-                                @if($att->exists)
-                                    <a class="staff-month__detail"
-                                        href="{{ route('admin.attendance.show', $att) }}">詳細</a>
-                                @else
-                                    <span class="staff-month__detail staff-month__detail--disabled">詳細</span>
-                                @endif
-                            </td>
-                        </tr>
-                    @endforeach
+                @foreach ($days as $d)
+                    @php
+                        $dateLabel = $d['date']->copy()->locale('ja')->isoFormat('MM/DD（ddd）');
+                    @endphp
+                    <tr class="staff-month__tr">
+                        <td class="staff-month__td staff-month__td--date">{{ $dateLabel }}</td>
+                        <td class="staff-month__td staff-month__td--time">{{ $d['start'] ?? '—' }}</td>
+                        <td class="staff-month__td staff-month__td--time">{{ $d['end']   ?? '—' }}</td>
+                        <td class="staff-month__td staff-month__td--time">{{ $d['break'] ?? '—' }}</td>
+                        <td class="staff-month__td staff-month__td--time">{{ $d['total'] ?? '—' }}</td>
+                        <td class="staff-month__td staff-month__td--action">
+                            @if(!empty($d['attendance']))
+                                <a class="staff-month__detail" href="{{ route('admin.attendance.show', $d['attendance']) }}">詳細</a>
+                            @else
+                                <span class="staff-month__detail staff-month__detail--disabled">詳細</span>
+                            @endif
+                        </td>
+                    </tr>
+                @endforeach
                 </tbody>
             </table>
         </div>

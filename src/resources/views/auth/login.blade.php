@@ -9,7 +9,7 @@
     <div class="login__container">
         <h2 class="login__title">ログイン</h2>
 
-        <form action="{{ route('login.submit') }}" method="POST" class="login__form">
+        <form action="{{ route('login.submit') }}" method="POST" class="login__form" novalidate>
             @csrf
 
             <div class="login__form-group">

@@ -19,7 +19,7 @@
         @endif
 
         @if ($errors->any())
-            <ul class="detail__flash detail__flash--error">
+            <ul class="detail__flash detail__flash--error" role="alert">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
@@ -45,9 +45,9 @@
 
             {{-- 日付（年／月日） --}}
             @php
-                $d = $attendance->work_date instanceof Carbon
+                $d = $attendance->work_date instanceof \Carbon\Carbon
                     ? $attendance->work_date
-                    : Carbon::parse($attendance->work_date);
+                    : \Carbon\Carbon::parse($attendance->work_date);
             @endphp
 
             <div class="detail__row">
@@ -69,9 +69,6 @@
                            value="{{ old('end_time', optional($attendance->end_time)->format('H:i')) }}">
                 </div>
             </div>
-            @error('start_time') <p class="detail__error">{{ $message }}</p> @enderror
-            @error('end_time')   <p class="detail__error">{{ $message }}</p> @enderror
-
             {{-- 休憩：複数行 --}}
             @php
                 // old優先、なければ既存breaks→配列化。ゼロ件なら空行を1つ。
@@ -101,13 +98,6 @@
                                         <button type="button" class="break-row__remove" aria-label="この休憩を削除">−</button>
                                     @endif
                                 </div>
-
-                                {{-- 行ごとのバリデーションエラー表示 --}}
-                                @if ($errors->has("breaks.$i.start") || $errors->has("breaks.$i.end"))
-                                    <div class="detail__error">
-                                        {{ $errors->first("breaks.$i.start") ?: $errors->first("breaks.$i.end") }}
-                                    </div>
-                                @endif
                             </div>
                         @endforeach
                     </div>
@@ -167,7 +157,6 @@
                 <div class="detail__th">備考</div>
                 <div class="detail__td">
                     <textarea name="note" rows="3" class="detail__textarea" placeholder="電車遅延のため など">{{ old('note', $attendance->note) }}</textarea>
-                    @error('note') <p class="detail__error">{{ $message }}</p> @enderror
                 </div>
             </div>
 

@@ -9,8 +9,9 @@ use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
-    public function showForm()
+    public function showForm(Request $request)
     {
+        $request->session()->regenerateToken();
         return view('auth.login');
     }
 

@@ -100,6 +100,8 @@ class AttendanceController extends Controller
                 ->first();
         }
 
+        $displayNote = $attendance->note;
+
         // ★ 表示値を決定（承認待ち＋申請ありなら申請値を優先）
         $displayStart = optional($attendance->start_time)->format('H:i');
         $displayEnd   = optional($attendance->end_time)->format('H:i');
@@ -109,6 +111,7 @@ class AttendanceController extends Controller
             $breakRows = collect($pendingRequest->new_breaks ?? [])
                 ->map(fn($b) => ['start' => $b['start'] ?? '', 'end' => $b['end'] ?? ''])
                 ->values()->all();
+            $displayNote = (string)($pendingRequest->note ?? $attendance->note);
         }
 
         // 空1行を最後に
@@ -122,6 +125,7 @@ class AttendanceController extends Controller
             'dateMonthDay'   => $dateMonthDay,
             'displayStart'   => $displayStart,
             'displayEnd'     => $displayEnd,
+            'displayNote'    => $displayNote,
         ]);
     }
 

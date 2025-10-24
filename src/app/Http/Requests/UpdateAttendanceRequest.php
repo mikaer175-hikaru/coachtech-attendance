@@ -3,7 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Validator as ValidationValidator;
+use Illuminate\Validation\Validator;
 use Carbon\Carbon;
 
 class UpdateAttendanceRequest extends FormRequest
@@ -17,75 +17,85 @@ class UpdateAttendanceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'start_time'        => ['nullable', 'date_format:H:i'],
-            'end_time'          => ['nullable', 'date_format:H:i'],
-            'note'              => ['required', 'string', 'max:200'],
-
-            // 複数休憩（配列）
-            'breaks'            => ['array'],
-            'breaks.*.start'    => ['nullable', 'date_format:H:i'],
-            'breaks.*.end'      => ['nullable', 'date_format:H:i'],
+            'start_time'         => ['nullable', 'date_format:H:i'],
+            'end_time'           => ['nullable', 'date_format:H:i'],
+            'note'               => ['required', 'string'],
+            'breaks'             => ['array'],
+            'breaks.*.start'     => ['nullable', 'date_format:H:i'],
+            'breaks.*.end'       => ['nullable', 'date_format:H:i'],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'start_time.date_format'         => '出勤は「HH:MM」形式で入力してください',
-            'end_time.date_format'           => '退勤は「HH:MM」形式で入力してください',
-            'note.required'                  => '備考を入力してください',
-            'note.max'                       => '備考は200文字以内で入力してください',
-            'breaks.*.start.date_format'     => '休憩開始は「HH:MM」形式で入力してください',
-            'breaks.*.end.date_format'       => '休憩終了は「HH:MM」形式で入力してください',
+            'note.required'                => '備考を記入してください。',
+            'start_time.date_format'       => '出勤時間もしくは退勤時間が不適切な値です。',
+            'end_time.date_format'         => '出勤時間もしくは退勤時間が不適切な値です。',
+            'breaks.*.start.date_format'   => '休憩時間が不適切な値です。',
+            'breaks.*.end.date_format'     => '休憩時間が不適切な値です。',
         ];
     }
 
-    // after() で相関チェックをまとめる
-    public function after(): array
+    public function withValidator(Validator $validator): void
     {
-        return [
-            function (ValidationValidator $v) {
-                $attendance = $this->route('attendance');
+        $validator->after(function (Validator $v) {
+            $start = $this->toTime('start_time');
+            $end   = $this->toTime('end_time');
 
-                // 承認待ちは編集不可
-                if (($attendance->status ?? null) === 'pending') {
-                    $v->errors()->add('base', '承認待ちの勤怠は編集できません');
-                    return;
+            // 出勤・退勤の逆転
+            if ($start && $end && $start->gte($end)) {
+                $this->addErr($v, 'start_time', '出勤時間もしくは退勤時間が不適切な値です。');
+                $this->addErr($v, 'end_time',   '出勤時間もしくは退勤時間が不適切な値です。');
+            }
+
+            // 休憩チェック（複数行可）
+            $breaks = $this->input('breaks', []);
+            if (!is_array($breaks)) return;
+
+            foreach ($breaks as $b) {
+                $bs = isset($b['start']) ? $this->toTimeVal($b['start']) : null;
+                $be = isset($b['end'])   ? $this->toTimeVal($b['end'])   : null;
+
+                // 完全未入力は無視
+                if (!$bs && !$be) continue;
+
+                // 欠け or 逆転 → 「休憩時間が不適切な値です。」
+                if (!$bs || !$be || ($bs && $be && $bs->gte($be))) {
+                    $this->addErr($v, 'breaks', '休憩時間が不適切な値です。');
+                    continue;
                 }
 
-                $start = $this->t('start_time');
-                $end   = $this->t('end_time');
-
-                // 出勤 < 退勤
-                if ($start && $end && $start->gte($end)) {
-                    $v->errors()->add('start_time', '出勤時間もしくは退勤時間が不適切な値です');
-                    $v->errors()->add('end_time',   '出勤時間もしくは退勤時間が不適切な値です');
-                }
-
-                // 休憩（配列）: 開始<終了、かつ 退勤を超えない
-                $breaks = $this->input('breaks', []);
-                foreach ($breaks as $idx => $b) {
-                    $bs = $this->t($b['start'] ?? null, true);
-                    $be = $this->t($b['end']   ?? null, true);
-
-                    if ($bs && $be && $bs->gte($be)) {
-                        $v->errors()->add("breaks.$idx.start", '休憩時間が不適切な値です');
-                        $v->errors()->add("breaks.$idx.end",   '休憩時間が不適切な値です');
+                if ($start && $end) {
+                    // ③ 休憩終了 > 退勤 → 「休憩時間もしくは退勤時間が不適切な値です。」
+                    if ($be->gt($end)) {
+                        $this->addErr($v, 'breaks', '休憩時間もしくは退勤時間が不適切な値です。');
                     }
-                    if ($end && $bs && $bs->gte($end)) {
-                        $v->errors()->add("breaks.$idx.start", '休憩開始時間が退勤時間以降です');
-                    }
-                    if ($end && $be && $be->gt($end)) {
-                        $v->errors()->add("breaks.$idx.end", '休憩終了時間が退勤時間を超過しています');
+                    // ② 休憩開始 < 出勤 または 開始 > 退勤 → 「休憩時間が不適切な値です。」
+                    if ($bs->lt($start) || $bs->gt($end)) {
+                        $this->addErr($v, 'breaks', '休憩時間が不適切な値です。');
                     }
                 }
-            },
-        ];
+            }
+        });
     }
 
-    private function t(?string $keyOrValue, bool $raw = false): ?Carbon
+    private function toTime(string $key): ?Carbon
     {
-        $v = $raw ? $keyOrValue : $this->input($keyOrValue);
+        return $this->toTimeVal($this->input($key));
+    }
+
+    private function toTimeVal(?string $v): ?Carbon
+    {
         return $v ? Carbon::createFromFormat('H:i', $v) : null;
+    }
+
+    private function addErr(Validator $v, string $key, string $msg): void
+    {
+        // 同一メッセージの重複だけ抑止。異なる文言は積み上げて上部に複数行表示
+        $exists = $v->errors()->get($key) ?? [];
+        if (!in_array($msg, $exists, true)) {
+            $v->errors()->add($key, $msg);
+        }
     }
 }

@@ -8,10 +8,12 @@
 <div class="attendance-detail">
     <h1 class="attendance-detail__heading">勤怠詳細</h1>
 
-    @if (session('error'))
-        <p class="attendance-detail__flash attendance-detail__flash--error">
-            {{ session('error') }}
-        </p>
+    @if ($errors->any())
+        <ul class="attendance-detail__flash attendance-detail__flash--error" role="alert">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
     @endif
 
     @if (session('success'))
@@ -35,7 +37,7 @@
     @endif
 
     {{-- フォーム開始：修正申請のPOST --}}
-    <form method="POST" action="{{ route('stamp_requests.store', ['attendance' => $attendance->id]) }}" autocomplete="off">
+    <form method="POST" action="{{ route('stamp_requests.store', ['attendance' => $attendance->id]) }}" autocomplete="off" novalidate>
         @csrf
 
         <section class="attendance-card">
@@ -72,12 +74,6 @@
                         value="{{ $endVal }}" {{ $isPending ? 'disabled' : '' }} autocomplete="off" step="60">
                 </div>
             </div>
-            @error('start_time')
-                <p class="attendance-detail__flash attendance-detail__flash--error">{{ $message }}</p>
-            @enderror
-            @error('end_time')
-                <p class="attendance-detail__flash attendance-detail__flash--error">{{ $message }}</p>
-            @enderror
 
             {{-- 休憩（回数分＋空1行） --}}
             @foreach ($breakRows as $i => $row)
@@ -89,18 +85,12 @@
                             $bEnd   = $isPending ? ($row['end']   ?? '') : old("breaks.$i.end",   $row['end']   ?? '');
                         @endphp
                         <input class="pill-input" type="time" name="breaks[{{ $i }}][start]"
-                                value="{{ $bStart }}" {{ $isPending ? 'disabled' : '' }} autocomplete="off" step="60">
+                            value="{{ $bStart }}" {{ $isPending ? 'disabled' : '' }} autocomplete="off" step="60">
                         〜
                         <input class="pill-input" type="time" name="breaks[{{ $i }}][end]"
-                                value="{{ $bEnd }}" {{ $isPending ? 'disabled' : '' }} autocomplete="off" step="60">
+                            value="{{ $bEnd }}" {{ $isPending ? 'disabled' : '' }} autocomplete="off" step="60">
                     </div>
                 </div>
-                @error("breaks.$i.start")
-                    <p class="attendance-detail__flash attendance-detail__flash--error">{{ $message }}</p>
-                @enderror
-                @error("breaks.$i.end")
-                    <p class="attendance-detail__flash attendance-detail__flash--error">{{ $message }}</p>
-                @enderror
             @endforeach
 
             {{-- 備考（必須） --}}
@@ -108,14 +98,11 @@
                 <div class="attendance-card__th">備考</div>
                 <div class="attendance-card__td">
                     @php
-                        $noteVal = $isPending ? ($attendance->note ?? '') : old('note', $attendance->note);
+                        $noteVal = $isPending ? ($displayNote ?? '') : old('note', $attendance->note);
                     @endphp
-                    <textarea class="memo" name="note" placeholder="電車遅延のため など" {{ $isPending ? 'disabled' : '' }} required>{{ $noteVal }}</textarea>
+                    <textarea class="memo" name="note" placeholder="電車遅延のため など" {{ $isPending ? 'disabled' : '' }} >{{ $noteVal }}</textarea>
                 </div>
             </div>
-            @error('note')
-                <p class="attendance-detail__flash attendance-detail__flash--error">{{ $message }}</p>
-            @enderror
         </section>
 
         {{-- 申請ボタン --}}

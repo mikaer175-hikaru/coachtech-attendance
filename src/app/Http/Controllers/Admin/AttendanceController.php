@@ -110,32 +110,6 @@ class AttendanceController extends Controller
             })
             ->values();
 
-        // 整合性チェック
-        foreach ($breakInputs as $i => $b) {
-            if (is_null($b['break_start']) xor is_null($b['break_end'])) {
-                return back()
-                    ->withErrors(["breaks.$i.start" => '休憩は開始と終了の両方を入力してください。'])
-                    ->withInput();
-            }
-            if ($b['break_start'] && $b['break_end'] && $b['break_start']->gte($b['break_end'])) {
-                return back()
-                    ->withErrors(["breaks.$i.start" => '休憩の開始は終了より前である必要があります。'])
-                    ->withInput();
-            }
-        }
-
-        // 重複チェック
-        $sorted = $breakInputs->filter(fn($b) => $b['break_start'] && $b['break_end'])
-            ->sortBy('break_start')
-            ->values();
-        for ($i = 1; $i < $sorted->count(); $i++) {
-            if ($sorted[$i - 1]['break_end']->gt($sorted[$i]['break_start'])) {
-                return back()
-                    ->withErrors(["breaks.$i.start" => '休憩が重複しています。時間帯を見直してください。'])
-                    ->withInput();
-            }
-        }
-
         // 保存
         DB::transaction(function () use ($attendance, $start, $end, $breakInputs, $v) {
             $attendance->start_time = $start;
@@ -161,7 +135,7 @@ class AttendanceController extends Controller
         ])->with('success', '勤怠を修正しました。');
     }
 
-    // 月次勤怠一覧（休憩も読み込む）
+    // Admin\AttendanceController@indexMonthly を置き換え
     public function indexMonthly(Request $request, int $id)
     {
         $month = $request->query('month', \Carbon\Carbon::now()->format('Y-m'));
@@ -169,26 +143,67 @@ class AttendanceController extends Controller
         $start = \Carbon\Carbon::parse($month . '-01')->startOfMonth();
         $end   = (clone $start)->endOfMonth();
 
-        // ★ 追加：前月・翌月・表示用
         $prev  = $start->copy()->subMonth()->format('Y-m');
         $next  = $start->copy()->addMonth()->format('Y-m');
-        $monthLabel = $start->format('Y-m'); // 画面中央に出す用（任意）
+        $monthLabel = $start->format('Y-m');
 
+        // その月の勤怠を先に取得（休憩も）
         $attendances = \App\Models\Attendance::with('breaks')
             ->where('user_id', $id)
             ->whereBetween('work_date', [$start->toDateString(), $end->toDateString()])
-            ->orderBy('work_date')
-            ->get();
+            ->get()
+            ->keyBy(fn($a) => \Carbon\Carbon::parse($a->work_date)->toDateString()); // 日付キー化
+
+        // 全日付を走査して“埋め”を作る
+        $period = new \Carbon\CarbonPeriod($start, $end);
+        $days = collect();
+        foreach ($period as $day) {
+            $key = $day->toDateString();
+            $a = $attendances->get($key);
+
+            // 休憩合計（分）
+            $breakMin = $a
+                ? $a->breaks->sum(function ($b) {
+                    return ($b->break_start && $b->break_end)
+                        ? $b->break_start->diffInMinutes($b->break_end)
+                        : 0;
+                })
+                : null;
+
+            // 合計（勤務合計）＝ 退勤-出勤 - 休憩
+            $totalMin = null;
+            if ($a && $a->start_time && $a->end_time) {
+                $workMin = $a->start_time->diffInMinutes($a->end_time);
+                $totalMin = max(0, $workMin - (int) $breakMin);
+            }
+
+            $days->push([
+                'date'       => $day->copy(),                           // 日付オブジェクト（表示用）
+                'start'      => $a?->start_time?->format('H:i'),        // nullなら空白
+                'end'        => $a?->end_time?->format('H:i'),
+                'break'      => is_null($breakMin) ? null : $this->minToHMM($breakMin),
+                'total'      => is_null($totalMin) ? null : $this->minToHMM($totalMin),
+                'attendance' => $a,                                     // 詳細リンク用
+            ]);
+        }
 
         $user = \App\Models\User::findOrFail($id);
 
         return view('admin.attendance.staff-index', [
-            'user'         => $user,
-            'attendances'  => $attendances,
-            'month'        => $monthLabel, // 既存の $month 参照に合わせるならこれでOK
-            'prev'         => $prev,       // ★ 追加
-            'next'         => $next,       // ★ 追加
+            'user'   => $user,
+            'month'  => $monthLabel,
+            'prev'   => $prev,
+            'next'   => $next,
+            'days'   => $days, // ← これだけ見ればOK
         ]);
+    }
+
+    // 分を H:MM に（例 487 → 8:07）
+    private function minToHMM(int $min): string
+    {
+        $h = intdiv($min, 60);
+        $m = $min % 60;
+        return sprintf('%d:%02d', $h, $m);
     }
 
     // CSV出力：休憩は合計分で出力（break_times を集計）

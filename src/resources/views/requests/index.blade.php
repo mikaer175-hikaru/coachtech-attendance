@@ -33,9 +33,7 @@
             <thead class="request-table__head">
                 <tr class="request-table__row">
                     <th class="request-table__cell request-table__cell--head">状態</th>
-                    @if($isAdmin)
-                        <th class="request-table__cell request-table__cell--head">名前</th>
-                    @endif
+                    <th class="request-table__cell request-table__cell--head">名前</th>
                     <th class="request-table__cell request-table__cell--head">対象日時</th>
                     <th class="request-table__cell request-table__cell--head">申請理由</th>
                     <th class="request-table__cell request-table__cell--head">
