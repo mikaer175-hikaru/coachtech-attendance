@@ -131,7 +131,7 @@ Route::middleware(['auth:admin', 'verified', 'can:admin'])
 // ▼ 一般ユーザー申請（一覧は共通エントリでロール出し分け）
 // ====================
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth:admin,web', 'verified'])->group(function () {
     // 一覧（管理者／一般ユーザー共用）
     Route::get('/stamp-requests', [UserRequestController::class, 'index'])
         ->name('stamp_requests.index');

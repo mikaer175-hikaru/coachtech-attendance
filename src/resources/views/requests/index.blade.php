@@ -77,7 +77,7 @@
                                 {{-- 管理者：申請詳細（承認/却下）へ --}}
                                 <a class="request-list__link" href="{{ route('admin.stamp_requests.show', $req) }}">詳細</a>
                             @else
-                                {{-- 一般：勤怠詳細へ（FN033） --}}
+                                {{-- 一般：勤怠詳細へ --}}
                                 <a class="request-list__link" href="{{ route('attendance.show', $req->attendance_id) }}">詳細</a>
                             @endif
                         </td>
