@@ -28,13 +28,13 @@ class LoginController extends Controller
             $request->boolean('remember')
         )) {
             throw ValidationException::withMessages([
-                'email' => 'メールアドレスまたはパスワードが正しくありません。',
+                'email' => 'ログイン情報が登録されていません。',
             ]);
         }
 
         $request->session()->regenerate();
 
-        // 権限チェック（保険）
+        // 権限チェック
         if (! auth('admin')->user()->is_admin) {
             Auth::guard('admin')->logout();
             $request->session()->invalidate();
@@ -55,7 +55,7 @@ class LoginController extends Controller
 
     public function logout()
     {
-        Auth::guard('admin')->logout(); // ★ adminガードでログアウト
+        Auth::guard('admin')->logout();
         request()->session()->invalidate();
         request()->session()->regenerateToken();
 

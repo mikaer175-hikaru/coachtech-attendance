@@ -129,7 +129,7 @@ class AttendanceController extends Controller
     public function create(Request $request)
     {
         $user  = $request->user();
-        $today = now()->toDateString();
+        $today = Carbon::now('Asia/Tokyo')->toDateString();
 
         $attendance = Attendance::with('breaks')
         ->where('user_id', $user->id)
@@ -151,7 +151,7 @@ class AttendanceController extends Controller
             $hasOngoingBreak = $hasOpenInMem || $hasOpenInDb;
         }
 
-        $now = now();
+        $now = Carbon::now('Asia/Tokyo')->locale('ja');
 
         // ステータス判定
         $status = '勤務外';
@@ -168,7 +168,8 @@ class AttendanceController extends Controller
         return view('attendance.create', [
             'attendance' => $attendance,
             'status'     => $status,
-            'date'       => $now->format('Y年n月j日'),
+            'nowText'    => $now->isoFormat('YYYY/MM/DD（ddd） HH:mm'),
+            'date'       => $now->isoFormat('YYYY/MM/DD（ddd）'),
             'time'       => $now->format('H:i'),
         ]);
     }

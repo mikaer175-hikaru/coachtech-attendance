@@ -28,20 +28,26 @@ body {
     border-radius: 999px;
 }
 
-.attendance__date {
+.attendance__now {
+    text-align: center;
+    margin: 8px 0 38px;
+}
+
+.attendance__now-date {
+    display: block;
     font-weight: 700;
     font-size: 34px;
     color: #222;
     letter-spacing: .02em;
-    margin: 8px 0 18px;
+    margin: 8px 0 12px;
 }
 
-.attendance__time {
+.attendance__now-time {
+    display: block;
     font-weight: 900;
     font-size: clamp(56px, 9vw, 96px);
     line-height: 1.05;
     color: #111;
-    margin: 6px 0 38px;
 }
 
 .message {

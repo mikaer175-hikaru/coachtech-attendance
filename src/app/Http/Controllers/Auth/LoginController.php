@@ -24,9 +24,8 @@ class LoginController extends Controller
             return redirect()->intended('/attendance');
         }
 
-        return redirect()
-            ->route('login')
-            ->with('error', 'ログイン情報が登録されていません')
+        return back()
+            ->withErrors(['email' => 'ログイン情報が登録されていません。'])
             ->withInput($request->only('email'));
     }
 }

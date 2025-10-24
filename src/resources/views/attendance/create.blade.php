@@ -11,8 +11,10 @@
         <p class="attendance__status-label">{{ $status }}</p>
 
         {{-- 日付と時刻 --}}
-        <p class="attendance__date">{{ $date }}</p>
-        <p class="attendance__time">{{ $time }}</p>
+        <p class="attendance__now">
+            <span class="attendance__now-date">{{ $date }}</span>
+            <span class="attendance__now-time">{{ $time }}</span>
+        </p>
 
         {{-- メッセージ --}}
         @if (session('success'))

@@ -117,14 +117,14 @@ find storage bootstrap/cache -type f -exec chmod 664 {} \;
 ---
 
 ## 画面一覧
-- `/register`：会員登録
-- `/login`：ログイン
-- `/attendance`：勤怠登録（打刻）
-- `/attendance/{id}`：勤怠詳細
-- `/stamp_correction_request/list`：申請一覧
-- `/admin/login`：管理者ログイン
-- `/admin/attendance/list`：勤怠一覧
-- `/admin/attendance/staff/{id}`：スタッフ別勤怠一覧
+- `http://localhost:8080/register`：会員登録
+- `http://localhost:8080/login`：ログイン
+- `http://localhost:8080/attendance`：勤怠登録（打刻）
+- `http://localhost:8080/attendance/{id}`：勤怠詳細
+- `http://localhost:8080/stamp_correction_request/list`：申請一覧
+- `http://localhost:8080/admin/login`：管理者ログイン
+- `http://localhost:8080/admin/attendance/list`：勤怠一覧
+- `http://localhost:8080/admin/attendance/staff/{id}`：スタッフ別勤怠一覧
 
 ---
 

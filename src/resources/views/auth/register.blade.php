@@ -13,7 +13,7 @@
             @csrf
 
             <div class="register__field">
-                <label class="register__label" for="name">お名前</label>
+                <label class="register__label" for="name">名前</label>
                 <input class="register__input" type="text" name="name" id="name" value="{{ old('name') }}">
                 @error('name') <p class="register__error">{{ $message }}</p> @enderror
             </div>
@@ -31,7 +31,7 @@
             </div>
 
             <div class="register__field">
-                <label class="register__label" for="password_confirmation">パスワード（確認用）</label>
+                <label class="register__label" for="password_confirmation">パスワード確認</label>
                 <input class="register__input" type="password" name="password_confirmation" id="password_confirmation">
                 @error('password_confirmation') <p class="register__error">{{ $message }}</p> @enderror
             </div>
