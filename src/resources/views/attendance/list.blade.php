@@ -7,7 +7,7 @@
 @section('content')
 <div class="attendance" role="region" aria-labelledby="att-title">
     {{-- 見出し --}}
-    <h2 id="att-title" class="attendance__title">勤怠一覧</h2>
+    <h1 id="att-title" class="attendance__title">勤怠一覧</h1>
 
     {{-- 月切り替えナビ（管理者風：左/中央/右） --}}
     <div class="attendance__nav" role="navigation" aria-label="月ナビゲーション">

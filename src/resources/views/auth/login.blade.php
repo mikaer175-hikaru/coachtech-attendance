@@ -7,7 +7,7 @@
 @section('content')
 <div class="login">
     <div class="login__container">
-        <h2 class="login__title">ログイン</h2>
+        <h1 class="login__title">ログイン</h1>
 
         <form action="{{ route('login.submit') }}" method="POST" class="login__form" novalidate>
             @csrf

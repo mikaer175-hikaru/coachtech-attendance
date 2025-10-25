@@ -91,7 +91,7 @@ class AttendanceController extends Controller
         $dateMonthDay = $wd ? $wd->isoFormat('M月D日') : '';
         $isPending    = ($attendance->status ?? null) === 'pending';
 
-        // ★ 承認待ちなら最新の本人申請を取得
+        // 承認待ちなら最新の本人申請を取得
         $pendingRequest = null;
         if ($isPending) {
             $pendingRequest = ACR::where('attendance_id', $attendance->id)
@@ -103,7 +103,7 @@ class AttendanceController extends Controller
 
         $displayNote = $attendance->note;
 
-        // ★ 表示値を決定（承認待ち＋申請ありなら申請値を優先）
+        // 表示値を決定（承認待ち＋申請ありなら申請値を優先）
         $displayStart = optional($attendance->start_time)->format('H:i');
         $displayEnd   = optional($attendance->end_time)->format('H:i');
         if ($pendingRequest) {
