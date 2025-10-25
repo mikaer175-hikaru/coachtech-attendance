@@ -49,11 +49,9 @@
                             {{ $req->status_label ?? ($current === 'pending' ? '承認待ち' : '承認済み') }}
                         </td>
 
-                        @if($isAdmin)
-                            <td class="request-table__cell">
-                                {{ $req->user?->name ?? optional(optional($req->attendance)->user)->name ?? '-' }}
-                            </td>
-                        @endif
+                        <td class="request-table__cell">
+                            {{ $req->user?->name ?? optional(optional($req->attendance)->user)->name ?? '-' }}
+                        </td>
 
                         <td class="request-table__cell">
                             @php $d = optional($req->attendance)->work_date; @endphp

@@ -108,7 +108,7 @@ Route::middleware(['auth:admin', 'verified', 'can:admin'])
             ->whereNumber('attendance')
             ->name('attendance.show');
 
-        Route::match(['patch', 'put', 'post'], '/attendance/{attendance}', [AdminAttendanceController::class, 'update'])
+        Route::patch('/attendance/{attendance}', [AdminAttendanceController::class, 'update'])
             ->whereNumber('attendance')
             ->name('attendance.update');
 

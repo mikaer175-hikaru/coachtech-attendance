@@ -9,32 +9,25 @@
     {{-- 見出し --}}
     <h2 id="att-title" class="attendance__title">勤怠一覧</h2>
 
-    {{-- 月切り替えナビ（白いピル型バー） --}}
-    <nav class="attendance__nav" aria-label="月切り替え">
-        <form method="GET" action="{{ route('attendance.list') }}" class="attendance__nav-form">
-            {{-- 矢印はCSSの::beforeで出すのでテキストは「前月」「翌月」だけにしておく --}}
-            <button type="submit"
-                    name="month"
-                    value="{{ $prevMonth }}"
-                    class="attendance__nav-btn attendance__nav-btn--prev"
-                    aria-label="前月へ">
-                前月
-            </button>
+    {{-- 月切り替えナビ（管理者風：左/中央/右） --}}
+    <div class="attendance__nav" role="navigation" aria-label="月ナビゲーション">
+        <a class="attendance__nav-btn attendance__nav-btn--prev"
+            href="{{ route('attendance.list', ['month' => $prevMonth]) }}">
+            ← 前月
+        </a>
 
-            {{-- 年月はtime要素で意味付け（YYYY-MMフォーマットをdatetimeに入れる） --}}
-            <span class="attendance__nav-current" aria-live="polite">
-                <time datetime="{{ $currentMonth }}">{{ $currentMonth }}</time>
+        <div class="attendance__nav-center" aria-label="対象月">
+            <span class="attendance__nav-center-icon" aria-hidden="true">📅</span>
+            <span class="attendance__nav-center-date">
+            {{ $currentMonthLabel }}
             </span>
+        </div>
 
-            <button type="submit"
-                    name="month"
-                    value="{{ $nextMonth }}"
-                    class="attendance__nav-btn attendance__nav-btn--next"
-                    aria-label="翌月へ">
-                翌月
-            </button>
-        </form>
-    </nav>
+        <a class="attendance__nav-btn attendance__nav-btn--next"
+            href="{{ route('attendance.list', ['month' => $nextMonth]) }}">
+            翌月 →
+        </a>
+    </div>
 
     {{-- 勤怠テーブル（カードUI） --}}
     <table class="attendance__table">

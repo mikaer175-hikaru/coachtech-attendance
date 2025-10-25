@@ -56,7 +56,7 @@ class Attendance extends Model
     public function isBreaking(): bool
     {
         $ongoingInBreaks = $this->breaks()->whereNull('break_end')->exists();
-        $legacyOngoing   = !empty($this->break_start_time) && empty($this->break_end_time); // レガシー用
+        $legacyOngoing   = !empty($this->break_start_time) && empty($this->break_end_time);
         return $ongoingInBreaks || $legacyOngoing;
     }
 
@@ -126,7 +126,7 @@ class Attendance extends Model
             if (!$b->break_start || !$b->break_end) {
                 return 0;
             }
-            // BreakTime 側は casts で datetime を想定
+
             return $b->break_start->diffInMinutes($b->break_end);
         });
     }
@@ -135,24 +135,14 @@ class Attendance extends Model
     public function getBreakHmAttribute(): string
     {
         $m = $this->total_break_minutes;
-
-        if ($m === 0) {
-            // レコードが存在するがゼロ分であれば 0:00、レコード自体なければ空
-            $hasAny = $this->relationLoaded('breaks')
-                ? $this->breaks->isNotEmpty()
-                : $this->breaks()->exists();
-
-            return $hasAny ? '0:00' : '';
-        }
+        if ($m === 0) { return '0:00'; }
         return sprintf('%d:%02d', intdiv($m, 60), $m % 60);
     }
 
     /** 実働（分） */
     public function getWorkedMinutesAttribute(): int
     {
-        if (!$this->start_time || !$this->end_time) {
-            return 0;
-        }
+        if (!$this->start_time || !$this->end_time) { return 0; }
         $base = $this->start_time->diffInMinutes($this->end_time);
         return max(0, $base - $this->total_break_minutes);
     }
@@ -187,16 +177,12 @@ class Attendance extends Model
         $this->breaks()->delete();
 
         foreach ($items as $b) {
-            if (empty($b['start']) || empty($b['end'])) {
-                continue; // 不正はスキップ（アーリーリターン）
-            }
+            if (empty($b['start']) || empty($b['end'])) { continue; }
 
             $start = Carbon::parse($this->work_date . ' ' . $b['start']);
             $end   = Carbon::parse($this->work_date . ' ' . $b['end']);
 
-            if ($end->lte($start)) {
-                continue;
-            }
+            if ($end->lte($start)) { continue; }
 
             $this->breaks()->create([
                 'break_start' => $start,

@@ -65,9 +65,10 @@ class AttendanceController extends Controller
 
         return view('attendance.list', [
             'rows'         => $rows,
-            'currentMonth' => $m->format('Y-m'),
-            'prevMonth'    => $m->copy()->subMonth()->format('Y-m'),
-            'nextMonth'    => $m->copy()->addMonth()->format('Y-m'),
+            'currentMonth' => $m->format('Y/m/d'),
+            'currentMonthLabel'  => $m->format('Y/m/d'),
+            'prevMonth'    => $m->copy()->subMonth()->format('Y/m/d'),
+            'nextMonth'    => $m->copy()->addMonth()->format('Y/m/d'),
         ]);
     }
 

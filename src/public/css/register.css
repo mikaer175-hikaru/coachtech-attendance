@@ -11,10 +11,8 @@
     width: 100%;
     max-width: 400px;
     min-width: 300px;
-    background-color: #ffffff;
     padding: 30px 20px;
     border-radius: 8px;
-    box-shadow: 0 0 12px rgba(0, 0, 0, 0.05);
 }
 
 .register__title {

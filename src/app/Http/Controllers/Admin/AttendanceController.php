@@ -36,7 +36,7 @@ class AttendanceController extends Controller
 
         return view('admin.attendance.index', [
             'attendances' => $attendances,
-            'targetDate'  => $target->toDateString(),
+            'targetDate'  => $target->format('Y/m/d'),
             'titleDate'   => $target->format('Y年n月j日'),
             'prevDate'    => $target->copy()->subDay()->toDateString(),
             'nextDate'    => $target->copy()->addDay()->toDateString(),
@@ -44,7 +44,7 @@ class AttendanceController extends Controller
     }
 
     // 管理者：勤怠詳細
-    public function show(Attendance $attendance)
+    public function show(Request $request, Attendance $attendance)
     {
         // 必要な関連をロード
         $attendance->load(['user:id,name', 'breaks']);
@@ -56,6 +56,8 @@ class AttendanceController extends Controller
         ])->values()->toArray();
         $breakRows[] = ['start' => '', 'end' => ''];
 
+        $breakRows = $request->old('breaks', $breakRows);
+
         // 日付表示
         $wd = $attendance->work_date instanceof Carbon
             ? $attendance->work_date
@@ -63,10 +65,10 @@ class AttendanceController extends Controller
         $dateYear     = $wd ? ($wd->year . '年') : '';
         $dateMonthDay = $wd ? $wd->isoFormat('M月D日') : '';
 
-        // 承認待ち判定（DBのstatusをそのまま使用）
+        // 承認待ち判定
         $isPending = ($attendance->status ?? null) === 'pending';
 
-        // 承認待ちなら最新の申請をプレビュー用に取得（任意）
+        // 承認待ちなら最新の申請をプレビュー用に取得
         $pendingRequest = null;
         if ($isPending) {
             $pendingRequest = ACR::where('attendance_id', $attendance->id)

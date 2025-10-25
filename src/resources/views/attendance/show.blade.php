@@ -30,12 +30,6 @@
             : \Illuminate\Support\Carbon::parse($attendance->work_date);
     @endphp
 
-    @if ($isPending)
-        <p class="attendance-detail__flash attendance-detail__flash--info">
-            承認待ちのため修正はできません。
-        </p>
-    @endif
-
     {{-- フォーム開始：修正申請のPOST --}}
     <form method="POST" action="{{ route('stamp_requests.store', ['attendance' => $attendance->id]) }}" autocomplete="off" novalidate>
         @csrf
@@ -112,5 +106,10 @@
             @endif
         </div>
     </form>
+    @if ($isPending)
+        <p class="attendance-detail__flash attendance-detail__flash--info">
+            *承認待ちのため修正はできません。
+        </p>
+    @endif
 </div>
 @endsection

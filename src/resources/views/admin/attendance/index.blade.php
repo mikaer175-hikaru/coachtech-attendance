@@ -44,31 +44,27 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($attendances as $attendance)
-                            @php
-                                $in  = $attendance->start_time ? \Carbon\Carbon::parse($attendance->start_time) : null;
-                                $out = $attendance->end_time ? \Carbon\Carbon::parse($attendance->end_time) : null;
-                                $br  = (int) ($attendance->break_minutes ?? 0);
-                                $sum = '';
-                                if ($in && $out && $out->greaterThan($in)) {
-                                    $mins = max($out->diffInMinutes($in) - $br, 0);
-                                    $sum  = number_format($mins / 60, 1); // 例：8.0
-                                }
-                            @endphp
-                            <tr>
-                                <td>{{ $attendance->user->name ?? '' }}</td>
-                                <td>{{ $in ? $in->format('H:i') : '' }}</td>
-                                <td>{{ $out ? $out->format('H:i') : '' }}</td>
-                                <td>{{ $br > 0 ? floor($br/60).':'.str_pad($br%60, 2, '0', STR_PAD_LEFT) : '0:00' }}</td>
-                                <td>{{ $sum }}</td>
-                                <td>
-                                    <a class="admin-attendance__detail"
-                                       href="{{ route('admin.attendance.show', $attendance->id) }}">詳細</a>
-                                </td>
-                            </tr>
-                        @endforeach
+                    @foreach ($attendances as $attendance)
+                        <tr>
+                            <td>{{ $attendance->user->name ?? '' }}</td>
+
+                            {{-- 出勤・退勤 --}}
+                            <td>{{ $attendance->start_time?->format('H:i') ?: '' }}</td>
+                            <td>{{ $attendance->end_time?->format('H:i')   ?: '' }}</td>
+
+                            {{-- 休憩合計 --}}
+                            <td>{{ $attendance->break_hm ?: '—' }}</td>
+
+                            {{-- 実働合計 --}}
+                            <td>{{ $attendance->worked_hm ?: '—' }}</td>
+
+                            <td>
+                                <a class="admin-attendance__detail"
+                                href="{{ route('admin.attendance.show', $attendance) }}">詳細</a>
+                            </td>
+                        </tr>
+                    @endforeach
                     </tbody>
-                </table>
             </div>
 
             <nav class="admin-attendance__pagination" aria-label="ページネーション">

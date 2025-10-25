@@ -46,7 +46,7 @@
             </label>
 
             <div class="admin-login__actions">
-                <button type="submit" class="admin-login__button">ログイン</button>
+                <button type="submit" class="admin-login__button">管理者ログイン</button>
             </div>
         </form>
     </div>
