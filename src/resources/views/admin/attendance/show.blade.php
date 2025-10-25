@@ -69,42 +69,20 @@
                            value="{{ old('end_time', optional($attendance->end_time)->format('H:i')) }}">
                 </div>
             </div>
+
             {{-- 休憩：複数行 --}}
-            @php
-                // old優先、なければ既存breaks→配列化。ゼロ件なら空行を1つ。
-                $breakRows = old('breaks', $attendance->breaks->sortBy('break_start')->map(function($b){
-                    return [
-                        'start' => optional($b->break_start)->format('H:i'),
-                        'end'   => optional($b->break_end)->format('H:i'),
-                    ];
-                })->toArray());
-                if (empty($breakRows)) $breakRows = [['start' => null, 'end' => null]];
-            @endphp
-
-            <div class="detail__row">
-                <div class="detail__th">休憩</div>
-
-                <div class="detail__td">
-                    <div id="break-rows" class="break-list">
-                        @foreach ($breakRows as $i => $row)
-                            <div class="break-row" data-index="{{ $i }}">
-                                <div class="detail__td--range">
-                                    <input type="time" name="breaks[{{ $i }}][start]" class="detail__time"
-                                        value="{{ $row['start'] }}">
-                                    <span class="detail__tilde">〜</span>
-                                    <input type="time" name="breaks[{{ $i }}][end]" class="detail__time"
-                                        value="{{ $row['end'] }}">
-                                    @if ($i > 0)
-                                        <button type="button" class="break-row__remove" aria-label="この休憩を削除">−</button>
-                                    @endif
-                                </div>
-                            </div>
-                        @endforeach
+            @foreach ($breakRows as $i => $row)
+                <div class="detail__row">
+                    <div class="detail__th">休憩{{ $i + 1 }}</div>
+                    <div class="detail__td detail__td--range">
+                        <input class="detail__time" type="time" name="breaks[{{ $i }}][start]"
+                            value="{{ old("breaks.$i.start", $row['start']) }}" step="60" autocomplete="off">
+                        <span class="detail__tilde">〜</span>
+                        <input class="detail__time" type="time" name="breaks[{{ $i }}][end]"
+                            value="{{ old("breaks.$i.end", $row['end']) }}" step="60" autocomplete="off">
                     </div>
-
-                    <button type="button" id="break-add" class="break-row__add">＋ 休憩を追加</button>
                 </div>
-            </div>
+            @endforeach
 
             {{-- 行テンプレ（非表示） --}}
             <template id="break-row-template">
