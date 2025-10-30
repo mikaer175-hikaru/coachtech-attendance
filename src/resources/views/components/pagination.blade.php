@@ -1,55 +1,65 @@
 @if ($paginator->hasPages())
     @php
-        // クエリ（検索キーワード・並び順・月など）を維持して遷移
+        // 検索やソートなどのクエリは維持（不要ならこの1行は消してOK）
         $query = request()->except('page');
     @endphp
 
-    <nav class="pagination" role="navigation" aria-label="ページナビゲーション">
-        {{-- 前へ --}}
-        @if ($paginator->onFirstPage())
-            <span class="pagination__prev pagination__prev--disabled" aria-disabled="true">前へ</span>
-        @else
-            <a
-                href="{{ $paginator->appends($query)->previousPageUrl() }}"
-                class="pagination__prev"
-                rel="prev"
-            >前へ</a>
-        @endif
-
-        {{-- ページ番号 --}}
-        @foreach ($elements as $element)
-            @if (is_string($element))
-                <span class="pagination__ellipsis" aria-hidden="true">{{ $element }}</span>
+    <nav class="c-pagination" role="navigation" aria-label="ページナビゲーション">
+        <ul class="c-pagination__list">
+            {{-- 前へ --}}
+            @if ($paginator->onFirstPage())
+                <li class="c-pagination__item c-pagination__item--disabled">
+                    <span class="c-pagination__link" aria-disabled="true">前へ</span>
+                </li>
+            @else
+                <li class="c-pagination__item">
+                    <a href="{{ $paginator->appends($query)->previousPageUrl() }}" class="c-pagination__link" rel="prev">
+                        前へ
+                    </a>
+                </li>
             @endif
 
-            @if (is_array($element))
-                @foreach ($element as $page => $url)
-                    @php $pageUrl = $paginator->appends($query)->url($page); @endphp
+            {{-- ページ番号 --}}
+            @foreach ($elements as $element)
+                @if (is_string($element))
+                    <li class="c-pagination__item c-pagination__item--ellipsis" aria-hidden="true">
+                        <span class="c-pagination__link">{{ $element }}</span>
+                    </li>
+                @endif
 
-                    @if ($page == $paginator->currentPage())
-                        <span
-                            class="pagination__page pagination__page--active"
-                            aria-current="page"
-                        >{{ $page }}</span>
-                    @else
-                        <a
-                            href="{{ $pageUrl }}"
-                            class="pagination__page"
-                        >{{ $page }}</a>
-                    @endif
-                @endforeach
+                @if (is_array($element))
+                    @foreach ($element as $page => $url)
+                        @if ($page == $paginator->currentPage())
+                            <li class="c-pagination__item c-pagination__item--active">
+                                <span class="c-pagination__link" aria-current="page">{{ $page }}</span>
+                            </li>
+                        @else
+                            <li class="c-pagination__item">
+                                <a href="{{ $paginator->appends($query)->url($page) }}" class="c-pagination__link">{{ $page }}</a>
+                            </li>
+                        @endif
+                    @endforeach
+                @endif
+            @endforeach
+
+            {{-- 次へ --}}
+            @if ($paginator->hasMorePages())
+                <li class="c-pagination__item">
+                    <a href="{{ $paginator->appends($query)->nextPageUrl() }}" class="c-pagination__link" rel="next">
+                        次へ
+                    </a>
+                </li>
+            @else
+                <li class="c-pagination__item c-pagination__item--disabled">
+                    <span class="c-pagination__link" aria-disabled="true">次へ</span>
+                </li>
             @endif
-        @endforeach
+        </ul>
 
-        {{-- 次へ --}}
-        @if ($paginator->hasMorePages())
-            <a
-                href="{{ $paginator->appends($query)->nextPageUrl() }}"
-                class="pagination__next"
-                rel="next"
-            >次へ</a>
-        @else
-            <span class="pagination__next pagination__next--disabled" aria-disabled="true">次へ</span>
+        @if (method_exists($paginator, 'firstItem') && $paginator->firstItem() !== null)
+            <p class="c-pagination__summary">
+                {{ $paginator->firstItem() }}–{{ $paginator->lastItem() }} / 全{{ $paginator->total() }}件
+            </p>
         @endif
     </nav>
 @endif

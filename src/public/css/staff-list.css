@@ -220,7 +220,6 @@
     display: inline-flex;
 }
 
-/* 念のため li も inline-flex に */
 .c-pagination__link {
     display: inline-flex;
     align-items: center;
